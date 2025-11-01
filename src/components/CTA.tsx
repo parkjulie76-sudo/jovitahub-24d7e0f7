@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CTA = () => {
   return (
@@ -28,14 +29,16 @@ const CTA = () => {
               placeholder="Enter your email" 
               className="bg-background/95 border-0 text-foreground h-12 text-base"
             />
-            <Button 
-              variant="secondary" 
-              size="lg"
-              className="h-12 px-8 bg-secondary hover:bg-secondary/90 text-secondary-foreground group whitespace-nowrap"
-            >
-              Get Started
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <Link to="/join-creator">
+              <Button 
+                variant="secondary" 
+                size="lg"
+                className="h-12 px-8 bg-secondary hover:bg-secondary/90 text-secondary-foreground group whitespace-nowrap"
+              >
+                Get Started
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
           </div>
 
           <p className="text-sm text-primary-foreground/80">

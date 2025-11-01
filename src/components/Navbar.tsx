@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -25,9 +26,11 @@ const Navbar = () => {
             <Button variant="ghost" size="sm">
               Sign In
             </Button>
-            <Button variant="default" size="sm">
-              Get Started
-            </Button>
+            <Link to="/join-creator">
+              <Button variant="default" size="sm">
+                Join as Creator
+              </Button>
+            </Link>
           </div>
 
           <Button variant="ghost" size="icon" className="md:hidden">

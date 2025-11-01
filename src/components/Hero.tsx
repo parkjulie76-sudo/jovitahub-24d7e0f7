@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Video, Pencil } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-collaboration.jpg";
 
 const Hero = () => {
@@ -39,13 +40,17 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
-            <Button variant="hero" size="lg" className="text-lg group">
-              Join as Creator
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg">
-              Learn More
-            </Button>
+            <Link to="/join-creator">
+              <Button variant="hero" size="lg" className="text-lg group">
+                Join as Creator
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <a href="#how-it-works">
+              <Button variant="outline" size="lg" className="text-lg">
+                Learn More
+              </Button>
+            </a>
           </div>
 
           <div className="flex flex-wrap gap-8 text-sm">
