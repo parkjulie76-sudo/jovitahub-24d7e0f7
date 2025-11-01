@@ -5,8 +5,8 @@ import communityImage from "@/assets/community-impact.jpg";
 const benefits = [
   {
     icon: DollarSign,
-    title: "Earn Fair Compensation",
-    description: "Get paid what you deserve. Transparent pricing and direct payments for your creative work.",
+    title: "Earn Through Product Sales",
+    description: "Make money by creating viral videos that sell JovitaHub digital products—not by selling your scripts or editing services. Viral script writers earn $1K-$50K monthly, skilled editors $1K-$3K monthly.",
   },
   {
     icon: Heart,

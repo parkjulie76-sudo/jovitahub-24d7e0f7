@@ -17,7 +17,7 @@ const steps = [
   {
     icon: TrendingUp,
     title: "Earn & Impact",
-    description: "Get paid for your work while contributing to social causes. Your content creates meaningful change and generates income.",
+    description: "Create viral videos that sell JovitaHub digital products—not your services. Script writers earn $1K-$50K/month, editors $1K-$3K/month, while contributing to social causes.",
     color: "text-secondary",
   },
 ];
