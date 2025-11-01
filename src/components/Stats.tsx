@@ -1,7 +1,7 @@
 const stats = [
-  { value: "$1K-$50K", label: "Script Writer Earnings/Month" },
-  { value: "$1K-$3K", label: "Video Editor Earnings/Month" },
-  { value: "10K+", label: "Viral Videos Created" },
+  { value: "$2M+", label: "Paid to Creators" },
+  { value: "500+", label: "Active Creators" },
+  { value: "10K+", label: "Videos Produced" },
   { value: "$100K+", label: "Donated to Causes" },
 ];
 

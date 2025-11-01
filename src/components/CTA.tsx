@@ -19,7 +19,7 @@ const CTA = () => {
             Ready to Start Creating Impact?
           </h2>
           <p className="text-xl text-primary-foreground/90 mb-12">
-            Earn by creating viral videos that sell JovitaHub digital products. Script writers make $1K-$50K/month, editors $1K-$3K/month—all while making a difference.
+            Join thousands of script writers and video editors who are building meaningful careers while making a difference.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto mb-8">

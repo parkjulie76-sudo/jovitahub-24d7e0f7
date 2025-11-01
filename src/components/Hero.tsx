@@ -35,8 +35,7 @@ const Hero = () => {
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
             Join EP ℇC Jovita Hub—where script writers and video editors collaborate 
-            to create viral short videos that sell JovitaHub digital products. Earn $1K-$50K/month 
-            (script writers) or $1K-$3K/month (video editors) while making a difference.
+            to create meaningful short-form content while earning and making a difference.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
