@@ -38,11 +38,18 @@ const AboutUs = () => {
               </p>
             </div>
             <div className="relative">
-              <img 
-                src={communityImpactImg} 
-                alt="Community Impact" 
-                className="rounded-lg shadow-elegant w-full"
-              />
+              <div className="aspect-video rounded-lg overflow-hidden shadow-elegant">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/5jAcUIZhjaQ"
+                  title="Jovita Hub Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                ></iframe>
+              </div>
             </div>
           </div>
         </div>
