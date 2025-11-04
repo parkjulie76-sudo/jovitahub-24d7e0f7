@@ -8,8 +8,8 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">
-              EP <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">ℇC</span> Jovita Hub
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Jovita Hub
             </h1>
           </div>
 

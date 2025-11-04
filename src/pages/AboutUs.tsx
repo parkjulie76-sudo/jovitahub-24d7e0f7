@@ -15,7 +15,7 @@ const AboutUs = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-              About EP ℇC Jovita Hub
+              About Jovita Hub
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed">
               We're building a community where creativity meets purpose. Our platform connects talented script writers and video editors with meaningful projects while making a positive impact on the world.
@@ -31,7 +31,7 @@ const AboutUs = () => {
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Mission</h2>
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                EP ℇC Jovita Hub was founded with a simple yet powerful vision: to empower creative professionals while contributing to causes that matter. We believe that every video created, every story told, and every edit made can contribute to something bigger than ourselves.
+                Jovita Hub was founded with a simple yet powerful vision: to empower creative professionals while contributing to causes that matter. We believe that every video created, every story told, and every edit made can contribute to something bigger than ourselves.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed">
                 Our platform provides fair compensation for creators while allocating a portion of every project to charitable causes, creating a cycle of creativity and compassion.

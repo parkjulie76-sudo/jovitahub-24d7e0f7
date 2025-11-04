@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="text-2xl font-bold mb-4">EP ℇC Jovita Hub</h3>
+            <h3 className="text-2xl font-bold mb-4">Jovita Hub</h3>
             <p className="text-secondary-foreground/80 text-sm">
               Empowering creators to make meaningful content and lasting impact.
             </p>
@@ -45,7 +45,7 @@ const Footer = () => {
 
         <div className="border-t border-secondary-foreground/20 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-secondary-foreground/60 mb-4 md:mb-0">
-            © 2025 EP ℇC Jovita Hub. All rights reserved.
+            © 2025 Jovita Hub. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-sm text-secondary-foreground/80">
             <span>Made with</span>

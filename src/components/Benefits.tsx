@@ -43,7 +43,7 @@ const Benefits = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             Why Creators Choose{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              EP ℇC Jovita Hub
+              Jovita Hub
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

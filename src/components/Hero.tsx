@@ -35,7 +35,7 @@ const Hero = () => {
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-            Join EP ℇC Jovita Hub—where script writers and video editors collaborate 
+            Join Jovita Hub—where script writers and video editors collaborate 
             to create meaningful short-form content while earning and making a difference.
           </p>
 
