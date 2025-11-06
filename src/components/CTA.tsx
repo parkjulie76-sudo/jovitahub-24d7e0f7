@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -24,16 +23,11 @@ const CTA = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto mb-8">
-            <Input 
-              type="email" 
-              placeholder="Enter your email" 
-              className="bg-background/95 border-0 text-foreground h-12 text-base"
-            />
-            <Link to="/join-creator">
+            <Link to="/join-creator" className="flex-1">
               <Button 
                 variant="secondary" 
                 size="lg"
-                className="h-12 px-8 bg-secondary hover:bg-secondary/90 text-secondary-foreground group whitespace-nowrap"
+                className="h-12 px-8 bg-secondary hover:bg-secondary/90 text-secondary-foreground group w-full"
               >
                 Get Started
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />

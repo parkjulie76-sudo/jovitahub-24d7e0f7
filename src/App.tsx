@@ -8,6 +8,8 @@ import JoinCreator from "./pages/JoinCreator";
 import AboutUs from "./pages/AboutUs";
 import Charity from "./pages/Charity";
 import Mission from "./pages/Mission";
+import ScriptWriters from "./pages/ScriptWriters";
+import VideoEditors from "./pages/VideoEditors";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ContactUs from "./pages/ContactUs";
@@ -37,6 +39,8 @@ const App = () => (
           <Route path="/about" element={<AboutUs />} />
           <Route path="/charity" element={<Charity />} />
           <Route path="/mission" element={<Mission />} />
+          <Route path="/script-writers" element={<ScriptWriters />} />
+          <Route path="/video-editors" element={<VideoEditors />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/contact" element={<ContactUs />} />
