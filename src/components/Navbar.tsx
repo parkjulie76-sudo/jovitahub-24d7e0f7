@@ -114,6 +114,10 @@ const Navbar = () => {
                       )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
+                      <User className="h-4 w-4 mr-2" />
+                      Profile Settings
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                       <LogOut className="h-4 w-4 mr-2" />
                       Sign Out
