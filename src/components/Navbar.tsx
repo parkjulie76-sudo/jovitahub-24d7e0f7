@@ -80,6 +80,9 @@ const Navbar = () => {
             <Link to="/careers" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Careers
             </Link>
+            <a href="https://ebook.jovita.site" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Ebook Shop
+            </a>
             <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               How It Works
             </a>
