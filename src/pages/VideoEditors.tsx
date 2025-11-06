@@ -87,6 +87,13 @@ const VideoEditors = () => {
                     </a>
                   </div>
                   <div>
+                    <h3 className="text-xl font-semibold mb-2">Description</h3>
+                    <p className="text-muted-foreground">
+                      A spiritual eBook helping entrepreneurs and elite people acquire spiritual growth and wisdom.
+                      Your role is to transform viral storytelling scripts into compelling short videos to spread awareness of universal laws through stories.
+                    </p>
+                  </div>
+                  <div>
                     <h3 className="text-xl font-semibold mb-2">Your Role</h3>
                     <p className="text-muted-foreground">
                       Transform storytelling scripts into engaging short-form videos for YouTube, TikTok, and other platforms.
