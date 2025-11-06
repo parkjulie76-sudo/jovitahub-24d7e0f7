@@ -16,12 +16,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { BookOpen } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [hasGuideAccess, setHasGuideAccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState<any[]>([]);
   const [scripts, setScripts] = useState<any[]>([]);
@@ -48,8 +50,14 @@ const Dashboard = () => {
       .select("role")
       .eq("user_id", session.user.id);
 
-    const hasAdminRole = roles?.some(r => r.role === "admin");
-    setIsAdmin(hasAdminRole || false);
+    const userRoles = roles?.map(r => r.role) || [];
+    const hasAdminRole = userRoles.includes("admin");
+    const hasGuideRoles = userRoles.some(role => 
+      ["admin", "script_writer", "video_creator"].includes(role)
+    );
+    
+    setIsAdmin(hasAdminRole);
+    setHasGuideAccess(hasGuideRoles);
 
     if (hasAdminRole) {
       loadAllData();
@@ -128,6 +136,16 @@ const Dashboard = () => {
               {isAdmin ? "Admin Dashboard" : "My Dashboard"}
             </h1>
             <div className="flex gap-2">
+              {hasGuideAccess && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/script-writer-guide")}
+                  className="flex items-center gap-2"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Writer's Guide
+                </Button>
+              )}
               <Button onClick={() => navigate("/submit-script")}>Submit Script</Button>
               <Button onClick={() => navigate("/submit-video")}>Submit Video</Button>
             </div>
