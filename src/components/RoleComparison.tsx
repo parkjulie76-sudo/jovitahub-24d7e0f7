@@ -42,24 +42,6 @@ const RoleComparison = () => {
       borderColor: "border-accent/20",
       featured: true,
     },
-    {
-      title: "Video Editors",
-      path: "/video-editors",
-      monthlyFee: "$600",
-      commission: "10%",
-      incomeRange: "$1,000 - $50,000",
-      weeklyOutput: "5+ edited videos per week",
-      responsibilities: [
-        { text: "Write viral storytelling scripts", included: false },
-        { text: "Research eBook themes", included: false },
-        { text: "Video editing", included: true },
-        { text: "Video production", included: true },
-      ],
-      timeCommitment: "15-20 hours/week",
-      skillLevel: "Video editing & production",
-      color: "from-secondary/10 to-secondary/5",
-      borderColor: "border-secondary/20",
-    },
   ];
 
   return (
@@ -74,7 +56,7 @@ const RoleComparison = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {roles.map((role, index) => (
             <Card
               key={index}
