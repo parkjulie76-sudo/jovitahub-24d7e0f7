@@ -59,10 +59,15 @@ const Auth = () => {
     } else {
       toast({
         title: "Success!",
-        description: "Your account has been created. You can now sign in.",
+        description: "Your account has been created. Redirecting to admin setup...",
       });
       setEmail("");
       setPassword("");
+      
+      // Redirect to admin setup after a short delay
+      setTimeout(() => {
+        navigate("/admin-setup");
+      }, 1500);
     }
   };
 
