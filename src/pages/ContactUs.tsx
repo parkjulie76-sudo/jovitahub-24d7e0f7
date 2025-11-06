@@ -37,7 +37,7 @@ const ContactUs = () => {
       const validatedData = contactSchema.parse(formData);
       
       // Here you would typically send to your backend
-      console.log("Contact form submitted:", validatedData);
+      // Form data validated and ready for backend submission
       
       toast({
         title: "Message Sent!",

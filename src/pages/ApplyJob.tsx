@@ -88,7 +88,6 @@ const ApplyJob = () => {
       .upload(fileName, file);
 
     if (uploadError) {
-      console.error(`Error uploading to ${bucket}:`, uploadError);
       return null;
     }
 
@@ -162,7 +161,6 @@ const ApplyJob = () => {
         });
 
       if (insertError) {
-        console.error("Error submitting application:", insertError);
         setError(insertError.message);
         setLoading(false);
         return;
@@ -179,7 +177,6 @@ const ApplyJob = () => {
       }, 2000);
 
     } catch (err: any) {
-      console.error("Error during submission:", err);
       setError(err.message || "An unexpected error occurred");
     }
 
