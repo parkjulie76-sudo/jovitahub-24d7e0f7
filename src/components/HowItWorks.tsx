@@ -65,10 +65,15 @@ const HowItWorks = () => {
           <h3 className="text-2xl font-semibold mb-8">
             Project Opportunities Now
           </h3>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-2xl mx-auto">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-3xl mx-auto">
             <Link to="/script-writers" className="flex-1">
               <Button variant="default" size="lg" className="w-full">
                 For Script Writers
+              </Button>
+            </Link>
+            <Link to="/video-creators" className="flex-1">
+              <Button variant="default" size="lg" className="w-full">
+                For Video Creators
               </Button>
             </Link>
             <Link to="/video-editors" className="flex-1">
