@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CreatorRoleQuiz } from "@/components/CreatorRoleQuiz";
 
 const VideoCreators = () => {
   // Full-stack creator state
@@ -81,14 +82,30 @@ const VideoCreators = () => {
           </div>
         </section>
 
+        {/* Interactive Quiz Section */}
+        <section className="py-16 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto mb-12">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold mb-3">Which Role is Right For You?</h2>
+                <p className="text-muted-foreground text-lg">
+                  Take our quick quiz to discover your ideal creator path
+                </p>
+              </div>
+              
+              <CreatorRoleQuiz />
+            </div>
+          </div>
+        </section>
+
         {/* Role Comparison Table */}
-        <section className="py-16">
+        <section className="py-16" id="comparison-table">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto mb-12">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-3">Choose Your Path</h2>
+                <h2 className="text-3xl font-bold mb-3">Detailed Role Comparison</h2>
                 <p className="text-muted-foreground text-lg">
-                  Compare the two creator roles and find the best fit for your skills
+                  Compare the two creator roles side by side
                 </p>
               </div>
               
@@ -287,7 +304,7 @@ const VideoCreators = () => {
               </Card>
 
               {/* Compensation Structure */}
-              <Card className="p-8 mb-8 bg-gradient-to-br from-primary/5 to-accent/5">
+              <Card className="p-8 mb-8 bg-gradient-to-br from-primary/5 to-accent/5" id="fullstack-section">
                 <div className="flex items-center gap-3 mb-6">
                   <DollarSign className="w-8 h-8 text-primary" />
                   <h2 className="text-3xl font-bold">Compensation Structure</h2>
@@ -479,7 +496,7 @@ const VideoCreators = () => {
                 </div>
 
                 {/* Video Editor Compensation Structure */}
-                <Card className="p-8 mb-8 bg-gradient-to-br from-secondary/5 to-accent/5">
+                <Card className="p-8 mb-8 bg-gradient-to-br from-secondary/5 to-accent/5" id="editor-section">
                   <div className="flex items-center gap-3 mb-6">
                     <DollarSign className="w-8 h-8 text-secondary" />
                     <h3 className="text-2xl font-bold">Video Editor Compensation</h3>
