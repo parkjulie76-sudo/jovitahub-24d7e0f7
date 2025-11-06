@@ -35,7 +35,6 @@ const Hero = () => {
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-            Dedicated to empowering creators and spreading positive impact around the world. 
             Making content creators wealthy first, then encouraging peer-to-peer charity.
           </p>
 
