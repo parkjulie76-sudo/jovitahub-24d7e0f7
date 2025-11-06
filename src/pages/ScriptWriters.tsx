@@ -132,14 +132,14 @@ const ScriptWriters = () => {
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-5 h-5 text-primary mt-1" />
                         <div>
-                          <p className="font-semibold">Weekly Videos (1-3 per week): +10 points</p>
+                          <p className="font-semibold">Weekly Videos (1-5 per week): +10 points</p>
                           <p className="text-sm text-muted-foreground">Each video with 10,000+ views and 1%+ conversion</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-5 h-5 text-primary mt-1" />
                         <div>
-                          <p className="font-semibold">Weekly Videos (3+ per week): +15 points</p>
+                          <p className="font-semibold">Weekly Videos (5+ per week): +15 points</p>
                           <p className="text-sm text-muted-foreground">Each video with 10,000+ views and 1%+ conversion</p>
                         </div>
                       </div>
