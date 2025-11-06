@@ -5,11 +5,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { DollarSign, Zap, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const creatorSchema = z.object({
   name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100, { message: "Name must be less than 100 characters" }),
@@ -18,6 +20,7 @@ const creatorSchema = z.object({
   experience: z.string().trim().min(1, { message: "Please select your experience level" }),
   portfolio: z.string().trim().max(500, { message: "Portfolio URL must be less than 500 characters" }).optional(),
   message: z.string().trim().min(10, { message: "Message must be at least 10 characters" }).max(1000, { message: "Message must be less than 1000 characters" }),
+  agreedToTerms: z.boolean().refine(val => val === true, { message: "You must agree to the Terms of Service" }),
 });
 
 const JoinCreator = () => {
@@ -29,6 +32,7 @@ const JoinCreator = () => {
     experience: "",
     portfolio: "",
     message: "",
+    agreedToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,6 +61,7 @@ const JoinCreator = () => {
         experience: "",
         portfolio: "",
         message: "",
+        agreedToTerms: false,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -74,7 +79,8 @@ const JoinCreator = () => {
   };
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    const processedValue = field === "agreedToTerms" ? value === "true" : value;
+    setFormData(prev => ({ ...prev, [field]: processedValue }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
@@ -238,7 +244,27 @@ const JoinCreator = () => {
                 {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
               </div>
 
-              <Button 
+              {/* Terms of Service Agreement */}
+              <div className="space-y-2">
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="terms"
+                    checked={formData.agreedToTerms}
+                    onCheckedChange={(checked) => handleChange("agreedToTerms", checked.toString())}
+                    className={errors.agreedToTerms ? "border-destructive" : ""}
+                  />
+                  <Label htmlFor="terms" className="font-normal leading-relaxed cursor-pointer">
+                    I agree to the{" "}
+                    <Link to="/terms-of-service" className="text-primary hover:underline">
+                      Terms of Service
+                    </Link>{" "}
+                    *
+                  </Label>
+                </div>
+                {errors.agreedToTerms && <p className="text-sm text-destructive">{errors.agreedToTerms}</p>}
+              </div>
+
+              <Button
                 type="submit" 
                 size="lg" 
                 className="w-full"
