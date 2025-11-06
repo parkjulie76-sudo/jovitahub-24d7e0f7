@@ -29,7 +29,6 @@ const Footer = () => {
               <li><Link to="/about" className="hover:text-secondary-foreground transition-colors">About Us</Link></li>
               <li><a href="#" className="hover:text-secondary-foreground transition-colors">Our Impact</a></li>
               <li><a href="#" className="hover:text-secondary-foreground transition-colors">Careers</a></li>
-              <li><a href="https://ebook.jovita.site" target="_blank" rel="noopener noreferrer" className="hover:text-secondary-foreground transition-colors">Ebook Shop</a></li>
             </ul>
           </div>
 
