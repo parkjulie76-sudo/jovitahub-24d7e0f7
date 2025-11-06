@@ -35,7 +35,7 @@ const Hero = () => {
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-            Making content creators wealthy first, then encouraging peer-to-peer charity.
+            Making content creators wealthy first, then inspiring peer-to-peer charity that spreads positive impact.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">

@@ -31,10 +31,10 @@ const AboutUs = () => {
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Mission</h2>
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                Our mission is to make content creators wealthy first. We believe that when creators achieve financial success, they're empowered to make a real difference in the world.
+                To make content creators wealthy first, then inspire and facilitate peer-to-peer charity that spreads positive impact around the world.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                We encourage and facilitate peer-to-peer charity, creating a community where successful creators support each other and give back to causes that matter. Every transaction on our platform is an opportunity to create wealth and spread positive impact.
+                We believe that when creators achieve financial success, they're empowered to make a real difference in the world. We create a community where successful creators support each other and give back to causes that matter. Every transaction on our platform is an opportunity to create wealth and spread positive impact.
               </p>
             </div>
             <div className="relative">
