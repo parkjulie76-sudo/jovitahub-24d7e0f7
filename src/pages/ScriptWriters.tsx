@@ -71,7 +71,7 @@ const ScriptWriters = () => {
                     <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
                     <h3 className="font-semibold mb-2">Your Role</h3>
                     <p className="text-sm text-muted-foreground">
-                      Write at least 3 viral storytelling scripts per week after contract signing
+                      Write at least 5 viral storytelling scripts per week
                     </p>
                   </div>
                   <div className="text-center">
