@@ -34,7 +34,24 @@ const ScriptWriters = () => {
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Project Name</h3>
-                    <p className="text-muted-foreground">The 7 Laws Mastered by Wealthy People (eBook)</p>
+                    <p className="text-muted-foreground">
+                      <a 
+                        href="https://ebook.jovita.site/b/thzi7" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        The 7 Laws Mastered by Wealthy People (eBook)
+                      </a>
+                    </p>
+                    <a 
+                      href="https://ebook.jovita.site" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      ebook.jovita.site
+                    </a>
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Description</h3>
