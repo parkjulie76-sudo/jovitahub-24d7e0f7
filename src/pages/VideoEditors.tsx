@@ -2,10 +2,43 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, DollarSign, Video, TrendingUp, Users } from "lucide-react";
+import { CheckCircle, DollarSign, Video, TrendingUp, Users, Calculator } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const VideoEditors = () => {
+  const [videosPerWeek, setVideosPerWeek] = useState(3);
+  const [avgViews, setAvgViews] = useState(25000);
+  const [conversionRate, setConversionRate] = useState(1.5);
+  const [pricePerSale, setPricePerSale] = useState(47);
+  const [isCombinedRole, setIsCombinedRole] = useState(false);
+
+  // Calculate metrics based on role type
+  const commissionPercentage = isCombinedRole ? 0.2 : 0.1;
+  const baseMonthlyFee = isCombinedRole ? 1200 : 600;
+  
+  const videosPerMonth = videosPerWeek * 4;
+  const totalViews = avgViews * videosPerMonth;
+  const totalSales = Math.floor((totalViews * conversionRate) / 100);
+  const commissionEarnings = totalSales * pricePerSale * commissionPercentage;
+  
+  // Calculate creator score
+  let creatorScore = 0;
+  if (videosPerWeek >= 3 && avgViews >= 10000 && conversionRate >= 1) {
+    creatorScore += videosPerWeek * 15 * 4; // 15 points per video for 3+ weekly
+  } else if (videosPerWeek >= 1 && avgViews >= 10000 && conversionRate >= 1) {
+    creatorScore += videosPerWeek * 10 * 4; // 10 points per video for 1-3 weekly
+  }
+  if (avgViews >= 100000 && conversionRate >= 1) {
+    creatorScore += 50; // Viral video bonus
+  }
+  
+  const monthlyFee = creatorScore >= 50 ? baseMonthlyFee : 0;
+  const totalMonthlyIncome = monthlyFee + commissionEarnings;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -151,6 +184,162 @@ const VideoEditors = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+              </Card>
+
+              {/* Earnings Calculator */}
+              <Card className="p-8 mb-8 bg-gradient-to-br from-primary/5 to-accent/5">
+                <div className="flex items-center gap-3 mb-6">
+                  <Calculator className="w-8 h-8 text-accent" />
+                  <h2 className="text-3xl font-bold">Income Calculator</h2>
+                </div>
+                
+                <p className="text-muted-foreground mb-6">
+                  Adjust the settings below to estimate your potential monthly earnings based on your performance
+                </p>
+
+                {/* Role Toggle */}
+                <div className="flex items-center justify-between p-4 bg-background/80 backdrop-blur rounded-lg mb-6 border border-border">
+                  <div className="flex-1">
+                    <Label htmlFor="role-toggle" className="text-base font-semibold cursor-pointer">
+                      {isCombinedRole ? "Script + Video Creator (Combined)" : "Video Creator Only"}
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {isCombinedRole 
+                        ? "Double compensation: $1,200 monthly fee + 20% commission" 
+                        : "$600 monthly fee + 10% commission"}
+                    </p>
+                  </div>
+                  <Switch
+                    id="role-toggle"
+                    checked={isCombinedRole}
+                    onCheckedChange={setIsCombinedRole}
+                  />
+                </div>
+
+                <div className="space-y-6 mb-8">
+                  {/* Videos Per Week Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="font-semibold">Videos Per Week</label>
+                      <span className="text-2xl font-bold text-primary">{videosPerWeek}</span>
+                    </div>
+                    <Slider
+                      value={[videosPerWeek]}
+                      onValueChange={(value) => setVideosPerWeek(value[0])}
+                      min={1}
+                      max={10}
+                      step={1}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Average Views Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="font-semibold">Average Views Per Video</label>
+                      <span className="text-2xl font-bold text-primary">{avgViews.toLocaleString()}</span>
+                    </div>
+                    <Slider
+                      value={[avgViews]}
+                      onValueChange={(value) => setAvgViews(value[0])}
+                      min={5000}
+                      max={200000}
+                      step={5000}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Conversion Rate Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="font-semibold">Conversion Rate (%)</label>
+                      <span className="text-2xl font-bold text-primary">{conversionRate}%</span>
+                    </div>
+                    <Slider
+                      value={[conversionRate]}
+                      onValueChange={(value) => setConversionRate(value[0])}
+                      min={0.5}
+                      max={5}
+                      step={0.1}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Price Per Sale Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="font-semibold">eBook Price</label>
+                      <span className="text-2xl font-bold text-primary">${pricePerSale}</span>
+                    </div>
+                    <Slider
+                      value={[pricePerSale]}
+                      onValueChange={(value) => setPricePerSale(value[0])}
+                      min={27}
+                      max={97}
+                      step={5}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+
+                {/* Results Display */}
+                <div className="bg-background/80 backdrop-blur rounded-lg p-6 space-y-4">
+                  <h3 className="text-xl font-semibold mb-4">Your Estimated Monthly Income</h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="border border-border rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Creator Score</p>
+                      <p className="text-3xl font-bold text-primary">{creatorScore}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {creatorScore >= 50 ? "Qualifies for monthly fee ✓" : "Below threshold (need 50+)"}
+                      </p>
+                    </div>
+                    
+                    <div className="border border-border rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Monthly Fee</p>
+                      <p className="text-3xl font-bold text-secondary">${monthlyFee}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {isCombinedRole ? "Combined role rate" : "Video editor rate"}
+                      </p>
+                    </div>
+
+                    <div className="border border-border rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Total Monthly Sales</p>
+                      <p className="text-3xl font-bold text-accent">{totalSales}</p>
+                    </div>
+
+                    <div className="border border-border rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Commission Earnings ({commissionPercentage * 100}%)</p>
+                      <p className="text-3xl font-bold text-accent">${commissionEarnings.toFixed(0)}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t border-border">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-semibold">Total Monthly Income</span>
+                      <span className="text-4xl font-bold bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">
+                        ${totalMonthlyIncome.toFixed(0)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Based on {videosPerMonth} videos/month with {totalViews.toLocaleString()} total views
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-accent/10 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Tip:</strong> {isCombinedRole 
+                      ? "As a combined creator, you earn double the base fee and commission rate for handling both scripts and videos!" 
+                      : "Toggle to 'Combined Role' to see how much more you can earn by also writing scripts!"}
+                  </p>
+                </div>
+
+                <div className="mt-4 p-4 bg-primary/10 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Note:</strong> These are estimates based on your inputs. Actual earnings may vary depending on video performance, audience engagement, and market conditions.
+                  </p>
                 </div>
               </Card>
 
