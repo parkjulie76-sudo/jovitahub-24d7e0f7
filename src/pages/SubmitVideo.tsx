@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
@@ -9,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+
+const videoSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters").max(200, "Title must be less than 200 characters"),
+  description: z.string().trim().max(1000, "Description must be less than 1000 characters").optional().or(z.literal("")),
+  videoUrl: z.string().trim().url("Must be a valid URL").max(500, "URL must be less than 500 characters"),
+  thumbnailUrl: z.string().trim().url("Must be a valid URL").max(500, "URL must be less than 500 characters").optional().or(z.literal("")),
+});
 
 const SubmitVideo = () => {
   const navigate = useNavigate();
@@ -47,14 +55,17 @@ const SubmitVideo = () => {
     }
 
     try {
+      // Validate input before database insertion
+      const validatedData = videoSchema.parse(formData);
+
       const { error } = await supabase
         .from("videos")
         .insert({
           user_id: user.id,
-          title: formData.title,
-          description: formData.description,
-          video_url: formData.videoUrl,
-          thumbnail_url: formData.thumbnailUrl || null,
+          title: validatedData.title,
+          description: validatedData.description || null,
+          video_url: validatedData.videoUrl,
+          thumbnail_url: validatedData.thumbnailUrl || null,
           status: "pending",
         });
 
@@ -67,11 +78,19 @@ const SubmitVideo = () => {
 
       navigate("/dashboard");
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to submit video",
-        variant: "destructive",
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to submit video",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

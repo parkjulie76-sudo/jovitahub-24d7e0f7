@@ -42,7 +42,6 @@ const AdminSetup = () => {
       .eq("role", "admin");
 
     if (adminError) {
-      console.error("Error checking admin status:", adminError);
       toast({
         title: "Error",
         description: "Failed to check admin status",
@@ -69,20 +68,16 @@ const AdminSetup = () => {
 
     setClaiming(true);
 
-    const { error } = await supabase
-      .from("user_roles")
-      .insert({
-        user_id: user.id,
-        role: "admin",
-      });
+    try {
+      // Call secure edge function instead of direct database insert
+      const { data, error } = await supabase.functions.invoke("assign-admin-role");
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to claim admin role",
-        variant: "destructive",
-      });
-    } else {
+      if (error) throw error;
+
+      if (!data?.success) {
+        throw new Error(data?.error || "Failed to claim admin role");
+      }
+
       toast({
         title: "Success!",
         description: "You are now an admin. Redirecting to dashboard...",
@@ -91,9 +86,15 @@ const AdminSetup = () => {
       setTimeout(() => {
         navigate("/dashboard");
       }, 2000);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to claim admin role",
+        variant: "destructive",
+      });
+    } finally {
+      setClaiming(false);
     }
-
-    setClaiming(false);
   };
 
   if (loading) {

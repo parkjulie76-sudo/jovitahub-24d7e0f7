@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
@@ -9,6 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+
+const scriptSchema = z.object({
+  title: z.string().trim().min(3, "Title must be at least 3 characters").max(200, "Title must be less than 200 characters"),
+  description: z.string().trim().max(1000, "Description must be less than 1000 characters").optional().or(z.literal("")),
+  content: z.string().trim().min(10, "Script content must be at least 10 characters").max(50000, "Script content must be less than 50000 characters"),
+});
 
 const SubmitScript = () => {
   const navigate = useNavigate();
@@ -46,13 +53,16 @@ const SubmitScript = () => {
     }
 
     try {
+      // Validate input before database insertion
+      const validatedData = scriptSchema.parse(formData);
+
       const { error } = await supabase
         .from("scripts")
         .insert({
           user_id: user.id,
-          title: formData.title,
-          description: formData.description,
-          content: formData.content,
+          title: validatedData.title,
+          description: validatedData.description || null,
+          content: validatedData.content,
           status: "pending",
         });
 
@@ -65,11 +75,19 @@ const SubmitScript = () => {
 
       navigate("/dashboard");
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to submit script",
-        variant: "destructive",
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to submit script",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
