@@ -53,6 +53,51 @@ export type Database = {
         }
         Relationships: []
       }
+      job_applications: {
+        Row: {
+          cover_letter_url: string | null
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          phone: string | null
+          position: string
+          resume_url: string
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cover_letter_url?: string | null
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          position: string
+          resume_url: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cover_letter_url?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+          position?: string
+          resume_url?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       scripts: {
         Row: {
           content: string

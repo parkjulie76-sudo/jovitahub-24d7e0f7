@@ -155,7 +155,7 @@ const Careers = () => {
                             </li>
                           ))}
                         </ul>
-                        <Link to="/contact" className="block pt-4">
+                        <Link to={`/apply?position=${encodeURIComponent(position.title)}`} className="block pt-4">
                           <Button className="w-full">
                             Apply Now
                           </Button>
@@ -230,7 +230,7 @@ const Careers = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link to="/contact">
+                <Link to="/apply">
                   <Button size="lg">
                     Get in Touch
                   </Button>

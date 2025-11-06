@@ -18,6 +18,7 @@ import SubmitVideo from "./pages/SubmitVideo";
 import AdminSetup from "./pages/AdminSetup";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
+import ApplyJob from "./pages/ApplyJob";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/admin-setup" element={<AdminSetup />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/apply" element={<ApplyJob />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
