@@ -207,7 +207,7 @@ const ScriptWriters = () => {
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-background/20 flex items-center justify-center font-bold flex-shrink-0">3</div>
-                    <p>Get approved and start creating 3-5 scripts per week</p>
+                    <p>Get approved and start creating 5 scripts per week</p>
                   </div>
                 </div>
                 
