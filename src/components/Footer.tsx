@@ -19,7 +19,7 @@ const Footer = () => {
               <li><Link to="/join-creator" className="hover:text-secondary-foreground transition-colors">Join as Creator</Link></li>
               <li><Link to="/script-writers" className="hover:text-secondary-foreground transition-colors">Script Writers</Link></li>
               <li><Link to="/video-creators" className="hover:text-secondary-foreground transition-colors">Video Creators</Link></li>
-              <li><a href="#" className="hover:text-secondary-foreground transition-colors">How It Works</a></li>
+              <li><a href="/#how-it-works" className="hover:text-secondary-foreground transition-colors">How It Works</a></li>
             </ul>
           </div>
 
@@ -27,8 +27,8 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Company</h4>
             <ul className="space-y-2 text-sm text-secondary-foreground/80">
               <li><Link to="/about" className="hover:text-secondary-foreground transition-colors">About Us</Link></li>
-              <li><a href="#" className="hover:text-secondary-foreground transition-colors">Our Impact</a></li>
-              <li><a href="#" className="hover:text-secondary-foreground transition-colors">Careers</a></li>
+              <li><Link to="/charity" className="hover:text-secondary-foreground transition-colors">Our Impact</Link></li>
+              <li><Link to="/careers" className="hover:text-secondary-foreground transition-colors">Careers</Link></li>
             </ul>
           </div>
 
