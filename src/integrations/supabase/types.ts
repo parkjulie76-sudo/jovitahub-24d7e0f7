@@ -25,7 +25,7 @@ export type Database = {
           portfolio_url: string | null
           status: string | null
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           agreed_to_terms?: boolean
@@ -37,7 +37,7 @@ export type Database = {
           portfolio_url?: string | null
           status?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           agreed_to_terms?: boolean
@@ -49,7 +49,7 @@ export type Database = {
           portfolio_url?: string | null
           status?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -66,7 +66,7 @@ export type Database = {
           resume_url: string
           status: string | null
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           cover_letter_url?: string | null
@@ -80,7 +80,7 @@ export type Database = {
           resume_url: string
           status?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           cover_letter_url?: string | null
@@ -94,7 +94,7 @@ export type Database = {
           resume_url?: string
           status?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
