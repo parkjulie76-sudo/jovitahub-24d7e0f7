@@ -76,11 +76,6 @@ const HowItWorks = () => {
                 For Video Creators
               </Button>
             </Link>
-            <Link to="/video-editors" className="flex-1">
-              <Button variant="default" size="lg" className="w-full">
-                For Video Editors
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
