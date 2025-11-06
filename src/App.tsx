@@ -10,6 +10,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ContactUs from "./pages/ContactUs";
 import HelpCenter from "./pages/HelpCenter";
+import Careers from "./pages/Careers";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import SubmitScript from "./pages/SubmitScript";
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/careers" element={<Careers />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/submit-script" element={<SubmitScript />} />
