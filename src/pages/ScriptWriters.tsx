@@ -2,10 +2,37 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, DollarSign, FileText, TrendingUp, Users } from "lucide-react";
+import { CheckCircle, DollarSign, FileText, TrendingUp, Users, Calculator } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Slider } from "@/components/ui/slider";
 
 const ScriptWriters = () => {
+  const [scriptsPerWeek, setScriptsPerWeek] = useState(5);
+  const [avgViews, setAvgViews] = useState(25000);
+  const [conversionRate, setConversionRate] = useState(1.5);
+  const [pricePerSale, setPricePerSale] = useState(47);
+
+  // Calculate metrics
+  const videosPerMonth = scriptsPerWeek * 4;
+  const totalViews = avgViews * videosPerMonth;
+  const totalSales = Math.floor((totalViews * conversionRate) / 100);
+  const commissionEarnings = totalSales * pricePerSale * 0.1;
+  
+  // Calculate creator score
+  let creatorScore = 0;
+  if (scriptsPerWeek >= 5 && avgViews >= 10000 && conversionRate >= 1) {
+    creatorScore += scriptsPerWeek * 15 * 4; // 15 points per video for 5+ weekly
+  } else if (scriptsPerWeek >= 1 && avgViews >= 10000 && conversionRate >= 1) {
+    creatorScore += scriptsPerWeek * 10 * 4; // 10 points per video for 1-5 weekly
+  }
+  if (avgViews >= 100000 && conversionRate >= 1) {
+    creatorScore += 50; // Viral video bonus
+  }
+  
+  const monthlyFee = creatorScore >= 50 ? 600 : 0;
+  const totalMonthlyIncome = monthlyFee + commissionEarnings;
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -152,6 +179,132 @@ const ScriptWriters = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+              </Card>
+
+              {/* Earnings Calculator */}
+              <Card className="p-8 mb-8 bg-gradient-to-br from-accent/5 to-secondary/5">
+                <div className="flex items-center gap-3 mb-6">
+                  <Calculator className="w-8 h-8 text-accent" />
+                  <h2 className="text-3xl font-bold">Income Calculator</h2>
+                </div>
+                
+                <p className="text-muted-foreground mb-6">
+                  Adjust the sliders below to estimate your potential monthly earnings based on your performance
+                </p>
+
+                <div className="space-y-6 mb-8">
+                  {/* Scripts Per Week Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="font-semibold">Scripts Per Week</label>
+                      <span className="text-2xl font-bold text-primary">{scriptsPerWeek}</span>
+                    </div>
+                    <Slider
+                      value={[scriptsPerWeek]}
+                      onValueChange={(value) => setScriptsPerWeek(value[0])}
+                      min={1}
+                      max={10}
+                      step={1}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Average Views Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="font-semibold">Average Views Per Video</label>
+                      <span className="text-2xl font-bold text-primary">{avgViews.toLocaleString()}</span>
+                    </div>
+                    <Slider
+                      value={[avgViews]}
+                      onValueChange={(value) => setAvgViews(value[0])}
+                      min={5000}
+                      max={200000}
+                      step={5000}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Conversion Rate Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="font-semibold">Conversion Rate (%)</label>
+                      <span className="text-2xl font-bold text-primary">{conversionRate}%</span>
+                    </div>
+                    <Slider
+                      value={[conversionRate]}
+                      onValueChange={(value) => setConversionRate(value[0])}
+                      min={0.5}
+                      max={5}
+                      step={0.1}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Price Per Sale Slider */}
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <label className="font-semibold">eBook Price</label>
+                      <span className="text-2xl font-bold text-primary">${pricePerSale}</span>
+                    </div>
+                    <Slider
+                      value={[pricePerSale]}
+                      onValueChange={(value) => setPricePerSale(value[0])}
+                      min={27}
+                      max={97}
+                      step={5}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+
+                {/* Results Display */}
+                <div className="bg-background/80 backdrop-blur rounded-lg p-6 space-y-4">
+                  <h3 className="text-xl font-semibold mb-4">Your Estimated Monthly Income</h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="border border-border rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Creator Score</p>
+                      <p className="text-3xl font-bold text-primary">{creatorScore}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {creatorScore >= 50 ? "Qualifies for monthly fee ✓" : "Below threshold (need 50+)"}
+                      </p>
+                    </div>
+                    
+                    <div className="border border-border rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Monthly Fee</p>
+                      <p className="text-3xl font-bold text-secondary">${monthlyFee}</p>
+                    </div>
+
+                    <div className="border border-border rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Total Monthly Sales</p>
+                      <p className="text-3xl font-bold text-accent">{totalSales}</p>
+                    </div>
+
+                    <div className="border border-border rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">Commission Earnings (10%)</p>
+                      <p className="text-3xl font-bold text-accent">${commissionEarnings.toFixed(0)}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t border-border">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-semibold">Total Monthly Income</span>
+                      <span className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                        ${totalMonthlyIncome.toFixed(0)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Based on {videosPerMonth} videos/month with {totalViews.toLocaleString()} total views
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-primary/10 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Note:</strong> These are estimates based on your inputs. Actual earnings may vary depending on video performance, audience engagement, and market conditions.
+                  </p>
                 </div>
               </Card>
 
