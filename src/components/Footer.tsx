@@ -28,7 +28,6 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-secondary-foreground/80">
               <li><Link to="/about" className="hover:text-secondary-foreground transition-colors">About Us</Link></li>
               <li><a href="#" className="hover:text-secondary-foreground transition-colors">Our Impact</a></li>
-              <li><a href="#" className="hover:text-secondary-foreground transition-colors">Blog</a></li>
               <li><a href="#" className="hover:text-secondary-foreground transition-colors">Careers</a></li>
               <li><a href="https://ebook.jovita.site" target="_blank" rel="noopener noreferrer" className="hover:text-secondary-foreground transition-colors">Ebook Shop</a></li>
             </ul>
