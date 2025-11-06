@@ -26,9 +26,11 @@ const Navbar = () => {
             <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               Testimonials
             </a>
-            <Button variant="ghost" size="sm">
-              Sign In
-            </Button>
+            <Link to="/auth">
+              <Button variant="ghost" size="sm">
+                Sign In
+              </Button>
+            </Link>
             <Link to="/join-creator">
               <Button variant="default" size="sm">
                 Join as Creator

@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import JoinCreator from "./pages/JoinCreator";
 import AboutUs from "./pages/AboutUs";
 import TermsOfService from "./pages/TermsOfService";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/join-creator" element={<JoinCreator />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
