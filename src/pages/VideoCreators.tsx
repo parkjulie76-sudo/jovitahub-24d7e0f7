@@ -11,7 +11,9 @@ const VideoCreators = () => {
   const [videosPerWeek, setVideosPerWeek] = useState(5);
   const [avgViews, setAvgViews] = useState(25000);
   const [conversionRate, setConversionRate] = useState(1.5);
-  const [pricePerSale, setPricePerSale] = useState(47);
+  
+  // Fixed eBook price
+  const pricePerSale = 9;
 
   // Calculate metrics
   const videosPerMonth = videosPerWeek * 4;
@@ -242,20 +244,13 @@ const VideoCreators = () => {
                     />
                   </div>
 
-                  {/* Price Per Sale Slider */}
+                  {/* Fixed eBook Price Display */}
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <label className="font-semibold">eBook Price</label>
-                      <span className="text-2xl font-bold text-primary">${pricePerSale}</span>
+                      <label className="font-semibold">eBook Price (Fixed)</label>
+                      <span className="text-2xl font-bold text-primary">${pricePerSale} USD</span>
                     </div>
-                    <Slider
-                      value={[pricePerSale]}
-                      onValueChange={(value) => setPricePerSale(value[0])}
-                      min={27}
-                      max={97}
-                      step={5}
-                      className="w-full"
-                    />
+                    <p className="text-sm text-muted-foreground">The eBook price is fixed at $9 USD</p>
                   </div>
                 </div>
 
