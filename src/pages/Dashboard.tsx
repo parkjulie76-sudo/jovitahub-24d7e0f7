@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Video } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -137,14 +137,24 @@ const Dashboard = () => {
             </h1>
             <div className="flex gap-2">
               {hasGuideAccess && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/script-writer-guide")}
-                  className="flex items-center gap-2"
-                >
-                  <BookOpen className="h-4 w-4" />
-                  Writer's Guide
-                </Button>
+                <>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate("/script-writer-guide")}
+                    className="flex items-center gap-2"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    Writer's Guide
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate("/video-creator-guide")}
+                    className="flex items-center gap-2"
+                  >
+                    <Video className="h-4 w-4" />
+                    Video Guide
+                  </Button>
+                </>
               )}
               <Button onClick={() => navigate("/submit-script")}>Submit Script</Button>
               <Button onClick={() => navigate("/submit-video")}>Submit Video</Button>

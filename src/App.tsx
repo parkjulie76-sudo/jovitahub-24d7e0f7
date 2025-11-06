@@ -26,6 +26,7 @@ import Profile from "./pages/Profile";
 import ApplyJob from "./pages/ApplyJob";
 import NewsletterAdmin from "./pages/NewsletterAdmin";
 import ScriptWriterGuide from "./pages/ScriptWriterGuide";
+import VideoCreatorGuide from "./pages/VideoCreatorGuide";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/apply" element={<ApplyJob />} />
           <Route path="/admin/newsletter" element={<NewsletterAdmin />} />
           <Route path="/script-writer-guide" element={<ScriptWriterGuide />} />
+          <Route path="/video-creator-guide" element={<VideoCreatorGuide />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
