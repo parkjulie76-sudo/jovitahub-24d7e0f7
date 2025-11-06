@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import JoinCreator from "./pages/JoinCreator";
 import AboutUs from "./pages/AboutUs";
+import Charity from "./pages/Charity";
+import Mission from "./pages/Mission";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ContactUs from "./pages/ContactUs";
@@ -33,6 +35,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/join-creator" element={<JoinCreator />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/charity" element={<Charity />} />
+          <Route path="/mission" element={<Mission />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/contact" element={<ContactUs />} />
