@@ -47,7 +47,7 @@ const Benefits = () => {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A platform designed specifically for script writers and video editors who want more than just a paycheck
+            A platform designed specifically for script writers and video creators who want more than just a paycheck
           </p>
         </div>
 

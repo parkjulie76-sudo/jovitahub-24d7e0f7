@@ -7,7 +7,7 @@ const steps = [
   {
     icon: FileText,
     title: "Submit Your Work",
-    description: "Script writers share compelling stories. Video editors showcase their editing skills. Get matched with complementary talents.",
+    description: "Script writers share compelling stories. Video creators showcase their editing skills. Get matched with complementary talents.",
     color: "text-primary",
   },
   {

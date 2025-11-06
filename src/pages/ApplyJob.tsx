@@ -30,7 +30,7 @@ const ApplyJob = () => {
 
   const positions = [
     "Script Writers",
-    "Video Editors",
+    "Video Creators",
     "Format Creators",
     "Community Manager",
     "YouTube Creator",

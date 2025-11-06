@@ -21,7 +21,7 @@ const Careers = () => {
       ]
     },
     {
-      title: "Video Editors",
+      title: "Video Creators",
       icon: Video,
       type: "Production",
       description: "Bring stories to life through expert video editing. Create polished, professional content that captivates and engages viewers.",

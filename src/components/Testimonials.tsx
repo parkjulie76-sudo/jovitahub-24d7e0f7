@@ -10,7 +10,7 @@ const testimonials = [
   },
   {
     name: "Marcus Rodriguez",
-    role: "Video Editor",
+    role: "Video Creator",
     content: "Finding quality scripts used to be a nightmare. Now I have access to amazing writers and get paid fairly for my editing work. Plus, knowing my work helps charitable causes feels amazing.",
     rating: 5,
   },

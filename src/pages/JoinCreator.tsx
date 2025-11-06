@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 const creatorSchema = z.object({
   name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100, { message: "Name must be less than 100 characters" }),
   email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
-  creatorType: z.enum(["script-writer", "video-editor"], { required_error: "Please select your creator type" }),
+  creatorType: z.enum(["script-writer", "video-creator"], { required_error: "Please select your creator type" }),
   experience: z.string().trim().min(1, { message: "Please select your experience level" }),
   portfolio: z.string().trim().max(500, { message: "Portfolio URL must be less than 500 characters" }).optional(),
   message: z.string().trim().min(10, { message: "Message must be at least 10 characters" }).max(1000, { message: "Message must be less than 1000 characters" }),
@@ -160,7 +160,7 @@ const JoinCreator = () => {
                 <Zap className="w-12 h-12 mx-auto mb-4 text-primary" />
                 <h3 className="font-semibold mb-2">Stable Income</h3>
                 <p className="text-sm text-muted-foreground">
-                  Video Editors: $1,000 - $3,000/month
+                  Video Creators: $1,000 - $3,000/month
                 </p>
               </Card>
               <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
@@ -220,9 +220,9 @@ const JoinCreator = () => {
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="video-editor" id="video-editor" />
-                    <Label htmlFor="video-editor" className="font-normal cursor-pointer">
-                      Video Editor (Short video editing)
+                    <RadioGroupItem value="video-creator" id="video-creator" />
+                    <Label htmlFor="video-creator" className="font-normal cursor-pointer">
+                      Video Creator (Short video editing)
                     </Label>
                   </div>
                 </RadioGroup>

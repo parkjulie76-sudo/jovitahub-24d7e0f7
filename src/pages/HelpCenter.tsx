@@ -42,12 +42,12 @@ const HelpCenter = () => {
     {
       category: "Getting Started",
       question: "What are the requirements to join?",
-      answer: "We welcome creators of all experience levels! Script writers should have a passion for storytelling and understanding of viral content. Video editors should be proficient in editing software and able to create engaging short-form content. A portfolio or samples of your work are helpful but not required for beginners.",
+      answer: "We welcome creators of all experience levels! Script writers should have a passion for storytelling and understanding of viral content. Video creators should be proficient in editing software and able to create engaging short-form content. A portfolio or samples of your work are helpful but not required for beginners.",
     },
     {
       category: "Content Creation",
       question: "What type of content do you need?",
-      answer: "We focus on short-form video content (30-90 seconds) for social media platforms. Script writers create viral hooks, storytelling scripts, and product integration content. Video editors produce polished videos that incorporate our ebook content and drive sales conversions.",
+      answer: "We focus on short-form video content (30-90 seconds) for social media platforms. Script writers create viral hooks, storytelling scripts, and product integration content. Video creators produce polished videos that incorporate our ebook content and drive sales conversions.",
     },
     {
       category: "Content Creation",
@@ -62,7 +62,7 @@ const HelpCenter = () => {
     {
       category: "Payments & Earnings",
       question: "How do I get paid?",
-      answer: "Creators are paid monthly via PayPal or bank transfer. Script writers and video editors with monthly scores above 50 receive a $600 base fee plus 10% sales commission. Those creating both scripts and videos earn $1,200 base plus 20% commission. Bloggers earn 15% commission only.",
+      answer: "Creators are paid monthly via PayPal or bank transfer. Script writers and video creators with monthly scores above 50 receive a $600 base fee plus 10% sales commission. Those creating both scripts and videos earn $1,200 base plus 20% commission. Bloggers earn 15% commission only.",
     },
     {
       category: "Payments & Earnings",
