@@ -32,8 +32,8 @@ const Mission = () => {
             <p className="text-lg text-muted-foreground text-center leading-relaxed">
               We envision a world where content creators achieve financial abundance and use their wealth to create ripples 
               of positive change. When creators become wealthy, they're empowered to give back—not through corporate mandates, 
-              but through genuine peer-to-peer charity. Through our content e-commerce platform, we're building a community 
-              where financial success and charitable impact grow together, one creator at a time.
+              but through genuine peer-to-peer charity. We're building a community where financial success and charitable 
+              impact grow together, one creator at a time.
             </p>
           </div>
         </div>
@@ -84,9 +84,9 @@ const Mission = () => {
                 <div>
                   <h3 className="text-xl font-semibold mb-3">Creator Wealth First</h3>
                   <p className="text-muted-foreground">
-                    We prioritize making creators wealthy through our content e-commerce platform. We believe 
-                    that financial success enables creators to make meaningful contributions to causes they care 
-                    about. Wealth creation comes first, charitable impact follows naturally.
+                    We prioritize making creators wealthy first. We believe that financial success enables creators 
+                    to make meaningful contributions to causes they care about. Wealth creation comes first, 
+                    charitable impact follows naturally.
                   </p>
                 </div>
               </div>
@@ -117,19 +117,19 @@ const Mission = () => {
           <h2 className="text-3xl font-bold text-center mb-12">What We Do</h2>
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="text-xl font-semibold mb-3">Build Creator Wealth Through E-Commerce</h3>
+              <h3 className="text-xl font-semibold mb-3">Build Creator Wealth</h3>
               <p className="text-muted-foreground">
-                Our content e-commerce platform connects creators with monetization opportunities that generate real wealth. 
-                We've designed systems that maximize creator earnings through efficient content transactions and fair 
-                compensation structures. Your financial success is our top priority.
+                We connect creators with monetization opportunities that generate real wealth. We've designed systems 
+                that maximize creator earnings through efficient content transactions and fair compensation structures. 
+                Your financial success is our top priority.
               </p>
             </div>
 
             <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="text-xl font-semibold mb-3">Enable Peer-to-Peer Charity</h3>
+              <h3 className="text-xl font-semibold mb-3">Facilitate Peer-to-Peer Charity</h3>
               <p className="text-muted-foreground">
-                Once creators achieve financial success, we facilitate peer-to-peer charitable giving. Our platform 
-                makes it easy for wealthy creators to support fellow creators and causes they believe in. This organic 
+                Once creators achieve financial success, we facilitate peer-to-peer charitable giving. We make it 
+                easy for wealthy creators to support fellow creators and causes they believe in. This organic 
                 approach to charity creates authentic impact driven by individual passion.
               </p>
             </div>
@@ -161,9 +161,9 @@ const Mission = () => {
           <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-12 rounded-2xl border border-border text-center">
             <h2 className="text-3xl font-bold mb-6">Our Commitment to You</h2>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-              We're committed to making you wealthy first. Our content e-commerce platform is designed to maximize your 
-              earnings and build lasting financial success. Once you achieve wealth, we'll support you in creating your 
-              own charitable impact through peer-to-peer giving. Together, we'll prove that creator wealth and positive 
+              We're committed to making you wealthy first. Our platform is designed to maximize your earnings and 
+              build lasting financial success. Once you achieve wealth, we'll support you in creating your own 
+              charitable impact through peer-to-peer giving. Together, we'll prove that creator wealth and positive 
               world impact are not just compatible—they're complementary.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
