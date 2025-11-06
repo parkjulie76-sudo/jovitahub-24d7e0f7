@@ -19,8 +19,8 @@ const Mission = () => {
             Our Mission
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            To empower creative professionals by providing fair opportunities, fostering collaboration, 
-            and creating meaningful social impact through every project we undertake.
+            To make content creators wealthy first through our e-commerce platform, then inspire and 
+            facilitate peer-to-peer charity that spreads positive impact around the world.
           </p>
         </div>
       </section>
@@ -31,10 +31,10 @@ const Mission = () => {
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-8">Our Vision</h2>
             <p className="text-lg text-muted-foreground text-center leading-relaxed">
-              We envision a world where creative talent is recognized, fairly compensated, and empowered to make a difference. 
-              A world where every video production, every script, and every creative project contributes not only to business success 
-              but also to positive social change. Through Jovita Hub, we're building a community that proves creativity and compassion 
-              can work hand in hand.
+              We envision a world where content creators achieve financial abundance and use their wealth to create ripples 
+              of positive change. When creators become wealthy, they're empowered to give back—not through corporate mandates, 
+              but through genuine peer-to-peer charity. Through our content e-commerce platform, we're building a community 
+              where financial success and charitable impact grow together, one creator at a time.
             </p>
           </div>
         </div>
@@ -83,11 +83,11 @@ const Mission = () => {
                   <Sparkles className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-3">Empowerment & Growth</h3>
+                  <h3 className="text-xl font-semibold mb-3">Creator Wealth First</h3>
                   <p className="text-muted-foreground">
-                    We empower creators by providing not just work opportunities, but also resources, 
-                    mentorship, and a supportive community. We're invested in the long-term growth and 
-                    success of every member of our network.
+                    We prioritize making creators wealthy through our content e-commerce platform. We believe 
+                    that financial success enables creators to make meaningful contributions to causes they care 
+                    about. Wealth creation comes first, charitable impact follows naturally.
                   </p>
                 </div>
               </div>
@@ -99,11 +99,11 @@ const Mission = () => {
                   <Compass className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-3">Social Responsibility</h3>
+                  <h3 className="text-xl font-semibold mb-3">Peer-to-Peer Charity</h3>
                   <p className="text-muted-foreground">
-                    We recognize our responsibility to give back. By integrating charitable giving into our 
-                    business model, we ensure that creative work creates ripples of positive change throughout 
-                    society.
+                    We encourage and facilitate peer-to-peer charity among our creator community. When creators 
+                    achieve wealth, we inspire them to support fellow creators and causes they're passionate about. 
+                    This creates an organic culture of giving that spreads positive impact worldwide.
                   </p>
                 </div>
               </div>
@@ -118,35 +118,38 @@ const Mission = () => {
           <h2 className="text-3xl font-bold text-center mb-12">What We Do</h2>
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="text-xl font-semibold mb-3">Connect Talent with Opportunity</h3>
+              <h3 className="text-xl font-semibold mb-3">Build Creator Wealth Through E-Commerce</h3>
               <p className="text-muted-foreground">
-                We bridge the gap between talented creators and organizations that need high-quality content. 
-                Our platform makes it easy for businesses to find the right creative professionals while ensuring 
-                creators receive fair compensation for their work.
+                Our content e-commerce platform connects creators with monetization opportunities that generate real wealth. 
+                We've designed systems that maximize creator earnings through efficient content transactions and fair 
+                compensation structures. Your financial success is our top priority.
               </p>
             </div>
 
             <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="text-xl font-semibold mb-3">Streamline Production Workflows</h3>
+              <h3 className="text-xl font-semibold mb-3">Enable Peer-to-Peer Charity</h3>
               <p className="text-muted-foreground">
-                From scriptwriting to final video delivery, we've built systems and processes that make content 
-                production efficient and enjoyable. Our creators can focus on their craft while we handle the logistics.
+                Once creators achieve financial success, we facilitate peer-to-peer charitable giving. Our platform 
+                makes it easy for wealthy creators to support fellow creators and causes they believe in. This organic 
+                approach to charity creates authentic impact driven by individual passion.
               </p>
             </div>
 
             <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="text-xl font-semibold mb-3">Foster Community & Collaboration</h3>
+              <h3 className="text-xl font-semibold mb-3">Cultivate a Giving Culture</h3>
               <p className="text-muted-foreground">
-                We've created a supportive community where creators can share knowledge, collaborate on projects, 
-                and grow together. Our network is built on mutual respect and shared success.
+                We inspire successful creators to become philanthropists within our community. By showcasing the positive 
+                impact of peer-to-peer giving, we're building a culture where wealth creation and charitable action 
+                reinforce each other, spreading positive change worldwide.
               </p>
             </div>
 
             <div className="bg-card p-6 rounded-lg border border-border">
-              <h3 className="text-xl font-semibold mb-3">Drive Social Impact</h3>
+              <h3 className="text-xl font-semibold mb-3">Empower Through Financial Freedom</h3>
               <p className="text-muted-foreground">
-                Through our charitable partnerships and giving programs, we ensure that every project contributes 
-                to causes that matter. We're proving that business success and social responsibility go hand in hand.
+                Financial independence gives creators the power to make meaningful choices. We provide the platform, 
+                tools, and community support needed for creators to build sustainable wealth that enables both personal 
+                freedom and the ability to give back on their own terms.
               </p>
             </div>
           </div>
@@ -159,10 +162,10 @@ const Mission = () => {
           <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-12 rounded-2xl border border-border text-center">
             <h2 className="text-3xl font-bold mb-6">Our Commitment to You</h2>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-              Whether you're a creator looking for fair opportunities or an organization seeking exceptional content, 
-              we're committed to your success. We promise transparency, quality, and a partnership built on mutual respect 
-              and shared values. Together, we can create content that not only achieves business goals but also makes 
-              the world a better place.
+              We're committed to making you wealthy first. Our content e-commerce platform is designed to maximize your 
+              earnings and build lasting financial success. Once you achieve wealth, we'll support you in creating your 
+              own charitable impact through peer-to-peer giving. Together, we'll prove that creator wealth and positive 
+              world impact are not just compatible—they're complementary.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/join-creator">
