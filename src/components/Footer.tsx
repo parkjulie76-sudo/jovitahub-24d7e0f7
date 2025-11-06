@@ -17,7 +17,7 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">For Creators</h4>
             <ul className="space-y-2 text-sm text-secondary-foreground/80">
               <li><Link to="/join-creator" className="hover:text-secondary-foreground transition-colors">Join as Creator</Link></li>
-              <li><a href="#" className="hover:text-secondary-foreground transition-colors">Script Writers</a></li>
+              <li><Link to="/script-writers" className="hover:text-secondary-foreground transition-colors">Script Writers</Link></li>
               <li><Link to="/video-creators" className="hover:text-secondary-foreground transition-colors">Video Creators</Link></li>
               <li><a href="#" className="hover:text-secondary-foreground transition-colors">How It Works</a></li>
             </ul>
