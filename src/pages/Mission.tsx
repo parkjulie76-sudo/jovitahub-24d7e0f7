@@ -19,7 +19,7 @@ const Mission = () => {
             Our Mission
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            To make content creators wealthy first , then inspire and facilitate peer-to-peer charity that spreads positive impact around the world.
+            To make content creators wealthy first, then inspire and facilitate peer-to-peer charity that spreads positive impact around the world.
           </p>
         </div>
       </section>
