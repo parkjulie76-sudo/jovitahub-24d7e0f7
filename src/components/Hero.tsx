@@ -28,15 +28,15 @@ const Hero = () => {
           </div>
 
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Create Impact Through{" "}
+            Charity Oriented{" "}
             <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-              Short Videos
+              Content E-Commerce
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-            Join Jovita Hub—where script writers and video editors collaborate 
-            to create meaningful short-form content while earning and making a difference.
+            Dedicated to empowering creators and spreading positive impact around the world. 
+            Making content creators wealthy first, then encouraging peer-to-peer charity.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">

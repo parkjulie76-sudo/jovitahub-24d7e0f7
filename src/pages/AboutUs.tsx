@@ -18,7 +18,7 @@ const AboutUs = () => {
               About Jovita Hub
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed">
-              We're building a community where creativity meets purpose. Our platform connects talented script writers and video editors with meaningful projects while making a positive impact on the world.
+              A charity-oriented content e-commerce service provider, dedicated to empowering creators and spreading positive impact around the world. We connect talented creators with opportunities while fostering a culture of giving.
             </p>
           </div>
         </div>
@@ -31,10 +31,10 @@ const AboutUs = () => {
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Mission</h2>
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                Jovita Hub was founded with a simple yet powerful vision: to empower creative professionals while contributing to causes that matter. We believe that every video created, every story told, and every edit made can contribute to something bigger than ourselves.
+                Our mission is to make content creators wealthy first. We believe that when creators achieve financial success, they're empowered to make a real difference in the world.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Our platform provides fair compensation for creators while allocating a portion of every project to charitable causes, creating a cycle of creativity and compassion.
+                We encourage and facilitate peer-to-peer charity, creating a community where successful creators support each other and give back to causes that matter. Every transaction on our platform is an opportunity to create wealth and spread positive impact.
               </p>
             </div>
             <div className="relative">
