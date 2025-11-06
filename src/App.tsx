@@ -11,6 +11,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ContactUs from "./pages/ContactUs";
 import HelpCenter from "./pages/HelpCenter";
 import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import SubmitScript from "./pages/SubmitScript";
+import SubmitVideo from "./pages/SubmitVideo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +33,9 @@ const App = () => (
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/submit-script" element={<SubmitScript />} />
+          <Route path="/submit-video" element={<SubmitVideo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

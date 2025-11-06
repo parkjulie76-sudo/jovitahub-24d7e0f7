@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,7 +11,8 @@ import { z } from "zod";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { DollarSign, Zap, Heart } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const creatorSchema = z.object({
   name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100, { message: "Name must be less than 100 characters" }),
@@ -25,6 +26,8 @@ const creatorSchema = z.object({
 
 const JoinCreator = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,16 +40,49 @@ const JoinCreator = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setIsSubmitting(true);
 
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to submit your application.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
     try {
       const validatedData = creatorSchema.parse(formData);
       
-      // Here you would typically send to your backend or Supabase
-      console.log("Form submitted:", validatedData);
+      const { error } = await supabase
+        .from("creator_applications")
+        .insert({
+          user_id: user.id,
+          full_name: validatedData.name,
+          email: validatedData.email,
+          portfolio_url: validatedData.portfolio || null,
+          experience: `${validatedData.creatorType} - ${validatedData.experience} - ${validatedData.message}`,
+          agreed_to_terms: validatedData.agreedToTerms,
+          status: "pending",
+        });
+
+      if (error) throw error;
       
       toast({
         title: "Application Submitted!",
@@ -72,6 +108,12 @@ const JoinCreator = () => {
           }
         });
         setErrors(fieldErrors);
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to submit application. Please try again.",
+          variant: "destructive",
+        });
       }
     } finally {
       setIsSubmitting(false);
