@@ -142,7 +142,7 @@ const Careers = () => {
                             </li>
                           ))}
                         </ul>
-                        <Link to={`/apply?position=${encodeURIComponent(position.title)}`} className="block pt-4">
+                        <Link to="/contact" className="block pt-4">
                           <Button className="w-full">
                             Apply Now
                           </Button>

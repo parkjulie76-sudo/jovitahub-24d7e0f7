@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 import { z } from "zod";
 
 const contactSchema = z.object({
@@ -15,6 +15,7 @@ const contactSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
   subject: z.string().trim().min(3, { message: "Subject must be at least 3 characters" }).max(200, { message: "Subject must be less than 200 characters" }),
   message: z.string().trim().min(10, { message: "Message must be at least 10 characters" }).max(2000, { message: "Message must be less than 2000 characters" }),
+  resume: z.instanceof(File).optional(),
 });
 
 const ContactUs = () => {
@@ -24,6 +25,7 @@ const ContactUs = () => {
     email: "",
     subject: "",
     message: "",
+    resume: undefined as File | undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,6 +51,7 @@ const ContactUs = () => {
         email: "",
         subject: "",
         message: "",
+        resume: undefined,
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -65,7 +68,7 @@ const ContactUs = () => {
     }
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | File) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
@@ -87,18 +90,11 @@ const ContactUs = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-3xl mx-auto">
             <Card className="p-6 text-center bg-card/50 backdrop-blur-sm border-border">
               <Mail className="w-12 h-12 mx-auto mb-4 text-primary" />
               <h3 className="font-semibold mb-2">Email Us</h3>
               <p className="text-sm text-muted-foreground">jovitaofficail593@gmail.com</p>
-              <p className="text-sm text-muted-foreground">parkjulie76@gmail.com</p>
-            </Card>
-
-            <Card className="p-6 text-center bg-card/50 backdrop-blur-sm border-border">
-              <Phone className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">Call or WhatsApp</h3>
-              <p className="text-sm text-muted-foreground">+852-61042976</p>
             </Card>
 
             <Card className="p-6 text-center bg-card/50 backdrop-blur-sm border-border">
@@ -164,7 +160,23 @@ const ContactUs = () => {
                 {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
               </div>
 
-              <Button 
+              <div className="space-y-2">
+                <Label htmlFor="resume">Resume (Optional)</Label>
+                <Input
+                  id="resume"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleChange("resume", file);
+                  }}
+                  className={errors.resume ? "border-destructive" : ""}
+                />
+                {errors.resume && <p className="text-sm text-destructive">{errors.resume}</p>}
+                <p className="text-xs text-muted-foreground">Accepted formats: PDF, DOC, DOCX</p>
+              </div>
+
+              <Button
                 type="submit" 
                 size="lg" 
                 className="w-full"
