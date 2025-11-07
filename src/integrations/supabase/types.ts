@@ -122,12 +122,40 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          serial_number: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          serial_number: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          serial_number?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       scripts: {
         Row: {
           content: string
           created_at: string | null
           description: string | null
           id: string
+          serial_number: string | null
           status: string | null
           title: string
           updated_at: string | null
@@ -138,6 +166,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          serial_number?: string | null
           status?: string | null
           title: string
           updated_at?: string | null
@@ -148,6 +177,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          serial_number?: string | null
           status?: string | null
           title?: string
           updated_at?: string | null
@@ -181,6 +211,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          serial_number: string | null
           status: string | null
           thumbnail_url: string | null
           title: string
@@ -192,6 +223,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          serial_number?: string | null
           status?: string | null
           thumbnail_url?: string | null
           title: string
@@ -203,6 +235,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          serial_number?: string | null
           status?: string | null
           thumbnail_url?: string | null
           title?: string
@@ -217,6 +250,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_script_serial: { Args: never; Returns: string }
+      generate_user_serial: { Args: never; Returns: string }
+      generate_video_serial: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

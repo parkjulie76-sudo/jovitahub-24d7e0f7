@@ -15,6 +15,7 @@ import { User, Mail, KeyRound, AlertCircle } from "lucide-react";
 
 const Profile = () => {
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [emailLoading, setEmailLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -40,6 +41,15 @@ const Profile = () => {
 
     setUser(session.user);
     setNewEmail(session.user.email || "");
+    
+    // Fetch user profile with serial number
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", session.user.id)
+      .maybeSingle();
+    
+    setProfile(profileData);
     setLoading(false);
   };
 
@@ -139,6 +149,15 @@ const Profile = () => {
               <CardDescription>Your current account details</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
+              {profile?.serial_number && (
+                <div className="flex items-center space-x-2 text-sm mb-2">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-medium">Serial Number:</span>
+                  <span className="font-mono text-xs bg-primary/10 px-2 py-1 rounded">
+                    {profile.serial_number}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center space-x-2 text-sm">
                 <Mail className="w-4 h-4 text-muted-foreground" />
                 <span className="font-medium">Email:</span>

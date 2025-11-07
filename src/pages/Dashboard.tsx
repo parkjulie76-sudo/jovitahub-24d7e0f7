@@ -120,8 +120,9 @@ const Dashboard = () => {
 
   const downloadScripts = () => {
     const csvContent = [
-      ["Title", "Description", "Content", "Status", "User ID", "Created At"].join(","),
+      ["Serial Number", "Title", "Description", "Content", "Status", "User ID", "Created At"].join(","),
       ...scripts.map(script => [
+        script.serial_number || 'N/A',
         `"${script.title}"`,
         `"${script.description || ''}"`,
         `"${script.content}"`,
@@ -142,8 +143,9 @@ const Dashboard = () => {
 
   const downloadVideos = () => {
     const csvContent = [
-      ["Title", "Description", "Video URL", "Thumbnail URL", "Status", "User ID", "Created At"].join(","),
+      ["Serial Number", "Title", "Description", "Video URL", "Thumbnail URL", "Status", "User ID", "Created At"].join(","),
       ...videos.map(video => [
+        video.serial_number || 'N/A',
         `"${video.title}"`,
         `"${video.description || ''}"`,
         video.video_url,
@@ -279,6 +281,7 @@ const Dashboard = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Serial #</TableHead>
                       <TableHead>Title</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Status</TableHead>
@@ -289,6 +292,11 @@ const Dashboard = () => {
                   <TableBody>
                     {scripts.map((script) => (
                       <TableRow key={script.id}>
+                        <TableCell>
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {script.serial_number}
+                          </Badge>
+                        </TableCell>
                         <TableCell>{script.title}</TableCell>
                         <TableCell>{script.description}</TableCell>
                         <TableCell>
@@ -340,6 +348,7 @@ const Dashboard = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Serial #</TableHead>
                       <TableHead>Title</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Status</TableHead>
@@ -350,6 +359,11 @@ const Dashboard = () => {
                   <TableBody>
                     {videos.map((video) => (
                       <TableRow key={video.id}>
+                        <TableCell>
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {video.serial_number}
+                          </Badge>
+                        </TableCell>
                         <TableCell>{video.title}</TableCell>
                         <TableCell>{video.description}</TableCell>
                         <TableCell>
