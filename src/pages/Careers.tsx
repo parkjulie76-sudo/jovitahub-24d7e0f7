@@ -57,18 +57,6 @@ const Careers = () => {
       ]
     },
     {
-      title: "YouTube Creator",
-      icon: Video,
-      type: "Content",
-      description: "Create compelling YouTube content that drives engagement and growth. Be the face and voice of our channel.",
-      requirements: [
-        "On-camera presence and charisma",
-        "Understanding of YouTube algorithm and trends",
-        "Video production experience",
-        "Strong personal brand"
-      ]
-    },
-    {
       title: "Business Development Manager",
       icon: TrendingUp,
       type: "Business",
@@ -86,7 +74,6 @@ const Careers = () => {
     "Creative": "bg-purple-500/10 text-purple-700 dark:text-purple-300",
     "Production": "bg-blue-500/10 text-blue-700 dark:text-blue-300",
     "Community": "bg-green-500/10 text-green-700 dark:text-green-300",
-    "Content": "bg-orange-500/10 text-orange-700 dark:text-orange-300",
     "Business": "bg-red-500/10 text-red-700 dark:text-red-300"
   };
 
