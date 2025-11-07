@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -131,6 +132,8 @@ const Dashboard = () => {
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
+          <EmailVerificationBanner />
+          
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold">
               {isAdmin ? "Admin Dashboard" : "My Dashboard"}

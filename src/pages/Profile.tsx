@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import { User, Mail, KeyRound, AlertCircle } from "lucide-react";
 
 const Profile = () => {
@@ -125,6 +126,8 @@ const Profile = () => {
             <h1 className="text-3xl font-bold">Profile Settings</h1>
             <p className="text-muted-foreground">Manage your account settings and preferences</p>
           </div>
+
+          <EmailVerificationBanner />
 
           {/* Current User Info */}
           <Card>
