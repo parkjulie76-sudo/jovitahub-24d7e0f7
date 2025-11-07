@@ -62,24 +62,64 @@ const JoinCreator = () => {
     try {
       const validatedData = creatorSchema.parse(formData);
       
-      // Sign up the user first
-      const redirectUrl = `${window.location.origin}/dashboard`;
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: validatedData.email,
-        password: validatedData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
-      });
+      // Check if user is already logged in
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      let userId: string;
+      
+      if (session?.user) {
+        // User is already logged in, use their ID
+        userId = session.user.id;
+      } else {
+        // Sign up the user first
+        const redirectUrl = `${window.location.origin}/dashboard`;
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: validatedData.email,
+          password: validatedData.password,
+          options: {
+            emailRedirectTo: redirectUrl,
+          },
+        });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Failed to create account");
+        if (authError) {
+          // Handle specific error cases
+          if (authError.message.includes("already registered") || authError.message.includes("already exists")) {
+            throw new Error("This email is already registered. Please sign in instead.");
+          }
+          if (authError.message.includes("rate_limit") || authError.status === 429) {
+            throw new Error("Too many signup attempts. Please wait a moment and try again.");
+          }
+          throw authError;
+        }
+        
+        if (!authData.user) {
+          throw new Error("Failed to create account. Please try again.");
+        }
+        
+        userId = authData.user.id;
+      }
+
+      // Check if application already exists
+      const { data: existingApp } = await supabase
+        .from("creator_applications")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (existingApp) {
+        toast({
+          title: "Application Already Submitted",
+          description: "You have already submitted a creator application. Check your dashboard for status.",
+        });
+        navigate("/dashboard");
+        return;
+      }
 
       // Submit creator application
       const { error: appError } = await supabase
         .from("creator_applications")
         .insert({
-          user_id: authData.user.id,
+          user_id: userId,
           full_name: validatedData.name,
           email: validatedData.email,
           portfolio_url: validatedData.portfolio || null,
@@ -88,7 +128,12 @@ const JoinCreator = () => {
           status: "pending",
         });
 
-      if (appError) throw appError;
+      if (appError) {
+        if (appError.code === "23505") {
+          throw new Error("You have already submitted an application.");
+        }
+        throw appError;
+      }
       
       toast({
         title: "Welcome to Jovita Hub!",
