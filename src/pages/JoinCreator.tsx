@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 const creatorSchema = z.object({
   name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100, { message: "Name must be less than 100 characters" }),
   email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   creatorType: z.enum(["script-writer", "video-creator"], { required_error: "Please select your creator type" }),
   experience: z.string().trim().min(1, { message: "Please select your experience level" }),
   portfolio: z.string().trim().max(500, { message: "Portfolio URL must be less than 500 characters" }).optional(),
@@ -31,6 +32,7 @@ const JoinCreator = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "",
     creatorType: "",
     experience: "",
     portfolio: "",
@@ -57,23 +59,27 @@ const JoinCreator = () => {
     setErrors({});
     setIsSubmitting(true);
 
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to submit your application.",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
-
     try {
       const validatedData = creatorSchema.parse(formData);
       
-      const { error } = await supabase
+      // Sign up the user first
+      const redirectUrl = `${window.location.origin}/dashboard`;
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: validatedData.email,
+        password: validatedData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Failed to create account");
+
+      // Submit creator application
+      const { error: appError } = await supabase
         .from("creator_applications")
         .insert({
-          user_id: user.id,
+          user_id: authData.user.id,
           full_name: validatedData.name,
           email: validatedData.email,
           portfolio_url: validatedData.portfolio || null,
@@ -82,23 +88,18 @@ const JoinCreator = () => {
           status: "pending",
         });
 
-      if (error) throw error;
+      if (appError) throw appError;
       
       toast({
-        title: "Application Submitted!",
-        description: "We'll review your application and get back to you soon.",
+        title: "Welcome to Jovita Hub!",
+        description: "Your account has been created and application submitted. Redirecting to dashboard...",
       });
       
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        creatorType: "",
-        experience: "",
-        portfolio: "",
-        message: "",
-        agreedToTerms: false,
-      });
+      // Navigate to dashboard
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
+      
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -111,7 +112,7 @@ const JoinCreator = () => {
       } else {
         toast({
           title: "Error",
-          description: "Failed to submit application. Please try again.",
+          description: error instanceof Error ? error.message : "Failed to submit application. Please try again.",
           variant: "destructive",
         });
       }
@@ -203,6 +204,21 @@ const JoinCreator = () => {
                   className={errors.email ? "border-destructive" : ""}
                 />
                 {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password">Password *</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  placeholder="••••••••"
+                  minLength={6}
+                  className={errors.password ? "border-destructive" : ""}
+                />
+                {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
               </div>
 
               {/* Creator Type */}
