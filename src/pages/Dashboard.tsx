@@ -29,7 +29,6 @@ const Dashboard = () => {
   const [applications, setApplications] = useState<any[]>([]);
   const [scripts, setScripts] = useState<any[]>([]);
   const [videos, setVideos] = useState<any[]>([]);
-  const [jobApplications, setJobApplications] = useState<any[]>([]);
 
   useEffect(() => {
     checkAuth();
@@ -70,31 +69,27 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult, jobAppsResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult] = await Promise.all([
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*").order("created_at", { ascending: false }),
-      supabase.from("job_applications").select("*").order("created_at", { ascending: false }),
     ]);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
     setVideos(videosResult.data || []);
-    setJobApplications(jobAppsResult.data || []);
   };
 
   const loadUserData = async (userId: string) => {
-    const [appsResult, scriptsResult, videosResult, jobAppsResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
       supabase.from("scripts").select("*").eq("user_id", userId),
       supabase.from("videos").select("*").eq("user_id", userId),
-      supabase.from("job_applications").select("*").eq("user_id", userId),
     ]);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
     setVideos(videosResult.data || []);
-    setJobApplications(jobAppsResult.data || []);
   };
 
   const updateStatus = async (table: string, id: string, status: string) => {
@@ -169,7 +164,6 @@ const Dashboard = () => {
               <TabsTrigger value="applications">Creator Applications</TabsTrigger>
               <TabsTrigger value="scripts">Scripts</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
-              <TabsTrigger value="jobs">Job Applications</TabsTrigger>
             </TabsList>
 
             <TabsContent value="applications">
@@ -306,97 +300,6 @@ const Dashboard = () => {
                                 size="sm"
                                 variant="destructive"
                                 onClick={() => updateStatus("videos", video.id, "rejected")}
-                              >
-                                Reject
-                              </Button>
-                            </div>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="jobs">
-              <Card className="p-6">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Position</TableHead>
-                      <TableHead>Full Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Resume</TableHead>
-                      <TableHead>Cover Letter</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      {isAdmin && <TableHead>Actions</TableHead>}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {jobApplications.map((app) => (
-                      <TableRow key={app.id}>
-                        <TableCell className="font-medium">{app.position}</TableCell>
-                        <TableCell>{app.full_name}</TableCell>
-                        <TableCell>{app.email}</TableCell>
-                        <TableCell>{app.phone || "N/A"}</TableCell>
-                        <TableCell>
-                          <a 
-                            href={app.resume_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            View Resume
-                          </a>
-                        </TableCell>
-                        <TableCell>
-                          {app.cover_letter_url ? (
-                            <a 
-                              href={app.cover_letter_url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline"
-                            >
-                              View Cover Letter
-                            </a>
-                          ) : (
-                            "N/A"
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              app.status === "accepted"
-                                ? "default"
-                                : app.status === "rejected"
-                                ? "destructive"
-                                : "secondary"
-                            }
-                          >
-                            {app.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(app.created_at).toLocaleDateString()}
-                        </TableCell>
-                        {isAdmin && (
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => updateStatus("job_applications", app.id, "accepted")}
-                                disabled={app.status === "accepted"}
-                              >
-                                Accept
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => updateStatus("job_applications", app.id, "rejected")}
-                                disabled={app.status === "rejected"}
                               >
                                 Reject
                               </Button>
