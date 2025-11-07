@@ -317,18 +317,7 @@ const ScriptWriters = () => {
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary mt-1" />
-                    <div className="flex-1">
-                      <p className="mb-3">Unique project sales link provided to track your commissions automatically</p>
-                      <a 
-                        href="https://payhip.com/auth/register/af68eb302bd61b" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="default" size="sm">
-                          Click Here To Get Your Sales Link
-                        </Button>
-                      </a>
-                    </div>
+                    <p>Unique project sales link provided to track your commissions automatically</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary mt-1" />

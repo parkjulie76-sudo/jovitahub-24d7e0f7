@@ -353,6 +353,26 @@ const JoinCreator = () => {
                 {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
               </div>
 
+              {/* Sales Link Section */}
+              <Card className="p-4 bg-primary/5 border-primary/20">
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-sm">Get Your Sales Tracking Link</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Register for your unique sales link to track commissions. 
+                    <span className="font-semibold text-foreground"> Important: Use the same email address</span> you entered above to ensure proper tracking.
+                  </p>
+                  <a 
+                    href="https://payhip.com/auth/register/af68eb302bd61b" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="default" size="sm" type="button">
+                      Click Here To Get Your Sales Link
+                    </Button>
+                  </a>
+                </div>
+              </Card>
+
               {/* Terms of Service Agreement */}
               <div className="space-y-2">
                 <div className="flex items-start space-x-2">
