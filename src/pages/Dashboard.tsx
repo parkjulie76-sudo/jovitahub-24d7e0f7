@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BookOpen, Video } from "lucide-react";
+import AdminUserManagement from "@/components/AdminUserManagement";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -164,6 +165,7 @@ const Dashboard = () => {
               <TabsTrigger value="applications">Creator Applications</TabsTrigger>
               <TabsTrigger value="scripts">Scripts</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
+              {isAdmin && <TabsTrigger value="admin">Admin Management</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="applications">
@@ -312,6 +314,12 @@ const Dashboard = () => {
                 </Table>
               </Card>
             </TabsContent>
+
+            {isAdmin && (
+              <TabsContent value="admin">
+                <AdminUserManagement />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </main>

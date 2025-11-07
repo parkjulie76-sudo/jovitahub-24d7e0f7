@@ -35,6 +35,15 @@ const AdminSetup = () => {
 
     setUser(session.user);
 
+    // Check if current user is admin
+    const { data: currentUserRoles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id);
+
+    const isAdmin = currentUserRoles?.some(role => role.role === "admin") || false;
+    setIsCurrentUserAdmin(isAdmin);
+
     // Check if any admin exists
     const { data: adminRoles, error: adminError } = await supabase
       .from("user_roles")
@@ -53,12 +62,6 @@ const AdminSetup = () => {
 
     const hasAdmin = adminRoles && adminRoles.length > 0;
     setAdminExists(hasAdmin);
-
-    // Check if current user is admin
-    if (hasAdmin) {
-      const isAdmin = adminRoles.some(role => role.user_id === session.user.id);
-      setIsCurrentUserAdmin(isAdmin);
-    }
 
     setLoading(false);
   };
@@ -125,37 +128,7 @@ const AdminSetup = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!adminExists ? (
-              <>
-                <Alert className="border-primary/50 bg-primary/5">
-                  <AlertCircle className="h-4 w-4 text-primary" />
-                  <AlertDescription>
-                    <strong>No admin exists yet!</strong> As the first user, you can claim the admin role to manage the platform.
-                  </AlertDescription>
-                </Alert>
-
-                <div className="space-y-4 pt-2">
-                  <div className="text-sm text-muted-foreground space-y-2">
-                    <p><strong>Admin privileges include:</strong></p>
-                    <ul className="list-disc list-inside space-y-1 pl-2">
-                      <li>Approve or reject creator applications</li>
-                      <li>Review and manage submitted scripts</li>
-                      <li>Review and manage submitted videos</li>
-                      <li>Assign roles to other users</li>
-                    </ul>
-                  </div>
-
-                  <Button 
-                    onClick={claimAdminRole} 
-                    className="w-full" 
-                    size="lg"
-                    disabled={claiming}
-                  >
-                    {claiming ? "Claiming Admin Role..." : "Claim Admin Role"}
-                  </Button>
-                </div>
-              </>
-            ) : isCurrentUserAdmin ? (
+            {isCurrentUserAdmin ? (
               <>
                 <Alert className="border-green-500/50 bg-green-500/5">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -180,12 +153,42 @@ const AdminSetup = () => {
                   </Button>
                 </div>
               </>
+            ) : !adminExists ? (
+              <>
+                <Alert className="border-primary/50 bg-primary/5">
+                  <AlertCircle className="h-4 w-4 text-primary" />
+                  <AlertDescription>
+                    <strong>No admin exists yet!</strong> Be the first to claim the admin role.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-4 pt-2">
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    <p><strong>Admin privileges include:</strong></p>
+                    <ul className="list-disc list-inside space-y-1 pl-2">
+                      <li>Approve or reject creator applications</li>
+                      <li>Review and manage submitted scripts</li>
+                      <li>Review and manage submitted videos</li>
+                      <li>Manage user roles</li>
+                    </ul>
+                  </div>
+
+                  <Button 
+                    onClick={claimAdminRole} 
+                    className="w-full" 
+                    size="lg"
+                    disabled={claiming}
+                  >
+                    {claiming ? "Claiming Admin Role..." : "Claim Admin Role"}
+                  </Button>
+                </div>
+              </>
             ) : (
               <>
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    An admin has already been configured for this platform. If you need admin access, please contact the existing administrator.
+                    You don't have admin access. Contact an existing admin to grant you permissions.
                   </AlertDescription>
                 </Alert>
 
