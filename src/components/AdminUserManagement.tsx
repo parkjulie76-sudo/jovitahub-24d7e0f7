@@ -137,6 +137,9 @@ const AdminUserManagement = () => {
             <UserPlus className="h-4 w-4" />
             Add New Admin
           </h3>
+          <div className="bg-muted p-3 rounded-md text-sm text-muted-foreground mb-2">
+            Note: Only the first admin (earliest registered) can add new admins.
+          </div>
           <div className="flex gap-2">
             <Input
               placeholder="Enter user email"

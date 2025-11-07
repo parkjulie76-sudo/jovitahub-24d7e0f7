@@ -50,6 +50,17 @@ Deno.serve(async (req) => {
 
     const isRequesterAdmin = requesterRoles?.some(r => r.role === 'admin');
 
+    // Get the first admin (earliest created_at)
+    const { data: allAdmins } = await supabaseAdmin
+      .from('user_roles')
+      .select('user_id, created_at')
+      .eq('role', 'admin')
+      .order('created_at', { ascending: true })
+      .limit(1);
+
+    const firstAdminId = allAdmins?.[0]?.user_id;
+    const isFirstAdmin = firstAdminId === user.id;
+
     // Parse request body to check if email is provided
     let targetUserId = user.id;
     let body: any = {};
@@ -63,11 +74,11 @@ Deno.serve(async (req) => {
       // No body or invalid JSON, use authenticated user
     }
 
-    // If email provided, admin can assign to others
+    // If email provided, only first admin can assign to others
     if (body.email) {
-      if (!isRequesterAdmin) {
+      if (!isFirstAdmin) {
         return new Response(
-          JSON.stringify({ error: 'Only admins can assign roles to other users' }),
+          JSON.stringify({ error: 'Only the first admin can assign roles to other users' }),
           { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
