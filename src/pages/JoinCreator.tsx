@@ -101,6 +101,7 @@ const JoinCreator = () => {
       }, 1500);
       
     } catch (error) {
+      console.error("Application submission error:", error);
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
@@ -109,10 +110,16 @@ const JoinCreator = () => {
           }
         });
         setErrors(fieldErrors);
+        toast({
+          title: "Validation Error",
+          description: "Please check the form and fix any errors.",
+          variant: "destructive",
+        });
       } else {
+        const errorMessage = error instanceof Error ? error.message : "Failed to submit application. Please try again.";
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to submit application. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         });
       }
@@ -121,9 +128,8 @@ const JoinCreator = () => {
     }
   };
 
-  const handleChange = (field: string, value: string) => {
-    const processedValue = field === "agreedToTerms" ? value === "true" : value;
-    setFormData(prev => ({ ...prev, [field]: processedValue }));
+  const handleChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
@@ -308,7 +314,7 @@ const JoinCreator = () => {
                   <Checkbox
                     id="terms"
                     checked={formData.agreedToTerms}
-                    onCheckedChange={(checked) => handleChange("agreedToTerms", checked.toString())}
+                    onCheckedChange={(checked) => handleChange("agreedToTerms", checked === true)}
                     className={errors.agreedToTerms ? "border-destructive" : ""}
                   />
                   <Label htmlFor="terms" className="font-normal leading-relaxed cursor-pointer">
