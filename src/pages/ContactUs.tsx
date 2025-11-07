@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, MapPin } from "lucide-react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100, { message: "Name must be less than 100 characters" }),
@@ -38,8 +39,42 @@ const ContactUs = () => {
     try {
       const validatedData = contactSchema.parse(formData);
       
-      // Here you would typically send to your backend
-      // Form data validated and ready for backend submission
+      let resumeUrl = null;
+      
+      // Upload resume if provided
+      if (formData.resume) {
+        const fileExt = formData.resume.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+        
+        const { error: uploadError, data } = await supabase.storage
+          .from('resumes')
+          .upload(fileName, formData.resume);
+        
+        if (uploadError) {
+          throw new Error('Failed to upload resume');
+        }
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('resumes')
+          .getPublicUrl(fileName);
+        
+        resumeUrl = publicUrl;
+      }
+      
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('contact_submissions')
+        .insert({
+          name: validatedData.name,
+          email: validatedData.email,
+          subject: validatedData.subject,
+          message: validatedData.message,
+          resume_url: resumeUrl,
+        });
+      
+      if (dbError) {
+        throw new Error('Failed to submit form');
+      }
       
       toast({
         title: "Message Sent!",
@@ -53,6 +88,11 @@ const ContactUs = () => {
         message: "",
         resume: undefined,
       });
+      
+      // Reset file input
+      const fileInput = document.getElementById('resume') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+      
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -62,6 +102,12 @@ const ContactUs = () => {
           }
         });
         setErrors(fieldErrors);
+      } else {
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to send message",
+          variant: "destructive",
+        });
       }
     } finally {
       setIsSubmitting(false);

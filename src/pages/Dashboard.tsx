@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BookOpen, Video, Download } from "lucide-react";
+import { BookOpen, Video, Download, ExternalLink } from "lucide-react";
 import AdminUserManagement from "@/components/AdminUserManagement";
 
 const Dashboard = () => {
@@ -30,6 +30,7 @@ const Dashboard = () => {
   const [applications, setApplications] = useState<any[]>([]);
   const [scripts, setScripts] = useState<any[]>([]);
   const [videos, setVideos] = useState<any[]>([]);
+  const [contactSubmissions, setContactSubmissions] = useState<any[]>([]);
 
   useEffect(() => {
     checkAuth();
@@ -70,15 +71,17 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, contactResult] = await Promise.all([
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*").order("created_at", { ascending: false }),
+      supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
     ]);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
     setVideos(videosResult.data || []);
+    setContactSubmissions(contactResult.data || []);
   };
 
   const loadUserData = async (userId: string) => {
@@ -212,6 +215,7 @@ const Dashboard = () => {
               <TabsTrigger value="applications">Creator Applications</TabsTrigger>
               <TabsTrigger value="scripts">Scripts</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
+              {isAdmin && <TabsTrigger value="contact">Contact Submissions</TabsTrigger>}
               {isAdmin && <TabsTrigger value="admin">Admin Management</TabsTrigger>}
             </TabsList>
 
@@ -397,6 +401,67 @@ const Dashboard = () => {
                 </Table>
               </Card>
             </TabsContent>
+
+            {isAdmin && (
+              <TabsContent value="contact">
+                <Card className="p-6">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Subject</TableHead>
+                        <TableHead>Message</TableHead>
+                        <TableHead>Resume</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {contactSubmissions.map((submission) => (
+                        <TableRow key={submission.id}>
+                          <TableCell>{submission.name}</TableCell>
+                          <TableCell>{submission.email}</TableCell>
+                          <TableCell>{submission.subject}</TableCell>
+                          <TableCell className="max-w-xs truncate">{submission.message}</TableCell>
+                          <TableCell>
+                            {submission.resume_url ? (
+                              <a 
+                                href={submission.resume_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline"
+                              >
+                                View <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={submission.status === "resolved" ? "default" : "secondary"}>
+                              {submission.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{new Date(submission.created_at).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => updateStatus("contact_submissions", submission.id, "resolved")}
+                              >
+                                Mark Resolved
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </TabsContent>
+            )}
 
             {isAdmin && (
               <TabsContent value="admin">
