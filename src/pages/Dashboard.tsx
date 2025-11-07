@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BookOpen, Video } from "lucide-react";
+import { BookOpen, Video, Download } from "lucide-react";
 import AdminUserManagement from "@/components/AdminUserManagement";
 
 const Dashboard = () => {
@@ -116,6 +116,51 @@ const Dashboard = () => {
         loadUserData(user.id);
       }
     }
+  };
+
+  const downloadScripts = () => {
+    const csvContent = [
+      ["Title", "Description", "Content", "Status", "User ID", "Created At"].join(","),
+      ...scripts.map(script => [
+        `"${script.title}"`,
+        `"${script.description || ''}"`,
+        `"${script.content}"`,
+        script.status,
+        script.user_id,
+        new Date(script.created_at).toLocaleString()
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `scripts_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadVideos = () => {
+    const csvContent = [
+      ["Title", "Description", "Video URL", "Thumbnail URL", "Status", "User ID", "Created At"].join(","),
+      ...videos.map(video => [
+        `"${video.title}"`,
+        `"${video.description || ''}"`,
+        video.video_url,
+        video.thumbnail_url || '',
+        video.status,
+        video.user_id,
+        new Date(video.created_at).toLocaleString()
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `videos_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -219,6 +264,18 @@ const Dashboard = () => {
 
             <TabsContent value="scripts">
               <Card className="p-6">
+                {isAdmin && (
+                  <div className="flex justify-end mb-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={downloadScripts}
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download Scripts
+                    </Button>
+                  </div>
+                )}
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -268,6 +325,18 @@ const Dashboard = () => {
 
             <TabsContent value="videos">
               <Card className="p-6">
+                {isAdmin && (
+                  <div className="flex justify-end mb-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={downloadVideos}
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download Videos
+                    </Button>
+                  </div>
+                )}
                 <Table>
                   <TableHeader>
                     <TableRow>
