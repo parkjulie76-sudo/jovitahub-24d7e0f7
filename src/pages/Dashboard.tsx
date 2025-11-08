@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const Dashboard = () => {
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false);
   const [assignmentForm, setAssignmentForm] = useState({
     script_id: '',
-    assigned_to: '',
+    assigned_to: [] as string[],
     role: '',
     requirements: ''
   });
@@ -103,15 +104,25 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, authUsersResult] = await Promise.all([
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id, first_name, last_name, serial_number")
+      supabase.from("profiles").select("id, first_name, last_name, serial_number"),
+      supabase.auth.admin.listUsers()
     ]);
+
+    // Merge profiles with auth user emails
+    const profilesWithEmails = (profilesResult.data || []).map((profile: any) => {
+      const authUser = authUsersResult.data?.users.find((u: any) => u.id === profile.id);
+      return {
+        ...profile,
+        email: authUser?.email || 'No email'
+      };
+    });
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
@@ -119,7 +130,7 @@ const Dashboard = () => {
     setContactSubmissions(contactResult.data || []);
     setJobPositions(positionsResult.data || []);
     setAssignments(assignmentsResult.data || []);
-    setProfiles(profilesResult.data || []);
+    setProfiles(profilesWithEmails);
   };
 
   const loadUserData = async (userId: string) => {
@@ -395,39 +406,42 @@ const Dashboard = () => {
   };
 
   const handleSaveAssignment = async () => {
-    if (!assignmentForm.script_id || !assignmentForm.assigned_to || !assignmentForm.role || !assignmentForm.requirements) {
+    if (!assignmentForm.script_id || assignmentForm.assigned_to.length === 0 || !assignmentForm.role || !assignmentForm.requirements) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all fields and select at least one user",
         variant: "destructive",
       });
       return;
     }
 
+    // Create multiple assignments, one for each selected user
+    const assignments = assignmentForm.assigned_to.map(userId => ({
+      script_id: assignmentForm.script_id,
+      assigned_to: userId,
+      assigned_by: user.id,
+      role: assignmentForm.role,
+      requirements: assignmentForm.requirements,
+      status: 'assigned'
+    }));
+
     const { error } = await supabase
       .from("video_assignments")
-      .insert({
-        script_id: assignmentForm.script_id,
-        assigned_to: assignmentForm.assigned_to,
-        assigned_by: user.id,
-        role: assignmentForm.role,
-        requirements: assignmentForm.requirements,
-        status: 'assigned'
-      });
+      .insert(assignments);
 
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to create assignment",
+        description: "Failed to create assignments",
         variant: "destructive",
       });
     } else {
       toast({
         title: "Success",
-        description: "Assignment created successfully",
+        description: `Created ${assignments.length} assignment(s) successfully`,
       });
       setIsAssignmentDialogOpen(false);
-      setAssignmentForm({ script_id: '', assigned_to: '', role: '', requirements: '' });
+      setAssignmentForm({ script_id: '', assigned_to: [], role: '', requirements: '' });
       loadAllData();
     }
   };
@@ -820,15 +834,15 @@ const Dashboard = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => {
-                                    setAssignmentForm({
-                                      script_id: script.id,
-                                      assigned_to: '',
-                                      role: '',
-                                      requirements: ''
-                                    });
-                                    setIsAssignmentDialogOpen(true);
-                                  }}
+                                onClick={() => {
+                                  setAssignmentForm({
+                                    script_id: script.id,
+                                    assigned_to: [],
+                                    role: '',
+                                    requirements: ''
+                                  });
+                                  setIsAssignmentDialogOpen(true);
+                                }}
                                 >
                                   Assign
                                 </Button>
@@ -1203,7 +1217,12 @@ const Dashboard = () => {
               <Card className="p-6">
                 {isAdmin && (
                   <div className="flex justify-end mb-4">
-                    <Dialog open={isAssignmentDialogOpen} onOpenChange={setIsAssignmentDialogOpen}>
+                    <Dialog open={isAssignmentDialogOpen} onOpenChange={(open) => {
+                      setIsAssignmentDialogOpen(open);
+                      if (!open) {
+                        setAssignmentForm({ script_id: '', assigned_to: [], role: '', requirements: '' });
+                      }
+                    }}>
                       <DialogTrigger asChild>
                         <Button className="flex items-center gap-2">
                           <Plus className="h-4 w-4" />
@@ -1237,22 +1256,53 @@ const Dashboard = () => {
                             </Select>
                           </div>
                           <div>
-                            <Label>Assign To</Label>
-                            <Select 
-                              value={assignmentForm.assigned_to} 
-                              onValueChange={(value) => setAssignmentForm({...assignmentForm, assigned_to: value})}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select user" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {profiles.map((profile) => (
-                                  <SelectItem key={profile.id} value={profile.id}>
-                                    {profile.serial_number} - {profile.first_name} {profile.last_name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <Label>Assign To (Select Multiple Users)</Label>
+                            <div className="border rounded-md p-4 max-h-64 overflow-y-auto space-y-2">
+                              {profiles.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No users available</p>
+                              ) : (
+                                profiles.map((profile) => (
+                                  <label 
+                                    key={profile.id} 
+                                    className="flex items-start gap-3 p-3 rounded-md hover:bg-accent cursor-pointer transition-colors"
+                                  >
+                                    <Checkbox
+                                      checked={assignmentForm.assigned_to.includes(profile.id)}
+                                      onCheckedChange={(checked) => {
+                                        if (checked) {
+                                          setAssignmentForm({
+                                            ...assignmentForm,
+                                            assigned_to: [...assignmentForm.assigned_to, profile.id]
+                                          });
+                                        } else {
+                                          setAssignmentForm({
+                                            ...assignmentForm,
+                                            assigned_to: assignmentForm.assigned_to.filter(id => id !== profile.id)
+                                          });
+                                        }
+                                      }}
+                                      className="mt-1"
+                                    />
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <Badge variant="outline" className="font-mono text-xs">
+                                          {profile.serial_number}
+                                        </Badge>
+                                        <span className="font-medium">
+                                          {profile.first_name} {profile.last_name}
+                                        </span>
+                                      </div>
+                                      <p className="text-sm text-muted-foreground">{profile.email}</p>
+                                    </div>
+                                  </label>
+                                ))
+                              )}
+                            </div>
+                            {assignmentForm.assigned_to.length > 0 && (
+                              <p className="text-sm text-muted-foreground mt-2">
+                                {assignmentForm.assigned_to.length} user(s) selected
+                              </p>
+                            )}
                           </div>
                           <div>
                             <Label>Role</Label>
