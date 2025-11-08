@@ -46,12 +46,12 @@ serve(async (req) => {
       );
     }
 
-    // Verify it's a Payhip domain
-    if (!url.hostname.includes('payhip.com')) {
+    // Verify it's from ebook.jovita.site/b
+    if (url.hostname !== 'ebook.jovita.site' || !url.pathname.startsWith('/b')) {
       return new Response(
         JSON.stringify({ 
           valid: false, 
-          error: 'Link must be from payhip.com domain' 
+          error: 'Link must be from ebook.jovita.site/b domain' 
         }),
         { 
           status: 400, 

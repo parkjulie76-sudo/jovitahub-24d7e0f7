@@ -31,11 +31,11 @@ const creatorSchema = z.object({
     .refine((url) => {
       try {
         const urlObj = new URL(url);
-        return urlObj.hostname.includes('payhip.com');
+        return urlObj.hostname === 'ebook.jovita.site' && urlObj.pathname.startsWith('/b');
       } catch {
         return false;
       }
-    }, { message: "Affiliate link must be from payhip.com (e.g., https://payhip.com/b/...)" }),
+    }, { message: "Affiliate link must be from ebook.jovita.site/b (e.g., https://ebook.jovita.site/b/...)" }),
   message: z.string().trim().min(10, { message: "Message must be at least 10 characters" }).max(1000, { message: "Message must be less than 1000 characters" }),
   agreedToTerms: z.boolean().refine(val => val === true, { message: "You must agree to the Terms of Service" }),
 });
@@ -56,7 +56,9 @@ const JoinCreator = () => {
     agreedToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [warnings, setWarnings] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerifyingLink, setIsVerifyingLink] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -191,10 +193,64 @@ const JoinCreator = () => {
     }
   };
 
+  const verifyAffiliateLink = async (link: string) => {
+    if (!link) return;
+    
+    setIsVerifyingLink(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-payhip-link', {
+        body: { affiliateLink: link }
+      });
+
+      if (error) {
+        console.error('Verification error:', error);
+        setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Unable to verify link. Please ensure it's correct." }));
+        return;
+      }
+
+      if (data.valid) {
+        setWarnings(prev => ({ ...prev, affiliateLink: "" }));
+        toast({
+          title: "Link Verified",
+          description: "Your affiliate link is valid and accessible.",
+        });
+      } else {
+        setWarnings(prev => ({ ...prev, affiliateLink: `⚠️ ${data.error}` }));
+      }
+    } catch (error) {
+      console.error('Error verifying affiliate link:', error);
+      setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Verification failed. Please check your link." }));
+    } finally {
+      setIsVerifyingLink(false);
+    }
+  };
+
   const handleChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+    if (warnings[field]) {
+      setWarnings(prev => ({ ...prev, [field]: "" }));
+    }
+    
+    // Real-time validation for affiliate link
+    if (field === 'affiliateLink' || field === 'email') {
+      const currentEmail = field === 'email' ? value as string : formData.email;
+      const currentLink = field === 'affiliateLink' ? value as string : formData.affiliateLink;
+      
+      if (currentEmail && currentLink) {
+        try {
+          const linkUrl = new URL(currentLink);
+          if (linkUrl.hostname !== 'ebook.jovita.site' || !linkUrl.pathname.startsWith('/b')) {
+            setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Please ensure this is your affiliate link from ebook.jovita.site/b" }));
+          } else {
+            setWarnings(prev => ({ ...prev, affiliateLink: "" }));
+          }
+        } catch {
+          // Invalid URL, will be caught by main validation
+        }
+      }
     }
   };
 
@@ -376,7 +432,7 @@ const JoinCreator = () => {
                       type="button"
                       onClick={(e) => {
                         e.preventDefault();
-                        window.open('https://payhip.com/auth/register/af68eb302bd61bd', '_blank', 'noopener,noreferrer');
+                        window.open('https://ebook.jovita.site/affiliate-register', '_blank', 'noopener,noreferrer');
                       }}
                       className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 animate-pulse shadow-lg shadow-primary/50"
                     >
@@ -387,17 +443,38 @@ const JoinCreator = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="affiliateLink">
-                    Copy and Paste Your Affiliate Link * <span className="text-xs text-muted-foreground">(from Payhip)</span>
+                    Copy and Paste Your Affiliate Link * <span className="text-xs text-muted-foreground">(from ebook.jovita.site)</span>
                   </Label>
-                  <Input
-                    id="affiliateLink"
-                    value={formData.affiliateLink}
-                    onChange={(e) => handleChange("affiliateLink", e.target.value)}
-                    placeholder="https://payhip.com/b/..."
-                    className={errors.affiliateLink ? "border-destructive" : ""}
-                    required
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="affiliateLink"
+                      value={formData.affiliateLink}
+                      onChange={(e) => handleChange("affiliateLink", e.target.value)}
+                      onBlur={() => {
+                        if (formData.affiliateLink && formData.affiliateLink.includes('ebook.jovita.site/b')) {
+                          verifyAffiliateLink(formData.affiliateLink);
+                        }
+                      }}
+                      placeholder="https://ebook.jovita.site/b/..."
+                      className={errors.affiliateLink ? "border-destructive" : warnings.affiliateLink ? "border-yellow-500" : ""}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => verifyAffiliateLink(formData.affiliateLink)}
+                      disabled={!formData.affiliateLink || isVerifyingLink}
+                    >
+                      {isVerifyingLink ? "Verifying..." : "Verify"}
+                    </Button>
+                  </div>
                   {errors.affiliateLink && <p className="text-sm text-destructive">{errors.affiliateLink}</p>}
+                  {!errors.affiliateLink && warnings.affiliateLink && (
+                    <p className="text-sm text-yellow-600 dark:text-yellow-500">{warnings.affiliateLink}</p>
+                  )}
+                  {formData.email && formData.affiliateLink && !errors.affiliateLink && !warnings.affiliateLink && !isVerifyingLink && (
+                    <p className="text-sm text-green-600 dark:text-green-500">✓ Valid affiliate link. Make sure you registered with: {formData.email}</p>
+                  )}
                 </div>
               </div>
 
