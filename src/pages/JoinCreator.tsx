@@ -56,9 +56,7 @@ const JoinCreator = () => {
     agreedToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [warnings, setWarnings] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVerifyingLink, setIsVerifyingLink] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -193,64 +191,10 @@ const JoinCreator = () => {
     }
   };
 
-  const verifyAffiliateLink = async (link: string) => {
-    if (!link) return;
-    
-    setIsVerifyingLink(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('verify-payhip-link', {
-        body: { affiliateLink: link }
-      });
-
-      if (error) {
-        console.error('Verification error:', error);
-        setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Unable to verify link. Please ensure it's correct." }));
-        return;
-      }
-
-      if (data.valid) {
-        setWarnings(prev => ({ ...prev, affiliateLink: "" }));
-        toast({
-          title: "Link Verified",
-          description: "Your Payhip affiliate link is valid and accessible.",
-        });
-      } else {
-        setWarnings(prev => ({ ...prev, affiliateLink: `⚠️ ${data.error}` }));
-      }
-    } catch (error) {
-      console.error('Error verifying affiliate link:', error);
-      setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Verification failed. Please check your link." }));
-    } finally {
-      setIsVerifyingLink(false);
-    }
-  };
-
   const handleChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
-    }
-    if (warnings[field]) {
-      setWarnings(prev => ({ ...prev, [field]: "" }));
-    }
-    
-    // Real-time validation for affiliate link when both email and link are present
-    if (field === 'affiliateLink' || field === 'email') {
-      const currentEmail = field === 'email' ? value as string : formData.email;
-      const currentLink = field === 'affiliateLink' ? value as string : formData.affiliateLink;
-      
-      if (currentEmail && currentLink) {
-        try {
-          const linkUrl = new URL(currentLink);
-          if (!linkUrl.hostname.includes('payhip.com')) {
-            setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Please ensure this is your Payhip affiliate link registered with the same email address" }));
-          } else {
-            setWarnings(prev => ({ ...prev, affiliateLink: "" }));
-          }
-        } catch {
-          // Invalid URL, will be caught by main validation
-        }
-      }
     }
   };
 
@@ -445,36 +389,15 @@ const JoinCreator = () => {
                   <Label htmlFor="affiliateLink">
                     Copy and Paste Your Affiliate Link * <span className="text-xs text-muted-foreground">(from Payhip)</span>
                   </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="affiliateLink"
-                      value={formData.affiliateLink}
-                      onChange={(e) => handleChange("affiliateLink", e.target.value)}
-                      onBlur={() => {
-                        if (formData.affiliateLink && formData.affiliateLink.includes('payhip.com')) {
-                          verifyAffiliateLink(formData.affiliateLink);
-                        }
-                      }}
-                      placeholder="https://payhip.com/b/..."
-                      className={errors.affiliateLink ? "border-destructive" : warnings.affiliateLink ? "border-yellow-500" : ""}
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => verifyAffiliateLink(formData.affiliateLink)}
-                      disabled={!formData.affiliateLink || isVerifyingLink}
-                    >
-                      {isVerifyingLink ? "Verifying..." : "Verify"}
-                    </Button>
-                  </div>
+                  <Input
+                    id="affiliateLink"
+                    value={formData.affiliateLink}
+                    onChange={(e) => handleChange("affiliateLink", e.target.value)}
+                    placeholder="https://payhip.com/b/..."
+                    className={errors.affiliateLink ? "border-destructive" : ""}
+                    required
+                  />
                   {errors.affiliateLink && <p className="text-sm text-destructive">{errors.affiliateLink}</p>}
-                  {!errors.affiliateLink && warnings.affiliateLink && (
-                    <p className="text-sm text-yellow-600 dark:text-yellow-500">{warnings.affiliateLink}</p>
-                  )}
-                  {formData.email && formData.affiliateLink && !errors.affiliateLink && !warnings.affiliateLink && !isVerifyingLink && (
-                    <p className="text-sm text-green-600 dark:text-green-500">✓ Valid Payhip link. Make sure you registered with: {formData.email}</p>
-                  )}
                 </div>
               </div>
 
