@@ -104,19 +104,23 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, authUsersResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, approvedCreatorsResult, authUsersResult] = await Promise.all([
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id, first_name, last_name, serial_number"),
+      supabase.from("creator_applications").select("user_id, profiles(id, first_name, last_name, serial_number)").eq("status", "approved"),
       supabase.auth.admin.listUsers()
     ]);
 
-    // Merge profiles with auth user emails
-    const profilesWithEmails = (profilesResult.data || []).map((profile: any) => {
+    // Extract approved creators profiles and merge with auth user emails
+    const approvedProfiles = (approvedCreatorsResult.data || [])
+      .filter((app: any) => app.profiles) // Filter out null profiles
+      .map((app: any) => app.profiles);
+
+    const profilesWithEmails = approvedProfiles.map((profile: any) => {
       const authUser = authUsersResult.data?.users.find((u: any) => u.id === profile.id);
       return {
         ...profile,
