@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BookOpen, Video, Download, ExternalLink, Plus, Pencil, Trash2, Briefcase } from "lucide-react";
+import { BookOpen, Video, Download, ExternalLink, Plus, Pencil, Trash2, Briefcase, Eye } from "lucide-react";
 import AdminUserManagement from "@/components/AdminUserManagement";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +46,9 @@ const Dashboard = () => {
     description: '',
     requirements: ''
   });
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewDialogContent, setViewDialogContent] = useState<any>(null);
+  const [viewDialogType, setViewDialogType] = useState<'script' | 'video' | 'application' | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -402,6 +405,7 @@ const Dashboard = () => {
                       <TableHead>Affiliate Link</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
+                      {isAdmin && <TableHead>About</TableHead>}
                       {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
@@ -469,6 +473,22 @@ const Dashboard = () => {
                         <TableCell>{new Date(app.created_at).toLocaleDateString()}</TableCell>
                         {isAdmin && (
                           <TableCell>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setViewDialogContent(app);
+                                setViewDialogType('application');
+                                setViewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                          </TableCell>
+                        )}
+                        {isAdmin && (
+                          <TableCell>
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
@@ -515,6 +535,7 @@ const Dashboard = () => {
                       <TableHead>Description</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
+                      {isAdmin && <TableHead>View</TableHead>}
                       {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
@@ -534,6 +555,22 @@ const Dashboard = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>{new Date(script.created_at).toLocaleDateString()}</TableCell>
+                        {isAdmin && (
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setViewDialogContent(script);
+                                setViewDialogType('script');
+                                setViewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Read
+                            </Button>
+                          </TableCell>
+                        )}
                         {isAdmin && (
                           <TableCell>
                             <div className="flex gap-2">
@@ -582,6 +619,7 @@ const Dashboard = () => {
                       <TableHead>Description</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
+                      {isAdmin && <TableHead>View</TableHead>}
                       {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
@@ -601,6 +639,22 @@ const Dashboard = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>{new Date(video.created_at).toLocaleDateString()}</TableCell>
+                        {isAdmin && (
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setViewDialogContent(video);
+                                setViewDialogType('video');
+                                setViewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View
+                            </Button>
+                          </TableCell>
+                        )}
                         {isAdmin && (
                           <TableCell>
                             <div className="flex gap-2">
@@ -860,6 +914,195 @@ const Dashboard = () => {
       </main>
 
       <Footer />
+
+      {/* View Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {viewDialogType === 'script' && 'Script Details'}
+              {viewDialogType === 'video' && 'Video Details'}
+              {viewDialogType === 'application' && 'Application Details'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {viewDialogType === 'script' && viewDialogContent && (
+            <div className="space-y-4 py-4">
+              <div>
+                <Label className="font-semibold">Serial Number</Label>
+                <p className="mt-1 text-muted-foreground">{viewDialogContent.serial_number}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Title</Label>
+                <p className="mt-1">{viewDialogContent.title}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Description</Label>
+                <p className="mt-1 text-muted-foreground">{viewDialogContent.description || 'No description provided'}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Script Content</Label>
+                <div className="mt-2 p-4 bg-muted rounded-lg">
+                  <pre className="whitespace-pre-wrap font-mono text-sm">{viewDialogContent.content}</pre>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div>
+                  <Label className="font-semibold">Status</Label>
+                  <p className="mt-1">
+                    <Badge variant={viewDialogContent.status === "approved" ? "default" : "secondary"}>
+                      {viewDialogContent.status}
+                    </Badge>
+                  </p>
+                </div>
+                <div>
+                  <Label className="font-semibold">Submitted</Label>
+                  <p className="mt-1 text-muted-foreground">{new Date(viewDialogContent.created_at).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {viewDialogType === 'video' && viewDialogContent && (
+            <div className="space-y-4 py-4">
+              <div>
+                <Label className="font-semibold">Serial Number</Label>
+                <p className="mt-1 text-muted-foreground">{viewDialogContent.serial_number}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Title</Label>
+                <p className="mt-1">{viewDialogContent.title}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Description</Label>
+                <p className="mt-1 text-muted-foreground">{viewDialogContent.description || 'No description provided'}</p>
+              </div>
+              <div>
+                <Label className="font-semibold">Video URL</Label>
+                <a 
+                  href={viewDialogContent.video_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="mt-1 flex items-center gap-2 text-primary hover:underline"
+                >
+                  {viewDialogContent.video_url}
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </div>
+              {viewDialogContent.thumbnail_url && (
+                <div>
+                  <Label className="font-semibold">Thumbnail</Label>
+                  <div className="mt-2">
+                    <img 
+                      src={viewDialogContent.thumbnail_url} 
+                      alt="Video thumbnail"
+                      className="max-w-md rounded-lg border"
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-4">
+                <div>
+                  <Label className="font-semibold">Status</Label>
+                  <p className="mt-1">
+                    <Badge variant={viewDialogContent.status === "approved" ? "default" : "secondary"}>
+                      {viewDialogContent.status}
+                    </Badge>
+                  </p>
+                </div>
+                <div>
+                  <Label className="font-semibold">Submitted</Label>
+                  <p className="mt-1 text-muted-foreground">{new Date(viewDialogContent.created_at).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {viewDialogType === 'application' && viewDialogContent && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-semibold">Full Name</Label>
+                  <p className="mt-1">{viewDialogContent.full_name}</p>
+                </div>
+                <div>
+                  <Label className="font-semibold">Email</Label>
+                  <p className="mt-1">{viewDialogContent.email}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-semibold">Creator Type</Label>
+                  <p className="mt-1">
+                    {viewDialogContent.creator_type === 'script_writer' && 'Script Writer'}
+                    {viewDialogContent.creator_type === 'format_storytelling_writer' && 'Writer (Format + Storytelling)'}
+                    {viewDialogContent.creator_type === 'blogger' && 'Blogger'}
+                    {viewDialogContent.creator_type === 'video_format_creator' && 'Video Format Creator'}
+                    {viewDialogContent.creator_type === 'video_editor' && 'Video Editor'}
+                    {viewDialogContent.creator_type === 'full_video_creator' && 'Full Video Creator'}
+                  </p>
+                </div>
+                <div>
+                  <Label className="font-semibold">Experience Level</Label>
+                  <p className="mt-1">{viewDialogContent.experience?.charAt(0).toUpperCase() + viewDialogContent.experience?.slice(1)}</p>
+                </div>
+              </div>
+              <div>
+                <Label className="font-semibold">Tell us about Yourself</Label>
+                <div className="mt-2 p-4 bg-muted rounded-lg">
+                  <p className="whitespace-pre-wrap">{viewDialogContent.experience || 'No information provided'}</p>
+                </div>
+              </div>
+              {viewDialogContent.portfolio_url && (
+                <div>
+                  <Label className="font-semibold">Portfolio URL</Label>
+                  <a 
+                    href={viewDialogContent.portfolio_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-1 flex items-center gap-2 text-primary hover:underline"
+                  >
+                    {viewDialogContent.portfolio_url}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
+              )}
+              {viewDialogContent.affiliate_link && (
+                <div>
+                  <Label className="font-semibold">Affiliate Link</Label>
+                  <a 
+                    href={viewDialogContent.affiliate_link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-1 flex items-center gap-2 text-primary hover:underline"
+                  >
+                    {viewDialogContent.affiliate_link}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
+              )}
+              <div className="flex gap-4">
+                <div>
+                  <Label className="font-semibold">Status</Label>
+                  <p className="mt-1">
+                    <Badge variant={viewDialogContent.status === "approved" ? "default" : "secondary"}>
+                      {viewDialogContent.status}
+                    </Badge>
+                  </p>
+                </div>
+                <div>
+                  <Label className="font-semibold">Submitted</Label>
+                  <p className="mt-1 text-muted-foreground">{new Date(viewDialogContent.created_at).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-4">
+            <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
