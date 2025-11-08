@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BookOpen, Video, Download, ExternalLink, Plus, Pencil, Trash2, Briefcase, Eye } from "lucide-react";
+import { BookOpen, Video, Download, ExternalLink, Plus, Pencil, Trash2, Briefcase, Eye, DollarSign } from "lucide-react";
 import AdminUserManagement from "@/components/AdminUserManagement";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -364,6 +364,26 @@ const Dashboard = () => {
                     Video Guide
                   </Button>
                 </>
+              )}
+              {isAdmin && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/admin/commissions")}
+                  className="flex items-center gap-2"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  Manage Commissions
+                </Button>
+              )}
+              {!isAdmin && hasGuideAccess && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/commissions")}
+                  className="flex items-center gap-2"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  My Commissions
+                </Button>
               )}
               <Button onClick={() => navigate("/submit-script")}>Submit Script</Button>
               <Button onClick={() => navigate("/submit-video")}>Submit Video</Button>

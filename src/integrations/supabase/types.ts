@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      commission_splits: {
+        Row: {
+          calculated_at: string
+          commission_amount: number
+          commission_percentage: number
+          contributor_id: string
+          id: string
+          sale_id: string
+          video_id: string
+        }
+        Insert: {
+          calculated_at?: string
+          commission_amount: number
+          commission_percentage: number
+          contributor_id: string
+          id?: string
+          sale_id: string
+          video_id: string
+        }
+        Update: {
+          calculated_at?: string
+          commission_amount?: number
+          commission_percentage?: number
+          contributor_id?: string
+          id?: string
+          sale_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_splits_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "payhip_sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_splits_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           created_at: string
@@ -203,6 +248,92 @@ export type Database = {
         }
         Relationships: []
       }
+      payhip_sales: {
+        Row: {
+          affiliate_id: string
+          affiliate_link: string | null
+          buyer_email: string | null
+          commission_amount: number
+          id: string
+          imported_at: string
+          imported_by: string | null
+          payhip_sale_id: string
+          product_name: string | null
+          sale_amount: number
+          sale_date: string
+          video_id: string | null
+        }
+        Insert: {
+          affiliate_id: string
+          affiliate_link?: string | null
+          buyer_email?: string | null
+          commission_amount: number
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          payhip_sale_id: string
+          product_name?: string | null
+          sale_amount: number
+          sale_date: string
+          video_id?: string | null
+        }
+        Update: {
+          affiliate_id?: string
+          affiliate_link?: string | null
+          buyer_email?: string | null
+          commission_amount?: number
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          payhip_sale_id?: string
+          product_name?: string | null
+          sale_amount?: number
+          sale_date?: string
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payhip_sales_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_records: {
+        Row: {
+          amount: number
+          contributor_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          payout_date: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          contributor_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          payout_date: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          contributor_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          payout_date?: string
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -229,6 +360,47 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      project_contributors: {
+        Row: {
+          commission_percentage: number
+          created_at: string
+          id: string
+          payhip_affiliate_id: string
+          role: string
+          updated_at: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          commission_percentage: number
+          created_at?: string
+          id?: string
+          payhip_affiliate_id: string
+          role: string
+          updated_at?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          commission_percentage?: number
+          created_at?: string
+          id?: string
+          payhip_affiliate_id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_contributors_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scripts: {
         Row: {
