@@ -54,6 +54,15 @@ const Dashboard = () => {
     pending_payout: number;
     projects_count: number;
   } | null>(null);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false);
+  const [assignmentForm, setAssignmentForm] = useState({
+    script_id: '',
+    assigned_to: '',
+    role: '',
+    requirements: ''
+  });
+  const [profiles, setProfiles] = useState<any[]>([]);
 
   useEffect(() => {
     checkAuth();
@@ -94,12 +103,14 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult] = await Promise.all([
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
-      supabase.from("scripts").select("*").order("created_at", { ascending: false }),
+      supabase.from("scripts").select("*, profiles!scripts_user_id_fkey(first_name, last_name)").order("created_at", { ascending: false }),
       supabase.from("videos").select("*").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
+      supabase.from("video_assignments").select("*, scripts(serial_number, title), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("id, first_name, last_name, serial_number")
     ]);
 
     setApplications(appsResult.data || []);
@@ -107,19 +118,23 @@ const Dashboard = () => {
     setVideos(videosResult.data || []);
     setContactSubmissions(contactResult.data || []);
     setJobPositions(positionsResult.data || []);
+    setAssignments(assignmentsResult.data || []);
+    setProfiles(profilesResult.data || []);
   };
 
   const loadUserData = async (userId: string) => {
-    const [appsResult, scriptsResult, videosResult, splitsResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
       supabase.from("scripts").select("*").eq("user_id", userId),
       supabase.from("videos").select("*").eq("user_id", userId),
       supabase.from("commission_splits").select("*, payhip_sales(sale_amount)").eq("contributor_id", userId),
+      supabase.from("video_assignments").select("*, scripts(serial_number, title)").eq("assigned_to", userId).order("created_at", { ascending: false }),
     ]);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
     setVideos(videosResult.data || []);
+    setAssignments(assignmentsResult.data || []);
 
     // Calculate commission data
     if (splitsResult.data) {
@@ -336,6 +351,72 @@ const Dashboard = () => {
     loadAllData();
   };
 
+  const handleSaveAssignment = async () => {
+    if (!assignmentForm.script_id || !assignmentForm.assigned_to || !assignmentForm.role || !assignmentForm.requirements) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from("video_assignments")
+      .insert({
+        script_id: assignmentForm.script_id,
+        assigned_to: assignmentForm.assigned_to,
+        assigned_by: user.id,
+        role: assignmentForm.role,
+        requirements: assignmentForm.requirements,
+        status: 'assigned'
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create assignment",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Assignment created successfully",
+      });
+      setIsAssignmentDialogOpen(false);
+      setAssignmentForm({ script_id: '', assigned_to: '', role: '', requirements: '' });
+      loadAllData();
+    }
+  };
+
+  const updateAssignmentStatus = async (id: string, status: string) => {
+    const { error } = await supabase
+      .from("video_assignments")
+      .update({ 
+        status,
+        ...(status === 'completed' ? { completed_at: new Date().toISOString() } : {})
+      })
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update assignment status",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Assignment status updated",
+      });
+      if (isAdmin) {
+        loadAllData();
+      } else {
+        loadUserData(user.id);
+      }
+    }
+  };
+
   const downloadApplications = () => {
     const csvContent = [
       ["Name", "Email", "Creator Type", "Experience Level", "Portfolio URL", "Affiliate Link", "Status", "Created At"].join(","),
@@ -460,6 +541,7 @@ const Dashboard = () => {
               <TabsTrigger value="applications">Creator Applications</TabsTrigger>
               <TabsTrigger value="scripts">Scripts</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
+              <TabsTrigger value="assignments">Assignments</TabsTrigger>
               {isAdmin && <TabsTrigger value="contact">Contact Submissions</TabsTrigger>}
               {isAdmin && <TabsTrigger value="positions">Job Positions</TabsTrigger>}
               {isAdmin && <TabsTrigger value="admin">Admin Management</TabsTrigger>}
@@ -1022,6 +1104,195 @@ const Dashboard = () => {
                 </Card>
               </TabsContent>
             )}
+
+            <TabsContent value="assignments">
+              <Card className="p-6">
+                {isAdmin && (
+                  <div className="flex justify-end mb-4">
+                    <Dialog open={isAssignmentDialogOpen} onOpenChange={setIsAssignmentDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="flex items-center gap-2">
+                          <Plus className="h-4 w-4" />
+                          Create Assignment
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Create Video Assignment</DialogTitle>
+                          <DialogDescription>
+                            Assign a script to a video creator or editor with production requirements
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div>
+                            <Label>Script</Label>
+                            <Select 
+                              value={assignmentForm.script_id} 
+                              onValueChange={(value) => setAssignmentForm({...assignmentForm, script_id: value})}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a script" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {scripts.filter(s => s.status === 'approved').map((script) => (
+                                  <SelectItem key={script.id} value={script.id}>
+                                    {script.serial_number} - {script.title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Assign To</Label>
+                            <Select 
+                              value={assignmentForm.assigned_to} 
+                              onValueChange={(value) => setAssignmentForm({...assignmentForm, assigned_to: value})}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select user" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {profiles.map((profile) => (
+                                  <SelectItem key={profile.id} value={profile.id}>
+                                    {profile.serial_number} - {profile.first_name} {profile.last_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Role</Label>
+                            <Select 
+                              value={assignmentForm.role} 
+                              onValueChange={(value) => setAssignmentForm({...assignmentForm, role: value})}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="video_creator">Video Creator</SelectItem>
+                                <SelectItem value="video_editor">Video Editor</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Production Requirements</Label>
+                            <Textarea
+                              value={assignmentForm.requirements}
+                              onChange={(e) => setAssignmentForm({...assignmentForm, requirements: e.target.value})}
+                              placeholder="Enter detailed production requirements..."
+                              rows={6}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" onClick={() => setIsAssignmentDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleSaveAssignment}>
+                            Create Assignment
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Script</TableHead>
+                      {isAdmin && <TableHead>Assigned To</TableHead>}
+                      <TableHead>Role</TableHead>
+                      <TableHead>Requirements</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {assignments.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={isAdmin ? 7 : 6} className="text-center text-muted-foreground">
+                          No assignments yet
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      assignments.map((assignment) => (
+                        <TableRow key={assignment.id}>
+                          <TableCell>
+                            <div>
+                              <Badge variant="outline" className="font-mono text-xs mb-1">
+                                {assignment.scripts?.serial_number}
+                              </Badge>
+                              <p className="text-sm">{assignment.scripts?.title}</p>
+                            </div>
+                          </TableCell>
+                          {isAdmin && (
+                            <TableCell>
+                              {assignment.profiles?.first_name} {assignment.profiles?.last_name}
+                            </TableCell>
+                          )}
+                          <TableCell>
+                            <Badge variant="secondary">
+                              {assignment.role === 'video_creator' ? 'Video Creator' : 'Video Editor'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="max-w-xs truncate" title={assignment.requirements}>
+                              {assignment.requirements}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={
+                              assignment.status === 'completed' ? 'default' : 
+                              assignment.status === 'in_progress' ? 'secondary' : 
+                              'outline'
+                            }>
+                              {assignment.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{new Date(assignment.created_at).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              {!isAdmin && assignment.status === 'assigned' && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => updateAssignmentStatus(assignment.id, 'in_progress')}
+                                >
+                                  Start Work
+                                </Button>
+                              )}
+                              {!isAdmin && assignment.status === 'in_progress' && (
+                                <Button
+                                  size="sm"
+                                  onClick={() => updateAssignmentStatus(assignment.id, 'completed')}
+                                >
+                                  Mark Complete
+                                </Button>
+                              )}
+                              {isAdmin && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setViewDialogContent(assignment);
+                                    setViewDialogType('script');
+                                    setViewDialogOpen(true);
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  View
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </Card>
+            </TabsContent>
 
             {isAdmin && (
               <TabsContent value="admin">
