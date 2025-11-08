@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,7 +23,7 @@ const creatorSchema = z.object({
   creatorType: z.enum(["script_writer", "video_format_creator", "video_editor", "full_video_creator", "format_storytelling_writer", "blogger"], { required_error: "Please select your creator type" }),
   experience: z.string().trim().min(1, { message: "Please select your experience level" }),
   portfolio: z.string().trim().max(500, { message: "Portfolio URL must be less than 500 characters" }).optional(),
-  affiliateLink: z.string().trim().max(500, { message: "Affiliate link must be less than 500 characters" }).optional(),
+  affiliateLink: z.string().trim().url({ message: "Please enter a valid URL" }).min(1, { message: "Affiliate link is required" }).max(500, { message: "Affiliate link must be less than 500 characters" }),
   message: z.string().trim().min(10, { message: "Message must be at least 10 characters" }).max(1000, { message: "Message must be less than 1000 characters" }),
   agreedToTerms: z.boolean().refine(val => val === true, { message: "You must agree to the Terms of Service" }),
 });
@@ -342,17 +343,51 @@ const JoinCreator = () => {
                 {errors.portfolio && <p className="text-sm text-destructive">{errors.portfolio}</p>}
               </div>
 
-              {/* Affiliate Link */}
-              <div className="space-y-2">
-                <Label htmlFor="affiliateLink">Affiliate/Sales Tracking Link (Optional)</Label>
-                <Input
-                  id="affiliateLink"
-                  value={formData.affiliateLink}
-                  onChange={(e) => handleChange("affiliateLink", e.target.value)}
-                  placeholder="https://your-affiliate-link.com"
-                  className={errors.affiliateLink ? "border-destructive" : ""}
-                />
-                {errors.affiliateLink && <p className="text-sm text-destructive">{errors.affiliateLink}</p>}
+              {/* Affiliate Link - REQUIRED */}
+              <div className="space-y-3">
+                <Card className="p-4 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 animate-pulse-subtle">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-base flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                        Get Your Affiliate Link First
+                      </h3>
+                      <Badge variant="destructive" className="animate-pulse">Required</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Before filling out the form, you must register and get your unique affiliate link. 
+                      <span className="font-semibold text-foreground"> Use the same email address</span> for tracking.
+                    </p>
+                    <a 
+                      href="https://payhip.com/auth/register/af68eb302bd61bd" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Button 
+                        variant="default" 
+                        size="lg" 
+                        type="button"
+                        className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 animate-pulse shadow-lg shadow-primary/50"
+                      >
+                        🔗 Click Here and Get Your Affiliate Link
+                      </Button>
+                    </a>
+                  </div>
+                </Card>
+
+                <div className="space-y-2">
+                  <Label htmlFor="affiliateLink">Copy and Paste Your Affiliate Link *</Label>
+                  <Input
+                    id="affiliateLink"
+                    value={formData.affiliateLink}
+                    onChange={(e) => handleChange("affiliateLink", e.target.value)}
+                    placeholder="https://payhip.com/b/..."
+                    className={errors.affiliateLink ? "border-destructive" : ""}
+                    required
+                  />
+                  {errors.affiliateLink && <p className="text-sm text-destructive">{errors.affiliateLink}</p>}
+                </div>
               </div>
 
               {/* Message */}
@@ -369,25 +404,6 @@ const JoinCreator = () => {
                 {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
               </div>
 
-              {/* Sales Link Section */}
-              <Card className="p-4 bg-primary/5 border-primary/20">
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-sm">Get Your Sales Tracking Link</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Register for your unique sales link to track commissions. 
-                    <span className="font-semibold text-foreground"> Important: Use the same email address</span> you entered above to ensure proper tracking.
-                  </p>
-                  <a 
-                    href="https://payhip.com/auth/register/af68eb302bd61b" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    <Button variant="default" size="sm" type="button">
-                      Click Here To Get Your Sales Link
-                    </Button>
-                  </a>
-                </div>
-              </Card>
 
               {/* Terms of Service Agreement */}
               <div className="space-y-2">
