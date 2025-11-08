@@ -109,7 +109,7 @@ const Dashboard = () => {
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
-      supabase.from("video_assignments").select("*, scripts(serial_number, title), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
+      supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
       supabase.from("profiles").select("id, first_name, last_name, serial_number")
     ]);
 
@@ -128,7 +128,7 @@ const Dashboard = () => {
       supabase.from("scripts").select("*").eq("user_id", userId),
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").eq("user_id", userId),
       supabase.from("commission_splits").select("*, payhip_sales(sale_amount)").eq("contributor_id", userId),
-      supabase.from("video_assignments").select("*, scripts(serial_number, title)").eq("assigned_to", userId).order("created_at", { ascending: false }),
+      supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url)").eq("assigned_to", userId).order("created_at", { ascending: false }),
     ]);
 
     setApplications(appsResult.data || []);
@@ -185,6 +185,44 @@ const Dashboard = () => {
       } else {
         loadUserData(user.id);
       }
+    }
+  };
+
+  const downloadScriptFile = async (fileUrl: string, scriptTitle: string) => {
+    try {
+      const fileName = fileUrl.split('/scripts/')[1];
+      if (!fileName) {
+        toast({
+          title: "Error",
+          description: "Invalid file path",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.storage
+        .from('scripts')
+        .download(fileName);
+
+      if (error) throw error;
+
+      const url = window.URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${scriptTitle.replace(/[^a-z0-9]/gi, '_')}_${fileName.split('/').pop() || 'script.docx'}`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "Script downloaded successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to download script",
+        variant: "destructive",
+      });
     }
   };
 
@@ -717,63 +755,24 @@ const Dashboard = () => {
                         </TableCell>
                         <TableCell>{script.title}</TableCell>
                         <TableCell>{script.description}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            {script.file_url && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={async () => {
-                                  try {
-                                    // Extract file path from public URL
-                                    const fileName = script.file_url.split('/scripts/')[1];
-                                    if (!fileName) {
-                                      toast({
-                                        title: "Error",
-                                        description: "Invalid file path",
-                                        variant: "destructive",
-                                      });
-                                      return;
-                                    }
-
-                                    // Download using authenticated request
-                                    const { data, error } = await supabase.storage
-                                      .from('scripts')
-                                      .download(fileName);
-
-                                    if (error) throw error;
-
-                                    // Create download link
-                                    const url = window.URL.createObjectURL(data);
-                                    const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = fileName.split('/').pop() || 'script.docx';
-                                    a.click();
-                                    window.URL.revokeObjectURL(url);
-
-                                    toast({
-                                      title: "Success",
-                                      description: "Script downloaded successfully",
-                                    });
-                                  } catch (error: any) {
-                                    toast({
-                                      title: "Error",
-                                      description: error.message || "Failed to download script",
-                                      variant: "destructive",
-                                    });
-                                  }
-                                }}
-                                className="flex items-center gap-1 text-sm"
-                              >
-                                <Download className="h-3 w-3" />
-                                Download Script
-                              </Button>
-                            )}
-                            {script.content && !script.file_url && !script.google_drive_link && (
-                              <span className="text-muted-foreground text-sm">Text content</span>
-                            )}
-                          </div>
-                        </TableCell>
+                         <TableCell>
+                           <div className="flex flex-col gap-1">
+                             {script.file_url && (
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 onClick={() => downloadScriptFile(script.file_url, script.title)}
+                                 className="flex items-center gap-1 text-sm"
+                               >
+                                 <Download className="h-3 w-3" />
+                                 Download Script
+                               </Button>
+                             )}
+                             {script.content && !script.file_url && !script.google_drive_link && (
+                               <span className="text-muted-foreground text-sm">Text content</span>
+                             )}
+                           </div>
+                         </TableCell>
                         <TableCell>
                           <Badge variant={script.status === "approved" ? "default" : "secondary"}>
                             {script.status}
@@ -1309,63 +1308,27 @@ const Dashboard = () => {
                     ) : (
                       assignments.map((assignment) => (
                         <TableRow key={assignment.id}>
-                          <TableCell>
-                            <div className="space-y-2">
-                              <div>
-                                <Badge variant="outline" className="font-mono text-xs mb-1">
-                                  {assignment.scripts?.serial_number}
-                                </Badge>
-                                <p className="text-sm">{assignment.scripts?.title}</p>
-                              </div>
-                              {assignment.scripts?.file_url && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={async () => {
-                                    try {
-                                      const fileName = assignment.scripts.file_url.split('/scripts/')[1];
-                                      if (!fileName) {
-                                        toast({
-                                          title: "Error",
-                                          description: "Invalid file path",
-                                          variant: "destructive",
-                                        });
-                                        return;
-                                      }
-
-                                      const { data, error } = await supabase.storage
-                                        .from('scripts')
-                                        .download(fileName);
-
-                                      if (error) throw error;
-
-                                      const url = window.URL.createObjectURL(data);
-                                      const a = document.createElement('a');
-                                      a.href = url;
-                                      a.download = fileName.split('/').pop() || 'script.docx';
-                                      a.click();
-                                      window.URL.revokeObjectURL(url);
-
-                                      toast({
-                                        title: "Success",
-                                        description: "Script downloaded successfully",
-                                      });
-                                    } catch (error: any) {
-                                      toast({
-                                        title: "Error",
-                                        description: error.message || "Failed to download script",
-                                        variant: "destructive",
-                                      });
-                                    }
-                                  }}
-                                  className="flex items-center gap-1 w-full"
-                                >
-                                  <Download className="h-3 w-3" />
-                                  Download Script
-                                </Button>
-                              )}
-                            </div>
-                          </TableCell>
+                           <TableCell>
+                             <div className="space-y-2">
+                               <div>
+                                 <Badge variant="outline" className="font-mono text-xs mb-1">
+                                   {assignment.scripts?.serial_number}
+                                 </Badge>
+                                 <p className="text-sm">{assignment.scripts?.title}</p>
+                               </div>
+                               {assignment.scripts?.file_url && (
+                                 <Button
+                                   size="sm"
+                                   variant="outline"
+                                   onClick={() => downloadScriptFile(assignment.scripts.file_url, assignment.scripts.title)}
+                                   className="flex items-center gap-1 w-full"
+                                 >
+                                   <Download className="h-3 w-3" />
+                                   Download Script
+                                 </Button>
+                               )}
+                             </div>
+                           </TableCell>
                           {isAdmin && (
                             <TableCell>
                               {assignment.profiles?.first_name} {assignment.profiles?.last_name}
