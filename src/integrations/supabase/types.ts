@@ -404,9 +404,11 @@ export type Database = {
       }
       scripts: {
         Row: {
-          content: string
+          content: string | null
           created_at: string | null
           description: string | null
+          file_url: string | null
+          google_drive_link: string | null
           id: string
           serial_number: string | null
           status: string | null
@@ -415,9 +417,11 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          content: string
+          content?: string | null
           created_at?: string | null
           description?: string | null
+          file_url?: string | null
+          google_drive_link?: string | null
           id?: string
           serial_number?: string | null
           status?: string | null
@@ -426,9 +430,11 @@ export type Database = {
           user_id: string
         }
         Update: {
-          content?: string
+          content?: string | null
           created_at?: string | null
           description?: string | null
+          file_url?: string | null
+          google_drive_link?: string | null
           id?: string
           serial_number?: string | null
           status?: string | null
