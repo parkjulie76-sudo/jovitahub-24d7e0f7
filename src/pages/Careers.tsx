@@ -3,13 +3,23 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Users, Video, FileText, Megaphone, TrendingUp, MessageSquare } from "lucide-react";
+import { Briefcase, Users, Video, FileText, Megaphone, TrendingUp, MessageSquare, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+const iconMap: Record<string, any> = {
+  briefcase: Briefcase,
+  users: Users,
+  video: Video,
+  "file-text": FileText,
+  megaphone: Megaphone,
+  "trending-up": TrendingUp,
+  "message-square": MessageSquare,
+};
+
 const Careers = () => {
-  const { data: positions = [], isLoading } = useQuery({
+  const { data: positions, isLoading } = useQuery({
     queryKey: ['job-positions'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -23,20 +33,10 @@ const Careers = () => {
     }
   });
 
-  const getIcon = (iconName: string) => {
-    const icons: Record<string, any> = {
-      briefcase: Briefcase,
-      users: Users,
-      video: Video,
-      filetext: FileText,
-      megaphone: Megaphone,
-      trendingup: TrendingUp,
-      messagesquare: MessageSquare
-    };
-    return icons[iconName.toLowerCase()] || Briefcase;
-  };
-
   const typeColors: Record<string, string> = {
+    "Full-time": "bg-primary/10 text-primary",
+    "Part-time": "bg-secondary/10 text-secondary",
+    "Contract": "bg-accent/10 text-accent",
     "Creative": "bg-purple-500/10 text-purple-700 dark:text-purple-300",
     "Production": "bg-blue-500/10 text-blue-700 dark:text-blue-300",
     "Community": "bg-green-500/10 text-green-700 dark:text-green-300",
@@ -75,17 +75,13 @@ const Careers = () => {
             </div>
 
             {isLoading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading positions...</p>
+              <div className="flex justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
-            ) : positions.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No positions available at the moment.</p>
-              </div>
-            ) : (
+            ) : positions && positions.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-6">
                 {positions.map((position) => {
-                  const Icon = getIcon(position.icon);
+                  const Icon = iconMap[position.icon] || Briefcase;
                   return (
                     <Card key={position.id} className="hover:shadow-lg transition-shadow">
                       <CardHeader>
@@ -96,7 +92,7 @@ const Careers = () => {
                             </div>
                             <div>
                               <CardTitle className="text-xl">{position.title}</CardTitle>
-                              <Badge className={`mt-2 ${typeColors[position.type] || 'bg-gray-500/10 text-gray-700 dark:text-gray-300'}`} variant="secondary">
+                              <Badge className={`mt-2 ${typeColors[position.type] || 'bg-secondary'}`} variant="secondary">
                                 {position.type}
                               </Badge>
                             </div>
@@ -127,6 +123,10 @@ const Careers = () => {
                     </Card>
                   );
                 })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No open positions at the moment. Check back soon!</p>
               </div>
             )}
           </div>
@@ -193,7 +193,7 @@ const Careers = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Link to="/apply">
+                <Link to="/contact">
                   <Button size="lg">
                     Get in Touch
                   </Button>
