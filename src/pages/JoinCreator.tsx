@@ -58,6 +58,7 @@ const JoinCreator = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [warnings, setWarnings] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerifyingLink, setIsVerifyingLink] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -189,6 +190,38 @@ const JoinCreator = () => {
       }
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const verifyAffiliateLink = async (link: string) => {
+    if (!link) return;
+    
+    setIsVerifyingLink(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-payhip-link', {
+        body: { affiliateLink: link }
+      });
+
+      if (error) {
+        console.error('Verification error:', error);
+        setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Unable to verify link. Please ensure it's correct." }));
+        return;
+      }
+
+      if (data.valid) {
+        setWarnings(prev => ({ ...prev, affiliateLink: "" }));
+        toast({
+          title: "Link Verified",
+          description: "Your Payhip affiliate link is valid and accessible.",
+        });
+      } else {
+        setWarnings(prev => ({ ...prev, affiliateLink: `⚠️ ${data.error}` }));
+      }
+    } catch (error) {
+      console.error('Error verifying affiliate link:', error);
+      setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Verification failed. Please check your link." }));
+    } finally {
+      setIsVerifyingLink(false);
     }
   };
 
@@ -393,39 +426,53 @@ const JoinCreator = () => {
                       Before filling out the form, you must register and get your unique affiliate link. 
                       <span className="font-semibold text-foreground"> Use the same email address</span> for tracking.
                     </p>
-                    <a 
-                      href="https://payhip.com/auth/register/af68eb302bd61bd" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block"
+                    <Button 
+                      variant="default" 
+                      size="lg" 
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.open('https://payhip.com/auth/register/af68eb302bd61bd', '_blank', 'noopener,noreferrer');
+                      }}
+                      className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 animate-pulse shadow-lg shadow-primary/50"
                     >
-                      <Button 
-                        variant="default" 
-                        size="lg" 
-                        type="button"
-                        className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 animate-pulse shadow-lg shadow-primary/50"
-                      >
-                        🔗 Click Here and Get Your Affiliate Link
-                      </Button>
-                    </a>
+                      🔗 Click Here and Get Your Affiliate Link
+                    </Button>
                   </div>
                 </Card>
 
                 <div className="space-y-2">
-                  <Label htmlFor="affiliateLink">Copy and Paste Your Affiliate Link *</Label>
-                  <Input
-                    id="affiliateLink"
-                    value={formData.affiliateLink}
-                    onChange={(e) => handleChange("affiliateLink", e.target.value)}
-                    placeholder="https://payhip.com/b/..."
-                    className={errors.affiliateLink ? "border-destructive" : warnings.affiliateLink ? "border-yellow-500" : ""}
-                    required
-                  />
+                  <Label htmlFor="affiliateLink">
+                    Copy and Paste Your Affiliate Link * <span className="text-xs text-muted-foreground">(from Payhip)</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="affiliateLink"
+                      value={formData.affiliateLink}
+                      onChange={(e) => handleChange("affiliateLink", e.target.value)}
+                      onBlur={() => {
+                        if (formData.affiliateLink && formData.affiliateLink.includes('payhip.com')) {
+                          verifyAffiliateLink(formData.affiliateLink);
+                        }
+                      }}
+                      placeholder="https://payhip.com/b/..."
+                      className={errors.affiliateLink ? "border-destructive" : warnings.affiliateLink ? "border-yellow-500" : ""}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => verifyAffiliateLink(formData.affiliateLink)}
+                      disabled={!formData.affiliateLink || isVerifyingLink}
+                    >
+                      {isVerifyingLink ? "Verifying..." : "Verify"}
+                    </Button>
+                  </div>
                   {errors.affiliateLink && <p className="text-sm text-destructive">{errors.affiliateLink}</p>}
                   {!errors.affiliateLink && warnings.affiliateLink && (
                     <p className="text-sm text-yellow-600 dark:text-yellow-500">{warnings.affiliateLink}</p>
                   )}
-                  {formData.email && formData.affiliateLink && !errors.affiliateLink && !warnings.affiliateLink && (
+                  {formData.email && formData.affiliateLink && !errors.affiliateLink && !warnings.affiliateLink && !isVerifyingLink && (
                     <p className="text-sm text-green-600 dark:text-green-500">✓ Valid Payhip link. Make sure you registered with: {formData.email}</p>
                   )}
                 </div>
