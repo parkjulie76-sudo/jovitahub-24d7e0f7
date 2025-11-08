@@ -15,16 +15,8 @@ import { Upload } from "lucide-react";
 const scriptSchema = z.object({
   title: z.string().trim().min(3, "Title must be at least 3 characters").max(200, "Title must be less than 200 characters"),
   description: z.string().trim().max(1000, "Description must be less than 1000 characters").optional().or(z.literal("")),
-  content: z.string().trim().optional().or(z.literal("")),
   googleDriveLink: z.string().trim().url("Must be a valid URL").optional().or(z.literal("")),
-}).refine(
-  (data) => {
-    return data.content || data.googleDriveLink;
-  },
-  {
-    message: "Please provide a script file, Google Drive link, or paste your script content",
-  }
-);
+});
 
 const SubmitScript = () => {
   const navigate = useNavigate();
@@ -35,7 +27,6 @@ const SubmitScript = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    content: "",
     googleDriveLink: "",
   });
 
@@ -95,12 +86,25 @@ const SubmitScript = () => {
 
     try {
       // Check if at least one content source is provided
-      if (!scriptFile && !formData.googleDriveLink && !formData.content) {
-        throw new z.ZodError([{
-          code: "custom",
-          path: ["content"],
-          message: "Please provide a script file, Google Drive link, or paste your script content"
-        }]);
+      if (!scriptFile && !formData.googleDriveLink) {
+        toast({
+          title: "Validation Error",
+          description: "Please provide either a script file or a Google Drive link",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Check that only one method is provided
+      if (scriptFile && formData.googleDriveLink) {
+        toast({
+          title: "Validation Error",
+          description: "Please provide either a file upload OR a Google Drive link, not both",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
       }
 
       // Validate input before database insertion
@@ -132,7 +136,6 @@ const SubmitScript = () => {
           user_id: user.id,
           title: validatedData.title,
           description: validatedData.description || null,
-          content: validatedData.content || null,
           google_drive_link: validatedData.googleDriveLink || null,
           file_url: fileUrl,
           status: "pending",
@@ -234,23 +237,6 @@ const SubmitScript = () => {
                     placeholder="https://drive.google.com/..."
                   />
                   <p className="text-sm text-muted-foreground">Make sure the file is shared with view access</p>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-sm text-muted-foreground">OR</span>
-                  <div className="flex-1 h-px bg-border" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="content">Paste Script Content</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    placeholder="Paste your script here..."
-                    rows={10}
-                  />
                 </div>
               </div>
 
