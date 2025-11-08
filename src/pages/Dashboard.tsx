@@ -190,7 +190,12 @@ const Dashboard = () => {
 
   const downloadScriptFile = async (fileUrl: string, scriptTitle: string) => {
     try {
-      const fileName = fileUrl.split('/scripts/')[1];
+      // Handle both old format (full URL) and new format (file path only)
+      let fileName = fileUrl;
+      if (fileUrl.includes('/scripts/')) {
+        fileName = fileUrl.split('/scripts/')[1];
+      }
+      
       if (!fileName) {
         toast({
           title: "Error",
@@ -1447,43 +1452,7 @@ const Dashboard = () => {
                   <Label className="font-semibold">Uploaded File</Label>
                   <Button
                     variant="outline"
-                    onClick={async () => {
-                      try {
-                        const fileName = viewDialogContent.file_url.split('/scripts/')[1];
-                        if (!fileName) {
-                          toast({
-                            title: "Error",
-                            description: "Invalid file path",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-
-                        const { data, error } = await supabase.storage
-                          .from('scripts')
-                          .download(fileName);
-
-                        if (error) throw error;
-
-                        const url = window.URL.createObjectURL(data);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = fileName.split('/').pop() || 'script.docx';
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-
-                        toast({
-                          title: "Success",
-                          description: "Script downloaded successfully",
-                        });
-                      } catch (error: any) {
-                        toast({
-                          title: "Error",
-                          description: error.message || "Failed to download script",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
+                    onClick={() => downloadScriptFile(viewDialogContent.file_url, viewDialogContent.title)}
                     className="mt-2 flex items-center gap-2"
                   >
                     <Download className="h-4 w-4" />

@@ -107,17 +107,14 @@ const SubmitScript = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('scripts')
-        .getPublicUrl(fileName);
-
+      // Store the file path (not public URL since bucket is private)
       const { error } = await supabase
         .from("scripts")
         .insert({
           user_id: user.id,
           title: validatedData.title,
           description: validatedData.description || null,
-          file_url: publicUrl,
+          file_url: fileName,
           status: "pending",
         });
 
