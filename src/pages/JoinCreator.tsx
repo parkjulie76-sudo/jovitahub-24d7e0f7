@@ -23,7 +23,19 @@ const creatorSchema = z.object({
   creatorType: z.enum(["script_writer", "video_format_creator", "video_editor", "full_video_creator", "format_storytelling_writer", "blogger"], { required_error: "Please select your creator type" }),
   experience: z.string().trim().min(1, { message: "Please select your experience level" }),
   portfolio: z.string().trim().max(500, { message: "Portfolio URL must be less than 500 characters" }).optional(),
-  affiliateLink: z.string().trim().url({ message: "Please enter a valid URL" }).min(1, { message: "Affiliate link is required" }).max(500, { message: "Affiliate link must be less than 500 characters" }),
+  affiliateLink: z.string()
+    .trim()
+    .url({ message: "Please enter a valid URL" })
+    .min(1, { message: "Affiliate link is required" })
+    .max(500, { message: "Affiliate link must be less than 500 characters" })
+    .refine((url) => {
+      try {
+        const urlObj = new URL(url);
+        return urlObj.hostname.includes('payhip.com');
+      } catch {
+        return false;
+      }
+    }, { message: "Affiliate link must be from payhip.com (e.g., https://payhip.com/b/...)" }),
   message: z.string().trim().min(10, { message: "Message must be at least 10 characters" }).max(1000, { message: "Message must be less than 1000 characters" }),
   agreedToTerms: z.boolean().refine(val => val === true, { message: "You must agree to the Terms of Service" }),
 });
@@ -44,6 +56,7 @@ const JoinCreator = () => {
     agreedToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [warnings, setWarnings] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -183,6 +196,28 @@ const JoinCreator = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+    if (warnings[field]) {
+      setWarnings(prev => ({ ...prev, [field]: "" }));
+    }
+    
+    // Real-time validation for affiliate link when both email and link are present
+    if (field === 'affiliateLink' || field === 'email') {
+      const currentEmail = field === 'email' ? value as string : formData.email;
+      const currentLink = field === 'affiliateLink' ? value as string : formData.affiliateLink;
+      
+      if (currentEmail && currentLink) {
+        try {
+          const linkUrl = new URL(currentLink);
+          if (!linkUrl.hostname.includes('payhip.com')) {
+            setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Please ensure this is your Payhip affiliate link registered with the same email address" }));
+          } else {
+            setWarnings(prev => ({ ...prev, affiliateLink: "" }));
+          }
+        } catch {
+          // Invalid URL, will be caught by main validation
+        }
+      }
     }
   };
 
@@ -383,10 +418,16 @@ const JoinCreator = () => {
                     value={formData.affiliateLink}
                     onChange={(e) => handleChange("affiliateLink", e.target.value)}
                     placeholder="https://payhip.com/b/..."
-                    className={errors.affiliateLink ? "border-destructive" : ""}
+                    className={errors.affiliateLink ? "border-destructive" : warnings.affiliateLink ? "border-yellow-500" : ""}
                     required
                   />
                   {errors.affiliateLink && <p className="text-sm text-destructive">{errors.affiliateLink}</p>}
+                  {!errors.affiliateLink && warnings.affiliateLink && (
+                    <p className="text-sm text-yellow-600 dark:text-yellow-500">{warnings.affiliateLink}</p>
+                  )}
+                  {formData.email && formData.affiliateLink && !errors.affiliateLink && !warnings.affiliateLink && (
+                    <p className="text-sm text-green-600 dark:text-green-500">✓ Valid Payhip link. Make sure you registered with: {formData.email}</p>
+                  )}
                 </div>
               </div>
 
