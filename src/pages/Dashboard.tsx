@@ -280,6 +280,8 @@ const Dashboard = () => {
                           {app.creator_type ? (
                             <Badge variant="outline">
                               {app.creator_type === 'script_writer' && 'Script Writer'}
+                              {app.creator_type === 'format_storytelling_writer' && 'Writer (Format + Storytelling)'}
+                              {app.creator_type === 'blogger' && 'Blogger'}
                               {app.creator_type === 'video_format_creator' && 'Video Format Creator'}
                               {app.creator_type === 'video_editor' && 'Video Editor'}
                               {app.creator_type === 'full_video_creator' && 'Full Video Creator'}

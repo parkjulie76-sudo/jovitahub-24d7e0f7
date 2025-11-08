@@ -19,7 +19,7 @@ const creatorSchema = z.object({
   name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100, { message: "Name must be less than 100 characters" }),
   email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  creatorType: z.enum(["script_writer", "video_format_creator", "video_editor", "full_video_creator"], { required_error: "Please select your creator type" }),
+  creatorType: z.enum(["script_writer", "video_format_creator", "video_editor", "full_video_creator", "format_storytelling_writer", "blogger"], { required_error: "Please select your creator type" }),
   experience: z.string().trim().min(1, { message: "Please select your experience level" }),
   portfolio: z.string().trim().max(500, { message: "Portfolio URL must be less than 500 characters" }).optional(),
   affiliateLink: z.string().trim().max(500, { message: "Affiliate link must be less than 500 characters" }).optional(),
@@ -289,6 +289,8 @@ const JoinCreator = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="script_writer">Script Writer</SelectItem>
+                    <SelectItem value="format_storytelling_writer">Writer (Format + Storytelling Script)</SelectItem>
+                    <SelectItem value="blogger">Blogger</SelectItem>
                     <SelectItem value="video_format_creator">Video Format Creator</SelectItem>
                     <SelectItem value="video_editor">Video Editor</SelectItem>
                     <SelectItem value="full_video_creator">Video Creator (Format + Script + Video Edit)</SelectItem>
