@@ -466,7 +466,7 @@ export type Database = {
           id: string
           serial_number: string | null
           status: string | null
-          thumbnail_url: string | null
+          thumbnail_url: string
           title: string
           updated_at: string | null
           user_id: string
@@ -478,7 +478,7 @@ export type Database = {
           id?: string
           serial_number?: string | null
           status?: string | null
-          thumbnail_url?: string | null
+          thumbnail_url: string
           title: string
           updated_at?: string | null
           user_id: string
@@ -490,7 +490,7 @@ export type Database = {
           id?: string
           serial_number?: string | null
           status?: string | null
-          thumbnail_url?: string | null
+          thumbnail_url?: string
           title?: string
           updated_at?: string | null
           user_id?: string
