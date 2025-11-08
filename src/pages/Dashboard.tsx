@@ -720,24 +720,54 @@ const Dashboard = () => {
                         <TableCell>
                           <div className="flex flex-col gap-1">
                             {script.file_url && (
-                              <a 
-                                href={script.file_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-primary hover:underline text-sm"
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={async () => {
+                                  try {
+                                    // Extract file path from public URL
+                                    const fileName = script.file_url.split('/scripts/')[1];
+                                    if (!fileName) {
+                                      toast({
+                                        title: "Error",
+                                        description: "Invalid file path",
+                                        variant: "destructive",
+                                      });
+                                      return;
+                                    }
+
+                                    // Download using authenticated request
+                                    const { data, error } = await supabase.storage
+                                      .from('scripts')
+                                      .download(fileName);
+
+                                    if (error) throw error;
+
+                                    // Create download link
+                                    const url = window.URL.createObjectURL(data);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = fileName.split('/').pop() || 'script.docx';
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+
+                                    toast({
+                                      title: "Success",
+                                      description: "Script downloaded successfully",
+                                    });
+                                  } catch (error: any) {
+                                    toast({
+                                      title: "Error",
+                                      description: error.message || "Failed to download script",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                                className="flex items-center gap-1 text-sm"
                               >
-                                📄 Document <ExternalLink className="h-3 w-3" />
-                              </a>
-                            )}
-                            {script.google_drive_link && (
-                              <a 
-                                href={script.google_drive_link} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-primary hover:underline text-sm"
-                              >
-                                📁 Drive <ExternalLink className="h-3 w-3" />
-                              </a>
+                                <Download className="h-3 w-3" />
+                                Download Script
+                              </Button>
                             )}
                             {script.content && !script.file_url && !script.google_drive_link && (
                               <span className="text-muted-foreground text-sm">Text content</span>
@@ -1280,11 +1310,60 @@ const Dashboard = () => {
                       assignments.map((assignment) => (
                         <TableRow key={assignment.id}>
                           <TableCell>
-                            <div>
-                              <Badge variant="outline" className="font-mono text-xs mb-1">
-                                {assignment.scripts?.serial_number}
-                              </Badge>
-                              <p className="text-sm">{assignment.scripts?.title}</p>
+                            <div className="space-y-2">
+                              <div>
+                                <Badge variant="outline" className="font-mono text-xs mb-1">
+                                  {assignment.scripts?.serial_number}
+                                </Badge>
+                                <p className="text-sm">{assignment.scripts?.title}</p>
+                              </div>
+                              {assignment.scripts?.file_url && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={async () => {
+                                    try {
+                                      const fileName = assignment.scripts.file_url.split('/scripts/')[1];
+                                      if (!fileName) {
+                                        toast({
+                                          title: "Error",
+                                          description: "Invalid file path",
+                                          variant: "destructive",
+                                        });
+                                        return;
+                                      }
+
+                                      const { data, error } = await supabase.storage
+                                        .from('scripts')
+                                        .download(fileName);
+
+                                      if (error) throw error;
+
+                                      const url = window.URL.createObjectURL(data);
+                                      const a = document.createElement('a');
+                                      a.href = url;
+                                      a.download = fileName.split('/').pop() || 'script.docx';
+                                      a.click();
+                                      window.URL.revokeObjectURL(url);
+
+                                      toast({
+                                        title: "Success",
+                                        description: "Script downloaded successfully",
+                                      });
+                                    } catch (error: any) {
+                                      toast({
+                                        title: "Error",
+                                        description: error.message || "Failed to download script",
+                                        variant: "destructive",
+                                      });
+                                    }
+                                  }}
+                                  className="flex items-center gap-1 w-full"
+                                >
+                                  <Download className="h-3 w-3" />
+                                  Download Script
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                           {isAdmin && (
@@ -1403,15 +1482,50 @@ const Dashboard = () => {
               {viewDialogContent.file_url && (
                 <div>
                   <Label className="font-semibold">Uploaded File</Label>
-                  <a 
-                    href={viewDialogContent.file_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="mt-1 flex items-center gap-2 text-primary hover:underline"
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const fileName = viewDialogContent.file_url.split('/scripts/')[1];
+                        if (!fileName) {
+                          toast({
+                            title: "Error",
+                            description: "Invalid file path",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+
+                        const { data, error } = await supabase.storage
+                          .from('scripts')
+                          .download(fileName);
+
+                        if (error) throw error;
+
+                        const url = window.URL.createObjectURL(data);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName.split('/').pop() || 'script.docx';
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+
+                        toast({
+                          title: "Success",
+                          description: "Script downloaded successfully",
+                        });
+                      } catch (error: any) {
+                        toast({
+                          title: "Error",
+                          description: error.message || "Failed to download script",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="mt-2 flex items-center gap-2"
                   >
-                    📄 Download Document
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
+                    <Download className="h-4 w-4" />
+                    Download Script
+                  </Button>
                 </div>
               )}
               

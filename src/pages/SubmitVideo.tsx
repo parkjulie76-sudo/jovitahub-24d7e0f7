@@ -70,7 +70,7 @@ const SubmitVideo = () => {
       // Load user's assignments
       const { data: assignmentsData } = await supabase
         .from("video_assignments")
-        .select("*, scripts(id, serial_number, title)")
+        .select("*, scripts(id, serial_number, title, file_url)")
         .eq("assigned_to", session.user.id)
         .in("status", ["assigned", "in_progress"])
         .order("created_at", { ascending: false });
@@ -193,6 +193,54 @@ const SubmitVideo = () => {
                   <p className="text-sm text-destructive">
                     You don't have any active assignments. Please wait for admin to assign a script to you.
                   </p>
+                )}
+                {formData.assignmentId && assignments.find(a => a.id === formData.assignmentId)?.scripts?.file_url && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const assignment = assignments.find(a => a.id === formData.assignmentId);
+                        const fileName = assignment?.scripts?.file_url?.split('/scripts/')[1];
+                        if (!fileName) {
+                          toast({
+                            title: "Error",
+                            description: "Invalid file path",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+
+                        const { data, error } = await supabase.storage
+                          .from('scripts')
+                          .download(fileName);
+
+                        if (error) throw error;
+
+                        const url = window.URL.createObjectURL(data);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName.split('/').pop() || 'script.docx';
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+
+                        toast({
+                          title: "Success",
+                          description: "Script downloaded successfully",
+                        });
+                      } catch (error: any) {
+                        toast({
+                          title: "Error",
+                          description: error.message || "Failed to download script",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="flex items-center gap-2 w-full"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download Script File
+                  </Button>
                 )}
               </div>
 
