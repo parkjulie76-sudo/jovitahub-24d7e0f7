@@ -52,8 +52,10 @@ export type Database = {
       }
       creator_applications: {
         Row: {
+          affiliate_link: string | null
           agreed_to_terms: boolean
           created_at: string | null
+          creator_type: string | null
           email: string
           experience: string
           full_name: string
@@ -64,8 +66,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affiliate_link?: string | null
           agreed_to_terms?: boolean
           created_at?: string | null
+          creator_type?: string | null
           email: string
           experience: string
           full_name: string
@@ -76,8 +80,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affiliate_link?: string | null
           agreed_to_terms?: boolean
           created_at?: string | null
+          creator_type?: string | null
           email?: string
           experience?: string
           full_name?: string

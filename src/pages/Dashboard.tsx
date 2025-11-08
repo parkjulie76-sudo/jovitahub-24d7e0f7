@@ -168,6 +168,30 @@ const Dashboard = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const downloadApplications = () => {
+    const csvContent = [
+      ["Name", "Email", "Creator Type", "Experience", "Portfolio URL", "Affiliate Link", "Status", "Created At"].join(","),
+      ...applications.map(app => [
+        `"${app.full_name}"`,
+        app.email,
+        app.creator_type || 'N/A',
+        `"${app.experience || ''}"`,
+        app.portfolio_url || '',
+        app.affiliate_link || '',
+        app.status,
+        new Date(app.created_at).toLocaleString()
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `creator_applications_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -221,11 +245,26 @@ const Dashboard = () => {
 
             <TabsContent value="applications">
               <Card className="p-6">
+                {isAdmin && (
+                  <div className="flex justify-end mb-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={downloadApplications}
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download Applications
+                    </Button>
+                  </div>
+                )}
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
+                      <TableHead>Creator Type</TableHead>
+                      <TableHead>Portfolio</TableHead>
+                      <TableHead>Affiliate Link</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
                       {isAdmin && <TableHead>Actions</TableHead>}
@@ -236,6 +275,43 @@ const Dashboard = () => {
                       <TableRow key={app.id}>
                         <TableCell>{app.full_name}</TableCell>
                         <TableCell>{app.email}</TableCell>
+                        <TableCell>
+                          {app.creator_type ? (
+                            <Badge variant="outline">
+                              {app.creator_type.replace('_', ' ').toUpperCase()}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {app.portfolio_url ? (
+                            <a 
+                              href={app.portfolio_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-primary hover:underline"
+                            >
+                              View <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {app.affiliate_link ? (
+                            <a 
+                              href={app.affiliate_link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-primary hover:underline"
+                            >
+                              View <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Badge variant={app.status === "approved" ? "default" : "secondary"}>
                             {app.status}
