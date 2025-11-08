@@ -49,6 +49,11 @@ const Dashboard = () => {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewDialogContent, setViewDialogContent] = useState<any>(null);
   const [viewDialogType, setViewDialogType] = useState<'script' | 'video' | 'application' | null>(null);
+  const [commissionData, setCommissionData] = useState<{
+    total_commission: number;
+    pending_payout: number;
+    projects_count: number;
+  } | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -105,15 +110,42 @@ const Dashboard = () => {
   };
 
   const loadUserData = async (userId: string) => {
-    const [appsResult, scriptsResult, videosResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, splitsResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
       supabase.from("scripts").select("*").eq("user_id", userId),
       supabase.from("videos").select("*").eq("user_id", userId),
+      supabase.from("commission_splits").select("*, payhip_sales(sale_amount)").eq("contributor_id", userId),
     ]);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
     setVideos(videosResult.data || []);
+
+    // Calculate commission data
+    if (splitsResult.data) {
+      const totalCommission = splitsResult.data.reduce((sum, split) => 
+        sum + parseFloat(split.commission_amount.toString()), 0
+      );
+      
+      const projectIds = new Set(splitsResult.data.map(s => s.video_id));
+      
+      // Get payout history
+      const { data: payouts } = await supabase
+        .from('payout_records')
+        .select('*')
+        .eq('contributor_id', userId)
+        .eq('status', 'completed');
+
+      const completedPayouts = payouts?.reduce((sum, p) => 
+        sum + parseFloat(p.amount.toString()), 0
+      ) || 0;
+
+      setCommissionData({
+        total_commission: totalCommission,
+        pending_payout: totalCommission - completedPayouts,
+        projects_count: projectIds.size,
+      });
+    }
   };
 
   const updateStatus = async (table: string, id: string, status: string) => {
@@ -389,6 +421,39 @@ const Dashboard = () => {
               <Button onClick={() => navigate("/submit-video")}>Submit Video</Button>
             </div>
           </div>
+
+          {/* Commission Summary for all users */}
+          {commissionData && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Total Commission</p>
+                    <p className="text-2xl font-bold">${commissionData.total_commission.toFixed(2)}</p>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-primary" />
+                </div>
+              </Card>
+              <Card className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Pending Payout</p>
+                    <p className="text-2xl font-bold text-primary">${commissionData.pending_payout.toFixed(2)}</p>
+                  </div>
+                  <DollarSign className="h-8 w-8 text-muted-foreground" />
+                </div>
+              </Card>
+              <Card className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Active Projects</p>
+                    <p className="text-2xl font-bold">{commissionData.projects_count}</p>
+                  </div>
+                  <Video className="h-8 w-8 text-primary" />
+                </div>
+              </Card>
+            </div>
+          )}
 
           <Tabs defaultValue="applications" className="w-full">
             <TabsList>
