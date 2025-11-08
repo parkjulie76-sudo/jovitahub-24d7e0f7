@@ -700,6 +700,7 @@ const Dashboard = () => {
                       <TableHead>Serial #</TableHead>
                       <TableHead>Title</TableHead>
                       <TableHead>Description</TableHead>
+                      <TableHead>File/Link</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
                       {isAdmin && <TableHead>View</TableHead>}
@@ -716,6 +717,33 @@ const Dashboard = () => {
                         </TableCell>
                         <TableCell>{script.title}</TableCell>
                         <TableCell>{script.description}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            {script.file_url && (
+                              <a 
+                                href={script.file_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline text-sm"
+                              >
+                                📄 Document <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                            {script.google_drive_link && (
+                              <a 
+                                href={script.google_drive_link} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline text-sm"
+                              >
+                                📁 Drive <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                            {script.content && !script.file_url && !script.google_drive_link && (
+                              <span className="text-muted-foreground text-sm">Text content</span>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <Badge variant={script.status === "approved" ? "default" : "secondary"}>
                             {script.status}
@@ -1330,12 +1358,46 @@ const Dashboard = () => {
                 <Label className="font-semibold">Description</Label>
                 <p className="mt-1 text-muted-foreground">{viewDialogContent.description || 'No description provided'}</p>
               </div>
-              <div>
-                <Label className="font-semibold">Script Content</Label>
-                <div className="mt-2 p-4 bg-muted rounded-lg">
-                  <pre className="whitespace-pre-wrap font-mono text-sm">{viewDialogContent.content}</pre>
+              
+              {viewDialogContent.file_url && (
+                <div>
+                  <Label className="font-semibold">Uploaded File</Label>
+                  <a 
+                    href={viewDialogContent.file_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-1 flex items-center gap-2 text-primary hover:underline"
+                  >
+                    📄 Download Document
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
                 </div>
-              </div>
+              )}
+              
+              {viewDialogContent.google_drive_link && (
+                <div>
+                  <Label className="font-semibold">Google Drive Link</Label>
+                  <a 
+                    href={viewDialogContent.google_drive_link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-1 flex items-center gap-2 text-primary hover:underline"
+                  >
+                    {viewDialogContent.google_drive_link}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
+              )}
+              
+              {viewDialogContent.content && (
+                <div>
+                  <Label className="font-semibold">Script Content</Label>
+                  <div className="mt-2 p-4 bg-muted rounded-lg max-h-96 overflow-y-auto">
+                    <pre className="whitespace-pre-wrap font-mono text-sm">{viewDialogContent.content}</pre>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex gap-4">
                 <div>
                   <Label className="font-semibold">Status</Label>
