@@ -11,11 +11,36 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
+// Helper function to validate Google Drive links
+const isGoogleDriveLink = (url: string): boolean => {
+  const googleDrivePatterns = [
+    /^https:\/\/drive\.google\.com\/file\/d\//,
+    /^https:\/\/drive\.google\.com\/drive\/folders\//,
+    /^https:\/\/drive\.google\.com\/open\?id=/,
+    /^https:\/\/docs\.google\.com\/document\/d\//,
+    /^https:\/\/docs\.google\.com\/spreadsheets\/d\//,
+    /^https:\/\/docs\.google\.com\/presentation\/d\//,
+  ];
+  return googleDrivePatterns.some(pattern => pattern.test(url));
+};
+
 const videoSchema = z.object({
   title: z.string().trim().min(3, "Title must be at least 3 characters").max(200, "Title must be less than 200 characters"),
   description: z.string().trim().max(1000, "Description must be less than 1000 characters").optional().or(z.literal("")),
-  videoUrl: z.string().trim().url("Must be a valid URL").max(500, "URL must be less than 500 characters"),
-  thumbnailUrl: z.string().trim().url("Must be a valid URL").max(500, "URL must be less than 500 characters").optional().or(z.literal("")),
+  videoUrl: z.string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .refine((url) => isGoogleDriveLink(url), {
+      message: "Video URL must be a Google Drive link (e.g., https://drive.google.com/file/d/...)",
+    }),
+  thumbnailUrl: z.string()
+    .trim()
+    .url("Must be a valid URL")
+    .max(500, "URL must be less than 500 characters")
+    .refine((url) => isGoogleDriveLink(url), {
+      message: "Thumbnail URL must be a Google Drive link (e.g., https://drive.google.com/file/d/...)",
+    }),
 });
 
 const SubmitVideo = () => {
@@ -65,7 +90,7 @@ const SubmitVideo = () => {
           title: validatedData.title,
           description: validatedData.description || null,
           video_url: validatedData.videoUrl,
-          thumbnail_url: validatedData.thumbnailUrl || null,
+          thumbnail_url: validatedData.thumbnailUrl,
           status: "pending",
         });
 
@@ -134,19 +159,26 @@ const SubmitVideo = () => {
                   id="videoUrl"
                   value={formData.videoUrl}
                   onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                  placeholder="https://youtube.com/... or Google Drive link"
+                  placeholder="https://drive.google.com/file/d/..."
                   required
                 />
+                <p className="text-xs text-muted-foreground">
+                  Must be a Google Drive link
+                </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="thumbnailUrl">Thumbnail URL (Optional)</Label>
+                <Label htmlFor="thumbnailUrl">Thumbnail URL *</Label>
                 <Input
                   id="thumbnailUrl"
                   value={formData.thumbnailUrl}
                   onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-                  placeholder="https://..."
+                  placeholder="https://drive.google.com/file/d/..."
+                  required
                 />
+                <p className="text-xs text-muted-foreground">
+                  Must be a Google Drive link
+                </p>
               </div>
 
               <div className="flex gap-4">

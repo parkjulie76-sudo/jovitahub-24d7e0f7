@@ -702,6 +702,8 @@ const Dashboard = () => {
                       <TableHead>Serial #</TableHead>
                       <TableHead>Title</TableHead>
                       <TableHead>Description</TableHead>
+                      {isAdmin && <TableHead>Video URL</TableHead>}
+                      {isAdmin && <TableHead>Thumbnail URL</TableHead>}
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
                       {isAdmin && <TableHead>View</TableHead>}
@@ -718,6 +720,38 @@ const Dashboard = () => {
                         </TableCell>
                         <TableCell>{video.title}</TableCell>
                         <TableCell>{video.description}</TableCell>
+                        {isAdmin && (
+                          <TableCell>
+                            {video.video_url ? (
+                              <a 
+                                href={video.video_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline"
+                              >
+                                View <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                        )}
+                        {isAdmin && (
+                          <TableCell>
+                            {video.thumbnail_url ? (
+                              <a 
+                                href={video.thumbnail_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline"
+                              >
+                                View <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                        )}
                         <TableCell>
                           <Badge variant={video.status === "approved" ? "default" : "secondary"}>
                             {video.status}
