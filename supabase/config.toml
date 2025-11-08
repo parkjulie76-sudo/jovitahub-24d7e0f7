@@ -1,1 +1,4 @@
 project_id = "zagqgxuwccdlhidgamtz"
+
+[functions.payhip-webhook]
+verify_jwt = false

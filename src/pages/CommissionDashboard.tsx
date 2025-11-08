@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, DollarSign, TrendingUp, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import PayhipSetupGuide from "@/components/PayhipSetupGuide";
 
 interface CommissionData {
   total_commission: number;
@@ -28,10 +29,42 @@ export default function CommissionDashboard() {
   const [commissionData, setCommissionData] = useState<CommissionData | null>(null);
   const [projectCommissions, setProjectCommissions] = useState<ProjectCommission[]>([]);
   const [payoutHistory, setPayoutHistory] = useState<any[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuthAndLoadData();
   }, []);
+
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    // Subscribe to realtime updates for new commission splits
+    const channel = supabase
+      .channel('commission-splits-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'commission_splits',
+          filter: `contributor_id=eq.${currentUserId}`,
+        },
+        (payload) => {
+          console.log('New commission received:', payload);
+          toast({
+            title: "New Commission!",
+            description: "You've earned a new commission from a sale.",
+          });
+          // Reload data to reflect new commission
+          loadCommissionData(currentUserId);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUserId]);
 
   const checkAuthAndLoadData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -41,6 +74,7 @@ export default function CommissionDashboard() {
       return;
     }
 
+    setCurrentUserId(user.id);
     await loadCommissionData(user.id);
   };
 
@@ -52,9 +86,10 @@ export default function CommissionDashboard() {
         .select(`
           *,
           videos (title),
-          payhip_sales (sale_amount)
+          payhip_sales (sale_amount, product_name, sale_date)
         `)
-        .eq('contributor_id', userId);
+        .eq('contributor_id', userId)
+        .order('calculated_at', { ascending: false });
 
       if (splitsError) throw splitsError;
 
@@ -62,19 +97,21 @@ export default function CommissionDashboard() {
       const totalCommission = splits?.reduce((sum, split) => sum + parseFloat(split.commission_amount.toString()), 0) || 0;
       const totalSales = splits?.reduce((sum, split) => sum + parseFloat(split.payhip_sales.sale_amount.toString()), 0) || 0;
       
-      // Group by project
+      // Group by project (video title or product name from direct sales)
       const projectMap = new Map<string, ProjectCommission>();
       splits?.forEach((split: any) => {
-        const videoTitle = split.videos?.title || 'Unknown Project';
-        if (!projectMap.has(videoTitle)) {
-          projectMap.set(videoTitle, {
-            video_title: videoTitle,
+        // Use video title if available, otherwise use product name from Payhip sale
+        const projectName = split.videos?.title || split.payhip_sales?.product_name || 'Direct Affiliate Sale';
+        
+        if (!projectMap.has(projectName)) {
+          projectMap.set(projectName, {
+            video_title: projectName,
             total_sales: 0,
             commission_earned: 0,
             sale_count: 0,
           });
         }
-        const project = projectMap.get(videoTitle)!;
+        const project = projectMap.get(projectName)!;
         project.total_sales += parseFloat(split.payhip_sales.sale_amount.toString());
         project.commission_earned += parseFloat(split.commission_amount.toString());
         project.sale_count += 1;
@@ -137,6 +174,9 @@ export default function CommissionDashboard() {
         </Button>
 
         <h1 className="text-4xl font-bold mb-8 text-foreground">Commission Dashboard</h1>
+
+        {/* Setup Guide */}
+        <PayhipSetupGuide />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
