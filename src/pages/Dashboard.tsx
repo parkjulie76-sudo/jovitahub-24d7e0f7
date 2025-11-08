@@ -170,12 +170,12 @@ const Dashboard = () => {
 
   const downloadApplications = () => {
     const csvContent = [
-      ["Name", "Email", "Creator Type", "Experience", "Portfolio URL", "Affiliate Link", "Status", "Created At"].join(","),
+      ["Name", "Email", "Creator Type", "Experience Level", "Portfolio URL", "Affiliate Link", "Status", "Created At"].join(","),
       ...applications.map(app => [
         `"${app.full_name}"`,
         app.email,
-        app.creator_type || 'N/A',
-        `"${app.experience || ''}"`,
+        app.creator_type ? app.creator_type.replace(/_/g, ' ').toUpperCase() : 'N/A',
+        app.experience ? app.experience.replace(/_/g, ' ').toUpperCase() : 'N/A',
         app.portfolio_url || '',
         app.affiliate_link || '',
         app.status,
@@ -263,6 +263,7 @@ const Dashboard = () => {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Creator Type</TableHead>
+                      <TableHead>Experience</TableHead>
                       <TableHead>Portfolio</TableHead>
                       <TableHead>Affiliate Link</TableHead>
                       <TableHead>Status</TableHead>
@@ -278,7 +279,19 @@ const Dashboard = () => {
                         <TableCell>
                           {app.creator_type ? (
                             <Badge variant="outline">
-                              {app.creator_type.replace('_', ' ').toUpperCase()}
+                              {app.creator_type === 'script_writer' && 'Script Writer'}
+                              {app.creator_type === 'video_format_creator' && 'Video Format Creator'}
+                              {app.creator_type === 'video_editor' && 'Video Editor'}
+                              {app.creator_type === 'full_video_creator' && 'Full Video Creator'}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {app.experience ? (
+                            <Badge variant="secondary">
+                              {app.experience.charAt(0).toUpperCase() + app.experience.slice(1)}
                             </Badge>
                           ) : (
                             <span className="text-muted-foreground">-</span>

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import Navbar from "@/components/Navbar";
@@ -18,9 +19,10 @@ const creatorSchema = z.object({
   name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100, { message: "Name must be less than 100 characters" }),
   email: z.string().trim().email({ message: "Invalid email address" }).max(255, { message: "Email must be less than 255 characters" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  creatorType: z.enum(["script-writer", "video-creator"], { required_error: "Please select your creator type" }),
+  creatorType: z.enum(["script_writer", "video_format_creator", "video_editor", "full_video_creator"], { required_error: "Please select your creator type" }),
   experience: z.string().trim().min(1, { message: "Please select your experience level" }),
   portfolio: z.string().trim().max(500, { message: "Portfolio URL must be less than 500 characters" }).optional(),
+  affiliateLink: z.string().trim().max(500, { message: "Affiliate link must be less than 500 characters" }).optional(),
   message: z.string().trim().min(10, { message: "Message must be at least 10 characters" }).max(1000, { message: "Message must be less than 1000 characters" }),
   agreedToTerms: z.boolean().refine(val => val === true, { message: "You must agree to the Terms of Service" }),
 });
@@ -36,6 +38,7 @@ const JoinCreator = () => {
     creatorType: "",
     experience: "",
     portfolio: "",
+    affiliateLink: "",
     message: "",
     agreedToTerms: false,
   });
@@ -122,8 +125,10 @@ const JoinCreator = () => {
           user_id: userId,
           full_name: validatedData.name,
           email: validatedData.email,
+          creator_type: validatedData.creatorType,
+          experience: validatedData.experience,
           portfolio_url: validatedData.portfolio || null,
-          experience: `${validatedData.creatorType} - ${validatedData.experience} - ${validatedData.message}`,
+          affiliate_link: validatedData.affiliateLink || null,
           agreed_to_terms: validatedData.agreedToTerms,
           status: "pending",
         });
@@ -274,25 +279,21 @@ const JoinCreator = () => {
 
               {/* Creator Type */}
               <div className="space-y-2">
-                <Label>I am a *</Label>
-                <RadioGroup
+                <Label htmlFor="creatorType">Creator Type *</Label>
+                <Select
                   value={formData.creatorType}
                   onValueChange={(value) => handleChange("creatorType", value)}
-                  className="flex flex-col space-y-2"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="script-writer" id="script-writer" />
-                    <Label htmlFor="script-writer" className="font-normal cursor-pointer">
-                      Script Writer (Viral short video scripts)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="video-creator" id="video-creator" />
-                    <Label htmlFor="video-creator" className="font-normal cursor-pointer">
-                      Video Creator (Short video editing)
-                    </Label>
-                  </div>
-                </RadioGroup>
+                  <SelectTrigger className={errors.creatorType ? "border-destructive" : ""}>
+                    <SelectValue placeholder="Select your creator type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="script_writer">Script Writer</SelectItem>
+                    <SelectItem value="video_format_creator">Video Format Creator</SelectItem>
+                    <SelectItem value="video_editor">Video Editor</SelectItem>
+                    <SelectItem value="full_video_creator">Video Creator (Format + Script + Video Edit)</SelectItem>
+                  </SelectContent>
+                </Select>
                 {errors.creatorType && <p className="text-sm text-destructive">{errors.creatorType}</p>}
               </div>
 
@@ -337,6 +338,19 @@ const JoinCreator = () => {
                   className={errors.portfolio ? "border-destructive" : ""}
                 />
                 {errors.portfolio && <p className="text-sm text-destructive">{errors.portfolio}</p>}
+              </div>
+
+              {/* Affiliate Link */}
+              <div className="space-y-2">
+                <Label htmlFor="affiliateLink">Affiliate/Sales Tracking Link (Optional)</Label>
+                <Input
+                  id="affiliateLink"
+                  value={formData.affiliateLink}
+                  onChange={(e) => handleChange("affiliateLink", e.target.value)}
+                  placeholder="https://your-affiliate-link.com"
+                  className={errors.affiliateLink ? "border-destructive" : ""}
+                />
+                {errors.affiliateLink && <p className="text-sm text-destructive">{errors.affiliateLink}</p>}
               </div>
 
               {/* Message */}
