@@ -17,8 +17,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BookOpen, Video, Download, ExternalLink } from "lucide-react";
+import { BookOpen, Video, Download, ExternalLink, Plus, Pencil, Trash2, Briefcase } from "lucide-react";
 import AdminUserManagement from "@/components/AdminUserManagement";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +36,16 @@ const Dashboard = () => {
   const [scripts, setScripts] = useState<any[]>([]);
   const [videos, setVideos] = useState<any[]>([]);
   const [contactSubmissions, setContactSubmissions] = useState<any[]>([]);
+  const [jobPositions, setJobPositions] = useState<any[]>([]);
+  const [isPositionDialogOpen, setIsPositionDialogOpen] = useState(false);
+  const [editingPosition, setEditingPosition] = useState<any>(null);
+  const [positionForm, setPositionForm] = useState({
+    title: '',
+    type: '',
+    icon: 'briefcase',
+    description: '',
+    requirements: ''
+  });
 
   useEffect(() => {
     checkAuth();
@@ -71,17 +86,19 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult, contactResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult] = await Promise.all([
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
+      supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
     ]);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
     setVideos(videosResult.data || []);
     setContactSubmissions(contactResult.data || []);
+    setJobPositions(positionsResult.data || []);
   };
 
   const loadUserData = async (userId: string) => {
@@ -168,6 +185,122 @@ const Dashboard = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const handleSavePosition = async () => {
+    if (!positionForm.title || !positionForm.type || !positionForm.description || !positionForm.requirements) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const requirements = positionForm.requirements.split('\n').filter(r => r.trim());
+    
+    if (editingPosition) {
+      const { error } = await supabase
+        .from('job_positions')
+        .update({
+          title: positionForm.title,
+          type: positionForm.type,
+          icon: positionForm.icon,
+          description: positionForm.description,
+          requirements
+        })
+        .eq('id', editingPosition.id);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update position",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Success",
+        description: "Position updated successfully"
+      });
+    } else {
+      const { error } = await supabase
+        .from('job_positions')
+        .insert({
+          title: positionForm.title,
+          type: positionForm.type,
+          icon: positionForm.icon,
+          description: positionForm.description,
+          requirements,
+          created_by: user.id
+        });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create position",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Success",
+        description: "Position created successfully"
+      });
+    }
+
+    setIsPositionDialogOpen(false);
+    loadAllData();
+  };
+
+  const togglePositionStatus = async (id: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from('job_positions')
+      .update({ is_active: !currentStatus })
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update position status",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: `Position ${!currentStatus ? 'activated' : 'deactivated'} successfully`
+    });
+    
+    loadAllData();
+  };
+
+  const deletePosition = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this position?')) return;
+
+    const { error } = await supabase
+      .from('job_positions')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete position",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Position deleted successfully"
+    });
+    
+    loadAllData();
+  };
+
   const downloadApplications = () => {
     const csvContent = [
       ["Name", "Email", "Creator Type", "Experience Level", "Portfolio URL", "Affiliate Link", "Status", "Created At"].join(","),
@@ -240,6 +373,7 @@ const Dashboard = () => {
               <TabsTrigger value="scripts">Scripts</TabsTrigger>
               <TabsTrigger value="videos">Videos</TabsTrigger>
               {isAdmin && <TabsTrigger value="contact">Contact Submissions</TabsTrigger>}
+              {isAdmin && <TabsTrigger value="positions">Job Positions</TabsTrigger>}
               {isAdmin && <TabsTrigger value="admin">Admin Management</TabsTrigger>}
             </TabsList>
 
@@ -543,6 +677,168 @@ const Dashboard = () => {
                                 onClick={() => updateStatus("contact_submissions", submission.id, "resolved")}
                               >
                                 Mark Resolved
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </TabsContent>
+            )}
+
+            {isAdmin && (
+              <TabsContent value="positions">
+                <Card className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold">Job Positions</h2>
+                    <Dialog open={isPositionDialogOpen} onOpenChange={setIsPositionDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button onClick={() => {
+                          setEditingPosition(null);
+                          setPositionForm({
+                            title: '',
+                            type: '',
+                            icon: 'briefcase',
+                            description: '',
+                            requirements: ''
+                          });
+                        }}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Position
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>{editingPosition ? 'Edit Position' : 'Add New Position'}</DialogTitle>
+                          <DialogDescription>
+                            {editingPosition ? 'Update the job position details' : 'Create a new job position to display on the careers page'}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="title">Position Title</Label>
+                            <Input
+                              id="title"
+                              value={positionForm.title}
+                              onChange={(e) => setPositionForm({...positionForm, title: e.target.value})}
+                              placeholder="e.g., Community Manager"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="type">Job Type</Label>
+                            <Input
+                              id="type"
+                              value={positionForm.type}
+                              onChange={(e) => setPositionForm({...positionForm, type: e.target.value})}
+                              placeholder="e.g., Full-time, Part-time, Contract"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="icon">Icon</Label>
+                            <Select value={positionForm.icon} onValueChange={(value) => setPositionForm({...positionForm, icon: value})}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="briefcase">Briefcase</SelectItem>
+                                <SelectItem value="users">Users</SelectItem>
+                                <SelectItem value="video">Video</SelectItem>
+                                <SelectItem value="filetext">File Text</SelectItem>
+                                <SelectItem value="megaphone">Megaphone</SelectItem>
+                                <SelectItem value="trendingup">Trending Up</SelectItem>
+                                <SelectItem value="messagesquare">Message Square</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
+                              id="description"
+                              value={positionForm.description}
+                              onChange={(e) => setPositionForm({...positionForm, description: e.target.value})}
+                              placeholder="Brief description of the position"
+                              rows={3}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="requirements">Requirements (one per line)</Label>
+                            <Textarea
+                              id="requirements"
+                              value={positionForm.requirements}
+                              onChange={(e) => setPositionForm({...positionForm, requirements: e.target.value})}
+                              placeholder="Enter each requirement on a new line"
+                              rows={5}
+                            />
+                          </div>
+                          <div className="flex justify-end gap-2 pt-4">
+                            <Button variant="outline" onClick={() => setIsPositionDialogOpen(false)}>
+                              Cancel
+                            </Button>
+                            <Button onClick={handleSavePosition}>
+                              {editingPosition ? 'Update' : 'Create'}
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {jobPositions.map((position) => (
+                        <TableRow key={position.id}>
+                          <TableCell className="font-medium">{position.title}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{position.type}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={position.is_active ? "default" : "secondary"}>
+                              {position.is_active ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{new Date(position.created_at).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingPosition(position);
+                                  setPositionForm({
+                                    title: position.title,
+                                    type: position.type,
+                                    icon: position.icon,
+                                    description: position.description,
+                                    requirements: position.requirements.join('\n')
+                                  });
+                                  setIsPositionDialogOpen(true);
+                                }}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => togglePositionStatus(position.id, position.is_active)}
+                              >
+                                {position.is_active ? 'Deactivate' : 'Activate'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deletePosition(position.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
