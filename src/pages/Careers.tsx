@@ -12,10 +12,10 @@ const iconMap: Record<string, any> = {
   briefcase: Briefcase,
   users: Users,
   video: Video,
-  "file-text": FileText,
+  filetext: FileText,
   megaphone: Megaphone,
-  "trending-up": TrendingUp,
-  "message-square": MessageSquare,
+  trendingup: TrendingUp,
+  messagesquare: MessageSquare,
 };
 
 const Careers = () => {
