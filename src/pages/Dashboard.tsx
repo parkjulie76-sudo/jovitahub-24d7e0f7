@@ -106,7 +106,7 @@ const Dashboard = () => {
     const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult] = await Promise.all([
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*, profiles(first_name, last_name)").order("created_at", { ascending: false }),
-      supabase.from("videos").select("*").order("created_at", { ascending: false }),
+      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
@@ -126,7 +126,7 @@ const Dashboard = () => {
     const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
       supabase.from("scripts").select("*").eq("user_id", userId),
-      supabase.from("videos").select("*").eq("user_id", userId),
+      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").eq("user_id", userId),
       supabase.from("commission_splits").select("*, payhip_sales(sale_amount)").eq("contributor_id", userId),
       supabase.from("video_assignments").select("*, scripts(serial_number, title)").eq("assigned_to", userId).order("created_at", { ascending: false }),
     ]);
@@ -768,7 +768,7 @@ const Dashboard = () => {
                         )}
                         {isAdmin && (
                           <TableCell>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-wrap">
                               <Button
                                 size="sm"
                                 onClick={() => updateStatus("scripts", script.id, "approved")}
@@ -782,6 +782,23 @@ const Dashboard = () => {
                               >
                                 Reject
                               </Button>
+                              {script.status === "approved" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setAssignmentForm({
+                                      script_id: script.id,
+                                      assigned_to: '',
+                                      role: '',
+                                      requirements: ''
+                                    });
+                                    setIsAssignmentDialogOpen(true);
+                                  }}
+                                >
+                                  Assign
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         )}
@@ -809,7 +826,8 @@ const Dashboard = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Serial #</TableHead>
+                      <TableHead>Video Serial</TableHead>
+                      <TableHead>Script</TableHead>
                       <TableHead>Title</TableHead>
                       <TableHead>Description</TableHead>
                       {isAdmin && <TableHead>Video URL</TableHead>}
@@ -827,6 +845,20 @@ const Dashboard = () => {
                           <Badge variant="outline" className="font-mono text-xs">
                             {video.serial_number}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {video.scripts ? (
+                            <div>
+                              <Badge variant="secondary" className="font-mono text-xs mb-1">
+                                {video.scripts.serial_number}
+                              </Badge>
+                              <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                                {video.scripts.title}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
                         </TableCell>
                         <TableCell>{video.title}</TableCell>
                         <TableCell>{video.description}</TableCell>
@@ -1281,14 +1313,23 @@ const Dashboard = () => {
                           </TableCell>
                           <TableCell>{new Date(assignment.created_at).toLocaleDateString()}</TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-wrap">
                               {!isAdmin && assignment.status === 'assigned' && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => updateAssignmentStatus(assignment.id, 'in_progress')}
-                                >
-                                  Start Work
-                                </Button>
+                                <>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => updateAssignmentStatus(assignment.id, 'in_progress')}
+                                  >
+                                    Accept
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => updateAssignmentStatus(assignment.id, 'rejected')}
+                                  >
+                                    Reject
+                                  </Button>
+                                </>
                               )}
                               {!isAdmin && assignment.status === 'in_progress' && (
                                 <Button

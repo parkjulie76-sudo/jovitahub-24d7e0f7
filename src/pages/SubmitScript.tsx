@@ -15,7 +15,6 @@ import { Upload } from "lucide-react";
 const scriptSchema = z.object({
   title: z.string().trim().min(3, "Title must be at least 3 characters").max(200, "Title must be less than 200 characters"),
   description: z.string().trim().max(1000, "Description must be less than 1000 characters").optional().or(z.literal("")),
-  googleDriveLink: z.string().trim().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 const SubmitScript = () => {
@@ -27,7 +26,6 @@ const SubmitScript = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    googleDriveLink: "",
   });
 
   useEffect(() => {
@@ -85,22 +83,11 @@ const SubmitScript = () => {
     }
 
     try {
-      // Check if at least one content source is provided
-      if (!scriptFile && !formData.googleDriveLink) {
+      // Check if script file is provided
+      if (!scriptFile) {
         toast({
           title: "Validation Error",
-          description: "Please provide either a script file or a Google Drive link",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Check that only one method is provided
-      if (scriptFile && formData.googleDriveLink) {
-        toast({
-          title: "Validation Error",
-          description: "Please provide either a file upload OR a Google Drive link, not both",
+          description: "Please upload a Word document (.doc or .docx)",
           variant: "destructive",
         });
         setIsSubmitting(false);
@@ -110,25 +97,19 @@ const SubmitScript = () => {
       // Validate input before database insertion
       const validatedData = scriptSchema.parse(formData);
 
-      let fileUrl = null;
+      // Upload file
+      const fileExt = scriptFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('scripts')
+        .upload(fileName, scriptFile);
 
-      // Upload file if provided
-      if (scriptFile) {
-        const fileExt = scriptFile.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('scripts')
-          .upload(fileName, scriptFile);
+      if (uploadError) throw uploadError;
 
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('scripts')
-          .getPublicUrl(fileName);
-        
-        fileUrl = publicUrl;
-      }
+      const { data: { publicUrl } } = supabase.storage
+        .from('scripts')
+        .getPublicUrl(fileName);
 
       const { error } = await supabase
         .from("scripts")
@@ -136,8 +117,7 @@ const SubmitScript = () => {
           user_id: user.id,
           title: validatedData.title,
           description: validatedData.description || null,
-          google_drive_link: validatedData.googleDriveLink || null,
-          file_url: fileUrl,
+          file_url: publicUrl,
           status: "pending",
         });
 
@@ -200,44 +180,25 @@ const SubmitScript = () => {
                 />
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="scriptFile">Upload Script File (Word Document)</Label>
-                  <div className="flex items-center gap-4">
-                    <Input
-                      id="scriptFile"
-                      type="file"
-                      accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                      onChange={handleFileChange}
-                      className="cursor-pointer"
-                    />
-                    {scriptFile && (
-                      <span className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Upload className="h-4 w-4" />
-                        {scriptFile.name}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">Accepted formats: .doc, .docx (Max 10MB)</p>
-                </div>
-
+              <div className="space-y-2">
+                <Label htmlFor="scriptFile">Upload Script File (Word Document) *</Label>
                 <div className="flex items-center gap-4">
-                  <div className="flex-1 h-px bg-border" />
-                  <span className="text-sm text-muted-foreground">OR</span>
-                  <div className="flex-1 h-px bg-border" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="googleDriveLink">Google Drive Link</Label>
                   <Input
-                    id="googleDriveLink"
-                    type="url"
-                    value={formData.googleDriveLink}
-                    onChange={(e) => setFormData({ ...formData, googleDriveLink: e.target.value })}
-                    placeholder="https://drive.google.com/..."
+                    id="scriptFile"
+                    type="file"
+                    accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    onChange={handleFileChange}
+                    className="cursor-pointer"
+                    required
                   />
-                  <p className="text-sm text-muted-foreground">Make sure the file is shared with view access</p>
+                  {scriptFile && (
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Upload className="h-4 w-4" />
+                      {scriptFile.name}
+                    </span>
+                  )}
                 </div>
+                <p className="text-sm text-muted-foreground">Only Word documents (.doc, .docx) accepted. Max 10MB</p>
               </div>
 
               <div className="flex gap-4">

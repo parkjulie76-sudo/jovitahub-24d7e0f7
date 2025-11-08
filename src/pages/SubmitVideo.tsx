@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Helper function to validate Google Drive links
 const isGoogleDriveLink = (url: string): boolean => {
@@ -48,7 +49,9 @@ const SubmitVideo = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [assignments, setAssignments] = useState<any[]>([]);
   const [formData, setFormData] = useState({
+    assignmentId: "",
     title: "",
     description: "",
     videoUrl: "",
@@ -56,13 +59,25 @@ const SubmitVideo = () => {
   });
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/auth");
         return;
       }
       setUser(session.user);
-    });
+
+      // Load user's assignments
+      const { data: assignmentsData } = await supabase
+        .from("video_assignments")
+        .select("*, scripts(id, serial_number, title)")
+        .eq("assigned_to", session.user.id)
+        .in("status", ["assigned", "in_progress"])
+        .order("created_at", { ascending: false });
+
+      setAssignments(assignmentsData || []);
+    };
+    init();
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,13 +95,32 @@ const SubmitVideo = () => {
     }
 
     try {
+      // Validate assignment selection
+      if (!formData.assignmentId) {
+        toast({
+          title: "Validation Error",
+          description: "Please select an assignment",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Validate input before database insertion
       const validatedData = videoSchema.parse(formData);
+
+      // Get script_id from assignment
+      const assignment = assignments.find(a => a.id === formData.assignmentId);
+      if (!assignment) {
+        throw new Error("Assignment not found");
+      }
 
       const { error } = await supabase
         .from("videos")
         .insert({
           user_id: user.id,
+          script_id: assignment.scripts.id,
+          assignment_id: formData.assignmentId,
           title: validatedData.title,
           description: validatedData.description || null,
           video_url: validatedData.videoUrl,
@@ -131,6 +165,37 @@ const SubmitVideo = () => {
           
           <Card className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="assignment">Assignment *</Label>
+                <Select
+                  value={formData.assignmentId}
+                  onValueChange={(value) => {
+                    const assignment = assignments.find(a => a.id === value);
+                    setFormData({ 
+                      ...formData, 
+                      assignmentId: value,
+                      title: assignment?.scripts?.title || "",
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an assignment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assignments.map((assignment) => (
+                      <SelectItem key={assignment.id} value={assignment.id}>
+                        {assignment.scripts?.serial_number} - {assignment.scripts?.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {assignments.length === 0 && (
+                  <p className="text-sm text-destructive">
+                    You don't have any active assignments. Please wait for admin to assign a script to you.
+                  </p>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="title">Title *</Label>
                 <Input

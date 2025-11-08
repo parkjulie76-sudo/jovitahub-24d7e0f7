@@ -514,9 +514,11 @@ export type Database = {
       }
       videos: {
         Row: {
+          assignment_id: string | null
           created_at: string | null
           description: string | null
           id: string
+          script_id: string | null
           serial_number: string | null
           status: string | null
           thumbnail_url: string
@@ -526,9 +528,11 @@ export type Database = {
           video_url: string
         }
         Insert: {
+          assignment_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
+          script_id?: string | null
           serial_number?: string | null
           status?: string | null
           thumbnail_url: string
@@ -538,9 +542,11 @@ export type Database = {
           video_url: string
         }
         Update: {
+          assignment_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
+          script_id?: string | null
           serial_number?: string | null
           status?: string | null
           thumbnail_url?: string
@@ -549,7 +555,22 @@ export type Database = {
           user_id?: string
           video_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "videos_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "video_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "videos_script_id_fkey"
+            columns: ["script_id"]
+            isOneToOne: false
+            referencedRelation: "scripts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
