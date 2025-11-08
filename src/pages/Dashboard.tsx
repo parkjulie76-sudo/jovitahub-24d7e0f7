@@ -105,7 +105,7 @@ const Dashboard = () => {
   const loadAllData = async () => {
     const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult] = await Promise.all([
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
-      supabase.from("scripts").select("*, profiles(first_name, last_name)").order("created_at", { ascending: false }),
+      supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
