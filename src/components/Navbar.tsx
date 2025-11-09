@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, User, ChevronDown } from "lucide-react";
+import { Menu, LogOut, User, ChevronDown, Languages } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +18,15 @@ import { Badge } from "@/components/ui/badge";
 const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'zh' : 'en';
+    i18n.changeLanguage(newLang);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -74,34 +81,35 @@ const Navbar = () => {
             </h1>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              About
+              {t('nav.aboutUs')}
             </Link>
             <Link to="/charity" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Charity
+              {t('nav.charity')}
             </Link>
             <Link to="/mission" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Mission
+              {t('nav.mission')}
             </Link>
             <Link to="/careers" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Careers
+              {t('nav.careers')}
             </Link>
-            <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              How It Works
-            </a>
-            <a href="#benefits" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Benefits
-            </a>
-            <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Testimonials
-            </a>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleLanguage}
+              className="gap-2"
+            >
+              <Languages className="h-4 w-4" />
+              {i18n.language === 'en' ? '中文' : 'English'}
+            </Button>
             
             {user ? (
               <>
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Button>
                 </Link>
                 <DropdownMenu>
@@ -126,11 +134,11 @@ const Navbar = () => {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
                       <User className="h-4 w-4 mr-2" />
-                      Profile Settings
+                      {t('nav.profile')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                       <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
+                      {t('nav.signOut')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -139,7 +147,7 @@ const Navbar = () => {
               <>
                 <Link to="/auth">
                   <Button variant="ghost" size="sm">
-                    Sign In
+                    {t('nav.signIn')}
                   </Button>
                 </Link>
                 <Link to="/join-creator">
@@ -170,62 +178,54 @@ const Navbar = () => {
                 className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                About
+                {t('nav.aboutUs')}
               </Link>
               <Link 
                 to="/charity" 
                 className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Charity
+                {t('nav.charity')}
               </Link>
               <Link 
                 to="/mission" 
                 className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Mission
+                {t('nav.mission')}
               </Link>
               <Link 
                 to="/careers" 
                 className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Careers
+                {t('nav.careers')}
               </Link>
-              <a 
-                href="#how-it-works" 
-                className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  toggleLanguage();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full justify-start gap-2"
               >
-                How It Works
-              </a>
-              <a 
-                href="#benefits" 
-                className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Benefits
-              </a>
-              <a 
-                href="#testimonials" 
-                className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Testimonials
-              </a>
+                <Languages className="h-4 w-4" />
+                {i18n.language === 'en' ? '中文' : 'English'}
+              </Button>
               
               <div className="pt-3 border-t border-border space-y-3">
                 {user ? (
                   <>
                     <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="ghost" size="sm" className="w-full justify-start">
-                        Dashboard
+                        {t('nav.dashboard')}
                       </Button>
                     </Link>
                     <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="ghost" size="sm" className="w-full justify-start">
-                        Profile Settings
+                        {t('nav.profile')}
                       </Button>
                     </Link>
                     <Button 
@@ -237,14 +237,14 @@ const Navbar = () => {
                         setMobileMenuOpen(false);
                       }}
                     >
-                      Sign Out
+                      {t('nav.signOut')}
                     </Button>
                   </>
                 ) : (
                   <>
                     <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="ghost" size="sm" className="w-full">
-                        Sign In
+                        {t('nav.signIn')}
                       </Button>
                     </Link>
                     <Link to="/join-creator" onClick={() => setMobileMenuOpen(false)}>

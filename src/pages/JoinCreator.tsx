@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -29,6 +30,7 @@ const creatorSchema = z.object({
 
 const JoinCreator = () => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -193,37 +195,36 @@ const JoinCreator = () => {
           {/* Hero Section */}
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Join as a{" "}
+              {t('joinCreator.title')}{" "}
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Creator
+                {t('joinCreator.titleHighlight')}
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              Create viral short video scripts and edits to sell JovitaHub digital products. 
-              Earn real income doing what you love.
+              {t('joinCreator.subtitle')}
             </p>
 
             {/* Key Benefits */}
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
               <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
                 <DollarSign className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="font-semibold mb-2">High Earning Potential</h3>
+                <h3 className="font-semibold mb-2">{t('joinCreator.highEarning')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Script Writers: $1,000 - $50,000/month
+                  {t('joinCreator.scriptWritersIncome')}
                 </p>
               </Card>
               <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
                 <Zap className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="font-semibold mb-2">Stable Income</h3>
+                <h3 className="font-semibold mb-2">{t('joinCreator.stableIncome')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Video Creators: $1,000 - $3,000/month
+                  {t('joinCreator.videoCreatorsIncome')}
                 </p>
               </Card>
               <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
                 <Heart className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="font-semibold mb-2">Create Impact</h3>
+                <h3 className="font-semibold mb-2">{t('joinCreator.createImpact')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your content helps sell digital products and drives change
+                  {t('joinCreator.impactDesc')}
                 </p>
               </Card>
             </div>
@@ -231,7 +232,7 @@ const JoinCreator = () => {
 
           {/* Application Form */}
           <Card className="max-w-2xl mx-auto p-8 bg-card/50 backdrop-blur-sm border-border">
-            <h2 className="text-2xl font-bold mb-6">Creator Application</h2>
+            <h2 className="text-2xl font-bold mb-6">{t('joinCreator.applicationForm')}</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name */}
