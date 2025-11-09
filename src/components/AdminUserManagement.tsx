@@ -54,39 +54,62 @@ const AdminUserManagement = () => {
   const loadUserData = async () => {
     setLoading(true);
     
-    // Fetch both profiles and user roles
-    const [profilesResult, rolesResult] = await Promise.all([
-      supabase.from("profiles").select("id, first_name, last_name, serial_number, email, created_at").order("created_at", { ascending: false }),
-      supabase.from("user_roles").select("*").order("created_at", { ascending: false })
-    ]);
+    try {
+      // Fetch both profiles and user roles
+      const [profilesResult, rolesResult] = await Promise.all([
+        supabase.from("profiles").select("id, first_name, last_name, serial_number, email, created_at").order("created_at", { ascending: false }),
+        supabase.from("user_roles").select("*").order("created_at", { ascending: false })
+      ]);
 
-    if (profilesResult.error) {
+      console.log("Profiles result:", profilesResult);
+      console.log("Roles result:", rolesResult);
+
+      if (profilesResult.error) {
+        console.error("Error loading profiles:", profilesResult.error);
+        toast({
+          title: "Error",
+          description: `Failed to load user profiles: ${profilesResult.error.message}`,
+          variant: "destructive",
+        });
+        setProfiles([]);
+      } else {
+        // Merge profiles with roles
+        const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
+          const userRoles = (rolesResult.data || [])
+            .filter((r: any) => r.user_id === profile.id)
+            .map((r: any) => r.role);
+          
+          return {
+            ...profile,
+            roles: userRoles
+          };
+        });
+        
+        console.log("Processed profiles with roles:", profilesWithRoles);
+        setProfiles(profilesWithRoles);
+      }
+
+      if (rolesResult.error) {
+        console.error("Error loading roles:", rolesResult.error);
+        toast({
+          title: "Error", 
+          description: `Failed to load user roles: ${rolesResult.error.message}`,
+          variant: "destructive",
+        });
+        setUserRoles([]);
+      } else {
+        setUserRoles(rolesResult.data || []);
+      }
+    } catch (error: any) {
+      console.error("Unexpected error loading user data:", error);
       toast({
         title: "Error",
-        description: "Failed to load user profiles",
+        description: "An unexpected error occurred while loading user data",
         variant: "destructive",
       });
-    } else {
-      // Merge profiles with roles
-      const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
-        const userRoles = (rolesResult.data || [])
-          .filter((r: any) => r.user_id === profile.id)
-          .map((r: any) => r.role);
-        
-        return {
-          ...profile,
-          roles: userRoles
-        };
-      });
-      
-      setProfiles(profilesWithRoles);
+    } finally {
+      setLoading(false);
     }
-
-    if (!rolesResult.error) {
-      setUserRoles(rolesResult.data || []);
-    }
-    
-    setLoading(false);
   };
 
   const addAdmin = async () => {
@@ -174,38 +197,46 @@ const AdminUserManagement = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {profiles.map((profile) => (
-              <TableRow key={profile.id}>
-                <TableCell>
-                  <Badge variant="outline" className="font-mono text-xs">
-                    {profile.serial_number}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {profile.first_name || profile.last_name 
-                    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
-                    : <span className="text-muted-foreground">No name</span>
-                  }
-                </TableCell>
-                <TableCell>{profile.email || <span className="text-muted-foreground">No email</span>}</TableCell>
-                <TableCell>
-                  {profile.roles.length > 0 ? (
-                    <div className="flex gap-1 flex-wrap">
-                      {profile.roles.map((role, idx) => (
-                        <Badge key={idx} variant={role === "admin" ? "default" : "secondary"}>
-                          {role}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">No roles</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {new Date(profile.created_at).toLocaleDateString()}
+            {profiles.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  No users found in the system
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              profiles.map((profile) => (
+                <TableRow key={profile.id}>
+                  <TableCell>
+                    <Badge variant="outline" className="font-mono text-xs">
+                      {profile.serial_number}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {profile.first_name || profile.last_name 
+                      ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+                      : <span className="text-muted-foreground">No name</span>
+                    }
+                  </TableCell>
+                  <TableCell>{profile.email || <span className="text-muted-foreground">No email</span>}</TableCell>
+                  <TableCell>
+                    {profile.roles.length > 0 ? (
+                      <div className="flex gap-1 flex-wrap">
+                        {profile.roles.map((role, idx) => (
+                          <Badge key={idx} variant={role === "admin" ? "default" : "secondary"}>
+                            {role}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">No roles</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(profile.created_at).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </Card>
