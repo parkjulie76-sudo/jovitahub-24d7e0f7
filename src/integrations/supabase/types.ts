@@ -521,42 +521,54 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          posted_at: string | null
+          sales_count: number | null
           script_id: string | null
           serial_number: string | null
           status: string | null
           thumbnail_url: string
+          tiktok_link: string | null
           title: string
           updated_at: string | null
           user_id: string
           video_url: string
+          youtube_link: string | null
         }
         Insert: {
           assignment_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
+          posted_at?: string | null
+          sales_count?: number | null
           script_id?: string | null
           serial_number?: string | null
           status?: string | null
           thumbnail_url: string
+          tiktok_link?: string | null
           title: string
           updated_at?: string | null
           user_id: string
           video_url: string
+          youtube_link?: string | null
         }
         Update: {
           assignment_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
+          posted_at?: string | null
+          sales_count?: number | null
           script_id?: string | null
           serial_number?: string | null
           status?: string | null
           thumbnail_url?: string
+          tiktok_link?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string
           video_url?: string
+          youtube_link?: string | null
         }
         Relationships: [
           {

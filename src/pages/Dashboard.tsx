@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BookOpen, Video, Download, ExternalLink, Plus, Pencil, Trash2, Briefcase, Eye, DollarSign } from "lucide-react";
+import { BookOpen, Video, Download, ExternalLink, Plus, Pencil, Trash2, Briefcase, Eye, DollarSign, Youtube, Music } from "lucide-react";
 import AdminUserManagement from "@/components/AdminUserManagement";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -64,6 +64,13 @@ const Dashboard = () => {
     requirements: ''
   });
   const [profiles, setProfiles] = useState<any[]>([]);
+  const [isPostingDialogOpen, setIsPostingDialogOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [postingForm, setPostingForm] = useState({
+    youtube_link: '',
+    tiktok_link: '',
+    sales_count: 0
+  });
 
   useEffect(() => {
     checkAuth();
@@ -107,10 +114,10 @@ const Dashboard = () => {
     const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult] = await Promise.all([
       supabase.from("creator_applications").select("*, profiles(serial_number)").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
-      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").order("created_at", { ascending: false }),
+      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
-      supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
+      supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
       supabase.from("profiles").select("id, first_name, last_name, serial_number, email"),
       supabase.from("user_roles").select("user_id, role")
     ]);
@@ -138,7 +145,7 @@ const Dashboard = () => {
   };
 
   const loadUserData = async (userId: string) => {
-    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments, creatorVideosResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
       supabase.from("scripts").select("*").eq("user_id", userId),
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").eq("user_id", userId),
@@ -149,11 +156,25 @@ const Dashboard = () => {
         .select("*, scripts!inner(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)")
         .eq("scripts.user_id", userId)
         .order("created_at", { ascending: false }),
+      // Fetch videos created from user's assignments (as video creator)
+      supabase.from("videos")
+        .select("*, scripts(serial_number, title, user_id), video_assignments!inner(assigned_to)")
+        .eq("video_assignments.assigned_to", userId)
     ]);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
-    setVideos(videosResult.data || []);
+    
+    // Merge own videos and videos from assignments
+    const allVideos = [
+      ...(videosResult.data || []),
+      ...(creatorVideosResult.data || [])
+    ];
+    // Remove duplicates
+    const uniqueVideos = allVideos.filter((video, index, self) =>
+      index === self.findIndex((v) => v.id === video.id)
+    );
+    setVideos(uniqueVideos);
     
     // Merge assignments where user is assigned and where user is script writer
     const allAssignments = [
@@ -515,6 +536,41 @@ const Dashboard = () => {
     a.download = `creator_applications_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  const handleUpdatePosting = async () => {
+    if (!selectedVideo) return;
+
+    const { error } = await supabase
+      .from("videos")
+      .update({
+        youtube_link: postingForm.youtube_link || null,
+        tiktok_link: postingForm.tiktok_link || null,
+        sales_count: postingForm.sales_count,
+        posted_at: new Date().toISOString()
+      })
+      .eq("id", selectedVideo.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update posting information",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Video posting information updated successfully",
+    });
+
+    setIsPostingDialogOpen(false);
+    if (isAdmin) {
+      loadAllData();
+    } else if (user) {
+      loadUserData(user.id);
+    }
   };
 
   if (loading) {
@@ -909,6 +965,9 @@ const Dashboard = () => {
                       <TableHead>Description</TableHead>
                       {isAdmin && <TableHead>Video URL</TableHead>}
                       {isAdmin && <TableHead>Thumbnail URL</TableHead>}
+                      <TableHead>YouTube</TableHead>
+                      <TableHead>TikTok</TableHead>
+                      <TableHead>Sales</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
                       {isAdmin && <TableHead>View</TableHead>}
@@ -972,6 +1031,39 @@ const Dashboard = () => {
                           </TableCell>
                         )}
                         <TableCell>
+                          {video.youtube_link ? (
+                            <a 
+                              href={video.youtube_link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-primary hover:underline"
+                            >
+                              <Youtube className="h-4 w-4" />
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {video.tiktok_link ? (
+                            <a 
+                              href={video.tiktok_link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-primary hover:underline"
+                            >
+                              <Music className="h-4 w-4" />
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {video.sales_count || 0}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
                           <Badge variant={video.status === "approved" ? "default" : "secondary"}>
                             {video.status}
                           </Badge>
@@ -995,7 +1087,7 @@ const Dashboard = () => {
                         )}
                         {isAdmin && (
                           <TableCell>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-wrap">
                               <Button
                                 size="sm"
                                 onClick={() => updateStatus("videos", video.id, "approved")}
@@ -1008,6 +1100,22 @@ const Dashboard = () => {
                                 onClick={() => updateStatus("videos", video.id, "rejected")}
                               >
                                 Reject
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setSelectedVideo(video);
+                                  setPostingForm({
+                                    youtube_link: video.youtube_link || '',
+                                    tiktok_link: video.tiktok_link || '',
+                                    sales_count: video.sales_count || 0
+                                  });
+                                  setIsPostingDialogOpen(true);
+                                }}
+                              >
+                                <Youtube className="h-4 w-4 mr-1" />
+                                Post
                               </Button>
                             </div>
                           </TableCell>
@@ -1728,6 +1836,73 @@ const Dashboard = () => {
           <div className="flex justify-end pt-4">
             <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Posting Dialog */}
+      <Dialog open={isPostingDialogOpen} onOpenChange={setIsPostingDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Update Video Posting & Sales</DialogTitle>
+            <DialogDescription>
+              Add YouTube/TikTok links and update sales count for this video
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedVideo && (
+            <div className="space-y-4 py-4">
+              <div>
+                <Label className="font-semibold mb-2 block">Video</Label>
+                <div className="p-3 bg-muted rounded-lg">
+                  <Badge variant="outline" className="font-mono text-xs mb-1">
+                    {selectedVideo.serial_number}
+                  </Badge>
+                  <p className="font-medium">{selectedVideo.title}</p>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="youtube_link">YouTube Link</Label>
+                <Input
+                  id="youtube_link"
+                  value={postingForm.youtube_link}
+                  onChange={(e) => setPostingForm({...postingForm, youtube_link: e.target.value})}
+                  placeholder="https://youtube.com/watch?v=..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="tiktok_link">TikTok Link</Label>
+                <Input
+                  id="tiktok_link"
+                  value={postingForm.tiktok_link}
+                  onChange={(e) => setPostingForm({...postingForm, tiktok_link: e.target.value})}
+                  placeholder="https://tiktok.com/@username/video/..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="sales_count">Sales Count</Label>
+                <Input
+                  id="sales_count"
+                  type="number"
+                  min="0"
+                  value={postingForm.sales_count}
+                  onChange={(e) => setPostingForm({...postingForm, sales_count: parseInt(e.target.value) || 0})}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setIsPostingDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleUpdatePosting}>
+                  Update Posting
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
