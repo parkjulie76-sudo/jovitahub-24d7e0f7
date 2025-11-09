@@ -29,33 +29,63 @@ interface UserRole {
   created_at: string;
 }
 
+interface UserProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  serial_number: string;
+  created_at: string;
+  roles: string[];
+}
+
 const AdminUserManagement = () => {
   const { toast } = useToast();
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [newAdminEmail, setNewAdminEmail] = useState("");
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
-    loadUserRoles();
+    loadUserData();
   }, []);
 
-  const loadUserRoles = async () => {
+  const loadUserData = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("*")
-      .order("created_at", { ascending: false });
+    
+    // Fetch both profiles and user roles
+    const [profilesResult, rolesResult] = await Promise.all([
+      supabase.from("profiles").select("id, first_name, last_name, serial_number, email, created_at").order("created_at", { ascending: false }),
+      supabase.from("user_roles").select("*").order("created_at", { ascending: false })
+    ]);
 
-    if (error) {
+    if (profilesResult.error) {
       toast({
         title: "Error",
-        description: "Failed to load user roles",
+        description: "Failed to load user profiles",
         variant: "destructive",
       });
     } else {
-      setUserRoles(data || []);
+      // Merge profiles with roles
+      const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
+        const userRoles = (rolesResult.data || [])
+          .filter((r: any) => r.user_id === profile.id)
+          .map((r: any) => r.role);
+        
+        return {
+          ...profile,
+          roles: userRoles
+        };
+      });
+      
+      setProfiles(profilesWithRoles);
     }
+
+    if (!rolesResult.error) {
+      setUserRoles(rolesResult.data || []);
+    }
+    
     setLoading(false);
   };
 
@@ -84,7 +114,7 @@ const AdminUserManagement = () => {
           description: "Admin role assigned successfully",
         });
         setNewAdminEmail("");
-        loadUserRoles();
+        loadUserData();
       } else {
         throw new Error(data?.error || "Failed to assign admin role");
       }
@@ -116,7 +146,7 @@ const AdminUserManagement = () => {
         title: "Success",
         description: "Role deleted successfully",
       });
-      loadUserRoles();
+      loadUserData();
     }
   };
 
@@ -126,6 +156,61 @@ const AdminUserManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* All Signup Users Section */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <Shield className="h-5 w-5 text-primary" />
+          <h2 className="text-2xl font-bold">All Signup Users ({profiles.length})</h2>
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Serial Number</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Roles</TableHead>
+              <TableHead>Registered</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {profiles.map((profile) => (
+              <TableRow key={profile.id}>
+                <TableCell>
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {profile.serial_number}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {profile.first_name || profile.last_name 
+                    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+                    : <span className="text-muted-foreground">No name</span>
+                  }
+                </TableCell>
+                <TableCell>{profile.email || <span className="text-muted-foreground">No email</span>}</TableCell>
+                <TableCell>
+                  {profile.roles.length > 0 ? (
+                    <div className="flex gap-1 flex-wrap">
+                      {profile.roles.map((role, idx) => (
+                        <Badge key={idx} variant={role === "admin" ? "default" : "secondary"}>
+                          {role}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">No roles</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {new Date(profile.created_at).toLocaleDateString()}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+
+      {/* Role Management Section */}
       <Card className="p-6">
         <div className="flex items-center gap-2 mb-6">
           <Shield className="h-5 w-5 text-primary" />
