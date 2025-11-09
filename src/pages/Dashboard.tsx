@@ -138,18 +138,33 @@ const Dashboard = () => {
   };
 
   const loadUserData = async (userId: string) => {
-    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
       supabase.from("scripts").select("*").eq("user_id", userId),
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").eq("user_id", userId),
       supabase.from("commission_splits").select("*, payhip_sales(sale_amount)").eq("contributor_id", userId),
-      supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url)").eq("assigned_to", userId).order("created_at", { ascending: false }),
+      supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").eq("assigned_to", userId).order("created_at", { ascending: false }),
+      // Also fetch assignments where user is the script writer
+      supabase.from("video_assignments")
+        .select("*, scripts!inner(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)")
+        .eq("scripts.user_id", userId)
+        .order("created_at", { ascending: false }),
     ]);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
     setVideos(videosResult.data || []);
-    setAssignments(assignmentsResult.data || []);
+    
+    // Merge assignments where user is assigned and where user is script writer
+    const allAssignments = [
+      ...(assignmentsResult.data || []),
+      ...(scriptWriterAssignments.data || [])
+    ];
+    // Remove duplicates based on assignment id
+    const uniqueAssignments = allAssignments.filter((assignment, index, self) =>
+      index === self.findIndex((a) => a.id === assignment.id)
+    );
+    setAssignments(uniqueAssignments);
 
     // Calculate commission data
     if (splitsResult.data) {
@@ -1370,7 +1385,7 @@ const Dashboard = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Script</TableHead>
-                      {isAdmin && <TableHead>Assigned To</TableHead>}
+                      <TableHead>Assigned To</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead>Requirements</TableHead>
                       <TableHead>Status</TableHead>
@@ -1381,7 +1396,7 @@ const Dashboard = () => {
                   <TableBody>
                     {assignments.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={isAdmin ? 7 : 6} className="text-center text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
                           No assignments yet
                         </TableCell>
                       </TableRow>
@@ -1409,11 +1424,9 @@ const Dashboard = () => {
                                )}
                              </div>
                            </TableCell>
-                          {isAdmin && (
-                            <TableCell>
-                              {assignment.profiles?.first_name} {assignment.profiles?.last_name}
-                            </TableCell>
-                          )}
+                          <TableCell>
+                            {assignment.profiles?.first_name} {assignment.profiles?.last_name}
+                          </TableCell>
                           <TableCell>
                             <Badge variant="secondary">
                               {assignment.role === 'video_creator' ? 'Video Creator' : 'Video Editor'}
