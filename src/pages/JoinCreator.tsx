@@ -413,37 +413,9 @@ const JoinCreator = () => {
 
               {/* Affiliate Link - REQUIRED */}
               <div className="space-y-3">
-                <Card className="p-4 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 animate-pulse-subtle">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-base flex items-center gap-2">
-                        <span className="inline-block w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                        Get Your Affiliate Link First
-                      </h3>
-                      <Badge variant="destructive" className="animate-pulse">Required</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Before filling out the form, you must register and get your unique affiliate link. 
-                      <span className="font-semibold text-foreground"> Use the same email address</span> for tracking.
-                    </p>
-                    <Button 
-                      variant="default" 
-                      size="lg" 
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.open('https://ebook.jovita.site/affiliate-register', '_blank', 'noopener,noreferrer');
-                      }}
-                      className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 animate-pulse shadow-lg shadow-primary/50"
-                    >
-                      🔗 Click Here and Get Your Affiliate Link
-                    </Button>
-                  </div>
-                </Card>
-
                 <div className="space-y-2">
                   <Label htmlFor="affiliateLink">
-                    Copy and Paste Your Affiliate Link * <span className="text-xs text-muted-foreground">(from ebook.jovita.site)</span>
+                    Affiliate Link *
                   </Label>
                   <div className="flex gap-2">
                     <Input
