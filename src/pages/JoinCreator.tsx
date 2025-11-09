@@ -23,19 +23,6 @@ const creatorSchema = z.object({
   creatorType: z.enum(["script_writer", "video_format_creator", "video_editor", "full_video_creator", "format_storytelling_writer", "blogger"], { required_error: "Please select your creator type" }),
   experience: z.string().trim().min(1, { message: "Please select your experience level" }),
   portfolio: z.string().trim().max(500, { message: "Portfolio URL must be less than 500 characters" }).optional(),
-  affiliateLink: z.string()
-    .trim()
-    .url({ message: "Please enter a valid URL" })
-    .min(1, { message: "Affiliate link is required" })
-    .max(500, { message: "Affiliate link must be less than 500 characters" })
-    .refine((url) => {
-      try {
-        const urlObj = new URL(url);
-        return urlObj.hostname === 'ebook.jovita.site' && urlObj.pathname.startsWith('/b');
-      } catch {
-        return false;
-      }
-    }, { message: "Affiliate link must be from ebook.jovita.site/b (e.g., https://ebook.jovita.site/b/...)" }),
   message: z.string().trim().min(10, { message: "Message must be at least 10 characters" }).max(1000, { message: "Message must be less than 1000 characters" }),
   agreedToTerms: z.boolean().refine(val => val === true, { message: "You must agree to the Terms of Service" }),
 });
@@ -51,14 +38,11 @@ const JoinCreator = () => {
     creatorType: "",
     experience: "",
     portfolio: "",
-    affiliateLink: "",
     message: "",
     agreedToTerms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [warnings, setWarnings] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVerifyingLink, setIsVerifyingLink] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -143,7 +127,7 @@ const JoinCreator = () => {
           creator_type: validatedData.creatorType,
           experience: validatedData.experience,
           portfolio_url: validatedData.portfolio || null,
-          affiliate_link: validatedData.affiliateLink || null,
+          affiliate_link: null,
           agreed_to_terms: validatedData.agreedToTerms,
           status: "pending",
         });
@@ -193,64 +177,10 @@ const JoinCreator = () => {
     }
   };
 
-  const verifyAffiliateLink = async (link: string) => {
-    if (!link) return;
-    
-    setIsVerifyingLink(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('verify-payhip-link', {
-        body: { affiliateLink: link }
-      });
-
-      if (error) {
-        console.error('Verification error:', error);
-        setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Unable to verify link. Please ensure it's correct." }));
-        return;
-      }
-
-      if (data.valid) {
-        setWarnings(prev => ({ ...prev, affiliateLink: "" }));
-        toast({
-          title: "Link Verified",
-          description: "Your affiliate link is valid and accessible.",
-        });
-      } else {
-        setWarnings(prev => ({ ...prev, affiliateLink: `⚠️ ${data.error}` }));
-      }
-    } catch (error) {
-      console.error('Error verifying affiliate link:', error);
-      setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Verification failed. Please check your link." }));
-    } finally {
-      setIsVerifyingLink(false);
-    }
-  };
-
   const handleChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
-    }
-    if (warnings[field]) {
-      setWarnings(prev => ({ ...prev, [field]: "" }));
-    }
-    
-    // Real-time validation for affiliate link
-    if (field === 'affiliateLink' || field === 'email') {
-      const currentEmail = field === 'email' ? value as string : formData.email;
-      const currentLink = field === 'affiliateLink' ? value as string : formData.affiliateLink;
-      
-      if (currentEmail && currentLink) {
-        try {
-          const linkUrl = new URL(currentLink);
-          if (linkUrl.hostname !== 'ebook.jovita.site' || !linkUrl.pathname.startsWith('/b')) {
-            setWarnings(prev => ({ ...prev, affiliateLink: "⚠️ Please ensure this is your affiliate link from ebook.jovita.site/b" }));
-          } else {
-            setWarnings(prev => ({ ...prev, affiliateLink: "" }));
-          }
-        } catch {
-          // Invalid URL, will be caught by main validation
-        }
-      }
     }
   };
 
@@ -409,45 +339,6 @@ const JoinCreator = () => {
                   className={errors.portfolio ? "border-destructive" : ""}
                 />
                 {errors.portfolio && <p className="text-sm text-destructive">{errors.portfolio}</p>}
-              </div>
-
-              {/* Affiliate Link - REQUIRED */}
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="affiliateLink">
-                    Affiliate Link *
-                  </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="affiliateLink"
-                      value={formData.affiliateLink}
-                      onChange={(e) => handleChange("affiliateLink", e.target.value)}
-                      onBlur={() => {
-                        if (formData.affiliateLink && formData.affiliateLink.includes('ebook.jovita.site/b')) {
-                          verifyAffiliateLink(formData.affiliateLink);
-                        }
-                      }}
-                      placeholder="https://ebook.jovita.site/b/..."
-                      className={errors.affiliateLink ? "border-destructive" : warnings.affiliateLink ? "border-yellow-500" : ""}
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => verifyAffiliateLink(formData.affiliateLink)}
-                      disabled={!formData.affiliateLink || isVerifyingLink}
-                    >
-                      {isVerifyingLink ? "Verifying..." : "Verify"}
-                    </Button>
-                  </div>
-                  {errors.affiliateLink && <p className="text-sm text-destructive">{errors.affiliateLink}</p>}
-                  {!errors.affiliateLink && warnings.affiliateLink && (
-                    <p className="text-sm text-yellow-600 dark:text-yellow-500">{warnings.affiliateLink}</p>
-                  )}
-                  {formData.email && formData.affiliateLink && !errors.affiliateLink && !warnings.affiliateLink && !isVerifyingLink && (
-                    <p className="text-sm text-green-600 dark:text-green-500">✓ Valid affiliate link. Make sure you registered with: {formData.email}</p>
-                  )}
-                </div>
               </div>
 
               {/* Message */}
