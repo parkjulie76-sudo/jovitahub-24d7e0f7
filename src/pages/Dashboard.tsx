@@ -104,28 +104,26 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, authUsersResult, rolesResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult] = await Promise.all([
       supabase.from("creator_applications").select("*, profiles(serial_number)").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id, first_name, last_name, serial_number"),
-      supabase.auth.admin.listUsers(),
+      supabase.from("profiles").select("id, first_name, last_name, serial_number, email"),
       supabase.from("user_roles").select("user_id, role")
     ]);
 
-    // Merge profiles with auth user emails and roles
-    const profilesWithEmails = (profilesResult.data || []).map((profile: any) => {
-      const authUser = authUsersResult.data?.users.find((u: any) => u.id === profile.id);
+    // Merge profiles with roles
+    const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
       const userRoles = (rolesResult.data || [])
         .filter((r: any) => r.user_id === profile.id)
         .map((r: any) => r.role);
       
       return {
         ...profile,
-        email: authUser?.email || 'No email',
+        email: profile.email || 'No email',
         roles: userRoles
       };
     });
@@ -136,7 +134,7 @@ const Dashboard = () => {
     setContactSubmissions(contactResult.data || []);
     setJobPositions(positionsResult.data || []);
     setAssignments(assignmentsResult.data || []);
-    setProfiles(profilesWithEmails);
+    setProfiles(profilesWithRoles);
   };
 
   const loadUserData = async (userId: string) => {
