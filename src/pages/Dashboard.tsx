@@ -164,8 +164,8 @@ const Dashboard = () => {
   const loadAllData = async () => {
     const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult] = await Promise.all([
       supabase.from("creator_applications").select("*, profiles(serial_number)").order("created_at", { ascending: false }),
-      supabase.from("scripts").select("*, profiles:user_id(first_name, last_name, email)").order("created_at", { ascending: false }),
-      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id), profiles:user_id(first_name, last_name, email)").order("created_at", { ascending: false }),
+      supabase.from("scripts").select("*, profiles!scripts_user_id_fkey(first_name, last_name, email)").order("created_at", { ascending: false }),
+      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id), profiles!videos_user_id_fkey(first_name, last_name, email)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
@@ -198,8 +198,8 @@ const Dashboard = () => {
   const loadUserData = async (userId: string) => {
     const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments, creatorVideosResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
-      supabase.from("scripts").select("*, profiles:user_id(first_name, last_name, email)").eq("user_id", userId),
-      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id), profiles:user_id(first_name, last_name, email)").eq("user_id", userId),
+      supabase.from("scripts").select("*, profiles!scripts_user_id_fkey(first_name, last_name, email)").eq("user_id", userId),
+      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id), profiles!videos_user_id_fkey(first_name, last_name, email)").eq("user_id", userId),
       supabase.from("commission_splits").select("*, payhip_sales(sale_amount)").eq("contributor_id", userId),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").eq("assigned_to", userId).order("created_at", { ascending: false }),
       // Also fetch assignments where user is the script writer
@@ -209,7 +209,7 @@ const Dashboard = () => {
         .order("created_at", { ascending: false }),
       // Fetch videos created from user's assignments (as video creator)
       supabase.from("videos")
-        .select("*, scripts(serial_number, title, user_id), video_assignments!inner(assigned_to), profiles:user_id(first_name, last_name, email)")
+        .select("*, scripts(serial_number, title, user_id), video_assignments!inner(assigned_to), profiles!videos_user_id_fkey(first_name, last_name, email)")
         .eq("video_assignments.assigned_to", userId)
     ]);
 
