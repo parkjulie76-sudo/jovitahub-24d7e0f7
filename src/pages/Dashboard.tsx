@@ -76,6 +76,57 @@ const Dashboard = () => {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+
+    // Subscribe to real-time updates for commission splits and videos
+    const channelCommissions = supabase
+      .channel('commission-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'commission_splits',
+          filter: `contributor_id=eq.${user.id}`
+        },
+        () => {
+          // Reload commission data when there's an update
+          if (isAdmin) {
+            loadAllData();
+          } else {
+            loadUserData(user.id);
+          }
+        }
+      )
+      .subscribe();
+
+    const channelVideos = supabase
+      .channel('video-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'videos'
+        },
+        () => {
+          // Reload video data when there's an update
+          if (isAdmin) {
+            loadAllData();
+          } else {
+            loadUserData(user.id);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channelCommissions);
+      supabase.removeChannel(channelVideos);
+    };
+  }, [user, isAdmin]);
+
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     
