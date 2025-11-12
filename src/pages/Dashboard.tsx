@@ -748,142 +748,52 @@ const Dashboard = () => {
 
             <TabsContent value="applications">
               <Card className="p-6">
-                {isAdmin && (
-                  <div className="flex justify-end mb-4">
-                    <Button 
-                      variant="outline" 
-                      onClick={downloadApplications}
-                      className="flex items-center gap-2"
-                    >
-                      <Download className="h-4 w-4" />
-                      Download Applications
-                    </Button>
-                  </div>
-                )}
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>User Serial</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Creator Type</TableHead>
-                      <TableHead>Experience</TableHead>
-                      <TableHead>Portfolio</TableHead>
-                      <TableHead>Affiliate Link</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      {isAdmin && <TableHead>About</TableHead>}
-                      {isAdmin && <TableHead>Actions</TableHead>}
+                      <TableHead>Roles</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {applications.map((app) => (
-                      <TableRow key={app.id}>
-                        <TableCell>
-                          {app.profiles?.serial_number ? (
+                    {profiles.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center text-muted-foreground">
+                          No users yet
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      profiles.map((profile) => (
+                        <TableRow key={profile.id}>
+                          <TableCell>
                             <Badge variant="outline" className="font-mono text-xs">
-                              {app.profiles.serial_number}
+                              {profile.serial_number}
                             </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>{app.full_name}</TableCell>
-                        <TableCell>{app.email}</TableCell>
-                        <TableCell>
-                          {app.creator_type ? (
-                            <Badge variant="outline">
-                              {app.creator_type === 'script_writer' && 'Script Writer'}
-                              {app.creator_type === 'format_storytelling_writer' && 'Writer (Format + Storytelling)'}
-                              {app.creator_type === 'blogger' && 'Blogger'}
-                              {app.creator_type === 'video_format_creator' && 'Video Format Creator'}
-                              {app.creator_type === 'video_editor' && 'Video Editor'}
-                              {app.creator_type === 'full_video_creator' && 'Full Video Creator'}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {app.experience ? (
-                            <Badge variant="secondary">
-                              {app.experience.charAt(0).toUpperCase() + app.experience.slice(1)}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {app.portfolio_url ? (
-                            <a 
-                              href={app.portfolio_url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-primary hover:underline"
-                            >
-                              View <ExternalLink className="h-3 w-3" />
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {app.affiliate_link ? (
-                            <a 
-                              href={app.affiliate_link} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-primary hover:underline"
-                            >
-                              View <ExternalLink className="h-3 w-3" />
-                            </a>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={app.status === "approved" ? "default" : "secondary"}>
-                            {app.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{new Date(app.created_at).toLocaleDateString()}</TableCell>
-                        {isAdmin && (
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setViewDialogContent(app);
-                                setViewDialogType('application');
-                                setViewDialogOpen(true);
-                              }}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
                           </TableCell>
-                        )}
-                        {isAdmin && (
                           <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => updateStatus("creator_applications", app.id, "approved")}
-                              >
-                                Approve
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => updateStatus("creator_applications", app.id, "rejected")}
-                              >
-                                Reject
-                              </Button>
+                            {profile.first_name && profile.last_name 
+                              ? `${profile.first_name} ${profile.last_name}`
+                              : profile.first_name || profile.last_name || '-'}
+                          </TableCell>
+                          <TableCell>{profile.email}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1 flex-wrap">
+                              {profile.roles && profile.roles.length > 0 ? (
+                                profile.roles.map((role: string) => (
+                                  <Badge key={role} variant="secondary">
+                                    {role}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <span className="text-muted-foreground text-sm">No roles</span>
+                              )}
                             </div>
                           </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </Card>
