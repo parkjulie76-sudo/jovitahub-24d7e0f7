@@ -164,8 +164,8 @@ const Dashboard = () => {
   const loadAllData = async () => {
     const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult] = await Promise.all([
       supabase.from("creator_applications").select("*, profiles(serial_number)").order("created_at", { ascending: false }),
-      supabase.from("scripts").select("*, profiles!scripts_user_id_fkey(first_name, last_name, email)").order("created_at", { ascending: false }),
-      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id), profiles!videos_user_id_fkey(first_name, last_name, email)").order("created_at", { ascending: false }),
+      supabase.from("scripts").select("*").order("created_at", { ascending: false }),
+      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
@@ -196,10 +196,10 @@ const Dashboard = () => {
   };
 
   const loadUserData = async (userId: string) => {
-    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments, creatorVideosResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments, creatorVideosResult, profilesResult, rolesResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
-      supabase.from("scripts").select("*, profiles!scripts_user_id_fkey(first_name, last_name, email)").eq("user_id", userId),
-      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id), profiles!videos_user_id_fkey(first_name, last_name, email)").eq("user_id", userId),
+      supabase.from("scripts").select("*").eq("user_id", userId),
+      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").eq("user_id", userId),
       supabase.from("commission_splits").select("*, payhip_sales(sale_amount)").eq("contributor_id", userId),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").eq("assigned_to", userId).order("created_at", { ascending: false }),
       // Also fetch assignments where user is the script writer
@@ -209,9 +209,25 @@ const Dashboard = () => {
         .order("created_at", { ascending: false }),
       // Fetch videos created from user's assignments (as video creator)
       supabase.from("videos")
-        .select("*, scripts(serial_number, title, user_id), video_assignments!inner(assigned_to), profiles!videos_user_id_fkey(first_name, last_name, email)")
-        .eq("video_assignments.assigned_to", userId)
+        .select("*, scripts(serial_number, title, user_id), video_assignments!inner(assigned_to)")
+        .eq("video_assignments.assigned_to", userId),
+      supabase.from("profiles").select("id, first_name, last_name, serial_number, email"),
+      supabase.from("user_roles").select("user_id, role")
     ]);
+
+    // Merge profiles with roles for user data
+    const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
+      const userRoles = (rolesResult.data || [])
+        .filter((r: any) => r.user_id === profile.id)
+        .map((r: any) => r.role);
+      
+      return {
+        ...profile,
+        email: profile.email || 'No email',
+        roles: userRoles
+      };
+    });
+    setProfiles(profilesWithRoles);
 
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
@@ -912,10 +928,17 @@ const Dashboard = () => {
                         <TableCell>{script.title}</TableCell>
                         <TableCell>{script.description}</TableCell>
                         <TableCell>
-                          <div className="text-sm">
-                            <div className="font-medium">{script.profiles?.first_name} {script.profiles?.last_name}</div>
-                            <div className="text-muted-foreground">{script.profiles?.email}</div>
-                          </div>
+                          {(() => {
+                            const uploader = profiles.find((p: any) => p.id === script.user_id);
+                            return uploader ? (
+                              <div className="text-sm">
+                                <div className="font-medium">{uploader.first_name} {uploader.last_name}</div>
+                                <div className="text-muted-foreground">{uploader.email}</div>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            );
+                          })()}
                         </TableCell>
                          <TableCell>
                            <div className="flex flex-col gap-1">
@@ -1058,10 +1081,17 @@ const Dashboard = () => {
                         <TableCell>{video.title}</TableCell>
                         <TableCell>{video.description}</TableCell>
                         <TableCell>
-                          <div className="text-sm">
-                            <div className="font-medium">{video.profiles?.first_name} {video.profiles?.last_name}</div>
-                            <div className="text-muted-foreground">{video.profiles?.email}</div>
-                          </div>
+                          {(() => {
+                            const uploader = profiles.find((p: any) => p.id === video.user_id);
+                            return uploader ? (
+                              <div className="text-sm">
+                                <div className="font-medium">{uploader.first_name} {uploader.last_name}</div>
+                                <div className="text-muted-foreground">{uploader.email}</div>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            );
+                          })()}
                         </TableCell>
                         {isAdmin && (
                           <TableCell>
