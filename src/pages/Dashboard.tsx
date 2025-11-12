@@ -1480,18 +1480,20 @@ const Dashboard = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 {scripts
-                                  .filter(s => s.status === 'approved')
                                   .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                                  .map((script) => (
-                                  <SelectItem key={script.id} value={script.id}>
-                                    <div className="flex flex-col py-1">
-                                      <div className="font-medium">{script.serial_number} - {script.title}</div>
-                                      <div className="text-xs text-muted-foreground">
-                                        by {script.profiles?.first_name} {script.profiles?.last_name} • {new Date(script.created_at).toLocaleDateString()}
-                                      </div>
-                                    </div>
-                                  </SelectItem>
-                                ))}
+                                  .map((script) => {
+                                    const uploader = profiles.find((p: any) => p.id === script.user_id);
+                                    return (
+                                      <SelectItem key={script.id} value={script.id}>
+                                        <div className="flex flex-col py-1">
+                                          <div className="font-medium">{script.serial_number} - {script.title}</div>
+                                          <div className="text-xs text-muted-foreground">
+                                            by {uploader ? `${uploader.first_name} ${uploader.last_name}` : 'Unknown'} • {new Date(script.created_at).toLocaleDateString()}
+                                          </div>
+                                        </div>
+                                      </SelectItem>
+                                    );
+                                  })}
                               </SelectContent>
                             </Select>
                           </div>
