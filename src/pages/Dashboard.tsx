@@ -71,6 +71,9 @@ const Dashboard = () => {
     tiktok_link: '',
     sales_count: 0
   });
+  const [userDetailDialogOpen, setUserDetailDialogOpen] = useState(false);
+  const [selectedUserDetail, setSelectedUserDetail] = useState<any>(null);
+  const [creatorApplications, setCreatorApplications] = useState<any[]>([]);
 
   useEffect(() => {
     checkAuth();
@@ -162,31 +165,39 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult, creatorAppsResult] = await Promise.all([
       supabase.from("creator_applications").select("*, profiles(serial_number)").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id, first_name, last_name, serial_number, email"),
-      supabase.from("user_roles").select("user_id, role")
+      supabase.from("profiles").select("id, first_name, last_name, serial_number, email, created_at"),
+      supabase.from("user_roles").select("user_id, role"),
+      supabase.from("creator_applications").select("*").order("created_at", { ascending: false })
     ]);
 
-    // Merge profiles with roles
+    // Merge profiles with roles and creator applications
     const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
       const userRoles = (rolesResult.data || [])
         .filter((r: any) => r.user_id === profile.id)
         .map((r: any) => r.role);
       
+      const creatorApp = (creatorAppsResult.data || []).find((app: any) => app.user_id === profile.id);
+      
       return {
         ...profile,
         email: profile.email || 'No email',
-        roles: userRoles
+        roles: userRoles,
+        creator_type: creatorApp?.creator_type || '-',
+        portfolio_url: creatorApp?.portfolio_url || null,
+        experience: creatorApp?.experience || '-',
+        signup_date: profile.created_at
       };
     });
 
     setApplications(appsResult.data || []);
+    setCreatorApplications(creatorAppsResult.data || []);
     setScripts(scriptsResult.data || []);
     setVideos(videosResult.data || []);
     setContactSubmissions(contactResult.data || []);
@@ -752,15 +763,18 @@ const Dashboard = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>User Serial</TableHead>
-                      <TableHead>Name</TableHead>
+                      <TableHead>Full Name</TableHead>
                       <TableHead>Email</TableHead>
+                      <TableHead>Creator Type</TableHead>
+                      <TableHead>Portfolio</TableHead>
+                      <TableHead>Signup Date</TableHead>
                       <TableHead>Roles</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {profiles.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
                           No users yet
                         </TableCell>
                       </TableRow>
@@ -773,11 +787,49 @@ const Dashboard = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {profile.first_name && profile.last_name 
-                              ? `${profile.first_name} ${profile.last_name}`
-                              : profile.first_name || profile.last_name || '-'}
+                            <Button
+                              variant="link"
+                              className="p-0 h-auto font-normal text-primary hover:underline"
+                              onClick={() => {
+                                setSelectedUserDetail(profile);
+                                setUserDetailDialogOpen(true);
+                              }}
+                            >
+                              {profile.first_name && profile.last_name 
+                                ? `${profile.first_name} ${profile.last_name}`
+                                : profile.first_name || profile.last_name || '-'}
+                            </Button>
                           </TableCell>
                           <TableCell>{profile.email}</TableCell>
+                          <TableCell>
+                            {profile.creator_type !== '-' ? (
+                              <Badge variant="outline">
+                                {profile.creator_type}
+                              </Badge>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {profile.portfolio_url ? (
+                              <Button
+                                variant="link"
+                                size="sm"
+                                className="p-0 h-auto"
+                                onClick={() => window.open(profile.portfolio_url, '_blank')}
+                              >
+                                <ExternalLink className="h-3 w-3 mr-1" />
+                                View
+                              </Button>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {profile.signup_date 
+                              ? new Date(profile.signup_date).toLocaleDateString()
+                              : '-'}
+                          </TableCell>
                           <TableCell>
                             <div className="flex gap-1 flex-wrap">
                               {profile.roles && profile.roles.length > 0 ? (
@@ -1914,6 +1966,114 @@ const Dashboard = () => {
                 </Button>
                 <Button onClick={handleUpdatePosting}>
                   Update Posting
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* User Detail Dialog */}
+      <Dialog open={userDetailDialogOpen} onOpenChange={setUserDetailDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+            <DialogDescription>
+              View detailed information about this user
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUserDetail && (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-semibold text-muted-foreground">Serial Number</Label>
+                  <Badge variant="outline" className="font-mono text-sm mt-1">
+                    {selectedUserDetail.serial_number}
+                  </Badge>
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold text-muted-foreground">Full Name</Label>
+                  <p className="text-sm mt-1">
+                    {selectedUserDetail.first_name && selectedUserDetail.last_name 
+                      ? `${selectedUserDetail.first_name} ${selectedUserDetail.last_name}`
+                      : selectedUserDetail.first_name || selectedUserDetail.last_name || '-'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-semibold text-muted-foreground">Email</Label>
+                  <p className="text-sm mt-1">{selectedUserDetail.email}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold text-muted-foreground">Creator Type</Label>
+                  <p className="text-sm mt-1">
+                    {selectedUserDetail.creator_type !== '-' ? (
+                      <Badge variant="outline">{selectedUserDetail.creator_type}</Badge>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-semibold text-muted-foreground">Signup Date</Label>
+                  <p className="text-sm mt-1">
+                    {selectedUserDetail.signup_date 
+                      ? new Date(selectedUserDetail.signup_date).toLocaleDateString()
+                      : '-'}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold text-muted-foreground">Portfolio</Label>
+                  {selectedUserDetail.portfolio_url ? (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="p-0 h-auto mt-1"
+                      onClick={() => window.open(selectedUserDetail.portfolio_url, '_blank')}
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      View Portfolio
+                    </Button>
+                  ) : (
+                    <p className="text-sm text-muted-foreground mt-1">-</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-semibold text-muted-foreground">Experience Level</Label>
+                <div className="p-4 bg-muted rounded-lg mt-2">
+                  <p className="text-sm whitespace-pre-wrap">
+                    {selectedUserDetail.experience !== '-' 
+                      ? selectedUserDetail.experience 
+                      : 'No experience information provided'}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-semibold text-muted-foreground">Roles</Label>
+                <div className="flex gap-1 flex-wrap mt-2">
+                  {selectedUserDetail.roles && selectedUserDetail.roles.length > 0 ? (
+                    selectedUserDetail.roles.map((role: string) => (
+                      <Badge key={role} variant="secondary">
+                        {role}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-muted-foreground text-sm">No roles assigned</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button onClick={() => setUserDetailDialogOpen(false)}>
+                  Close
                 </Button>
               </div>
             </div>
