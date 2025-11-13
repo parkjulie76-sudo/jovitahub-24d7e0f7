@@ -226,6 +226,17 @@ const Dashboard = () => {
       supabase.from("user_roles").select("user_id, role")
     ]);
 
+    // Get all script IDs that the user is assigned to
+    const userAssignedScriptIds = [...(assignmentsResult.data || []), ...(scriptWriterAssignments.data || [])]
+      .map(assignment => assignment.script_id);
+
+    // Fetch all videos from other users with the same scripts
+    const { data: relatedVideos } = await supabase
+      .from("videos")
+      .select("*, scripts(serial_number, title, user_id), video_assignments(id)")
+      .in("script_id", userAssignedScriptIds)
+      .neq("user_id", userId);
+
     // Merge profiles with roles for user data
     const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
       const userRoles = (rolesResult.data || [])
@@ -243,10 +254,11 @@ const Dashboard = () => {
     setApplications(appsResult.data || []);
     setScripts(scriptsResult.data || []);
     
-    // Merge own videos and videos from assignments
+    // Merge own videos, videos from assignments, and related videos from other users
     const allVideos = [
       ...(videosResult.data || []),
-      ...(creatorVideosResult.data || [])
+      ...(creatorVideosResult.data || []),
+      ...(relatedVideos || [])
     ];
     // Remove duplicates
     const uniqueVideos = allVideos.filter((video, index, self) =>
@@ -1007,6 +1019,7 @@ const Dashboard = () => {
                       <TableHead>Title</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Uploaded By</TableHead>
+                      {!isAdmin && <TableHead>Other Videos (Same Script)</TableHead>}
                       {isAdmin && <TableHead>Video URL</TableHead>}
                       {isAdmin && <TableHead>Thumbnail URL</TableHead>}
                       <TableHead>YouTube</TableHead>
@@ -1019,42 +1032,85 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {videos.map((video) => (
-                      <TableRow key={video.id}>
-                        <TableCell>
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {video.serial_number}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {video.scripts ? (
-                            <div>
-                              <Badge variant="secondary" className="font-mono text-xs mb-1">
-                                {video.scripts.serial_number}
-                              </Badge>
-                              <p className="text-xs text-muted-foreground truncate max-w-[150px]">
-                                {video.scripts.title}
-                              </p>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>{video.title}</TableCell>
-                        <TableCell>{video.description}</TableCell>
-                        <TableCell>
-                          {(() => {
-                            const uploader = profiles.find((p: any) => p.id === video.user_id);
-                            return uploader ? (
-                              <div className="text-sm">
-                                <div className="font-medium">{uploader.first_name} {uploader.last_name}</div>
-                                <div className="text-muted-foreground">{uploader.email}</div>
+                    {videos.map((video) => {
+                      // Find other videos with the same script serial number (excluding current video)
+                      const relatedVideos = videos.filter(
+                        v => v.scripts?.serial_number === video.scripts?.serial_number && v.id !== video.id
+                      );
+
+                      return (
+                        <TableRow key={video.id}>
+                          <TableCell>
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {video.serial_number}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {video.scripts ? (
+                              <div>
+                                <Badge variant="secondary" className="font-mono text-xs mb-1">
+                                  {video.scripts.serial_number}
+                                </Badge>
+                                <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                                  {video.scripts.title}
+                                </p>
                               </div>
                             ) : (
                               <span className="text-muted-foreground">-</span>
-                            );
-                          })()}
-                        </TableCell>
+                            )}
+                          </TableCell>
+                          <TableCell>{video.title}</TableCell>
+                          <TableCell>{video.description}</TableCell>
+                          <TableCell>
+                            {(() => {
+                              const uploader = profiles.find((p: any) => p.id === video.user_id);
+                              return uploader ? (
+                                <div className="text-sm">
+                                  <div className="font-medium">{uploader.first_name} {uploader.last_name}</div>
+                                  <div className="text-muted-foreground">{uploader.email}</div>
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              );
+                            })()}
+                          </TableCell>
+                          {!isAdmin && (
+                            <TableCell>
+                              {relatedVideos.length > 0 ? (
+                                <div className="text-sm space-y-2">
+                                  <Badge variant="outline">
+                                    {relatedVideos.length} video{relatedVideos.length > 1 ? 's' : ''}
+                                  </Badge>
+                                  <div className="space-y-1">
+                                    {relatedVideos.slice(0, 2).map(rv => {
+                                      const rvUploader = profiles.find((p: any) => p.id === rv.user_id);
+                                      return (
+                                        <div key={rv.id} className="text-xs">
+                                          <div className="font-medium truncate">{rv.title}</div>
+                                          <div className="text-muted-foreground">by {rvUploader?.first_name} {rvUploader?.last_name}</div>
+                                          {rv.youtube_link && (
+                                            <a href={rv.youtube_link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                                              <Youtube className="h-3 w-3" /> YouTube
+                                            </a>
+                                          )}
+                                          {rv.tiktok_link && (
+                                            <a href={rv.tiktok_link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                                              <Music className="h-3 w-3" /> TikTok
+                                            </a>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                    {relatedVideos.length > 2 && (
+                                      <div className="text-xs text-muted-foreground">+{relatedVideos.length - 2} more</div>
+                                    )}
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">None</span>
+                              )}
+                            </TableCell>
+                          )}
                         {isAdmin && (
                           <TableCell>
                             {video.video_url ? (
@@ -1176,9 +1232,10 @@ const Dashboard = () => {
                               </Button>
                             </div>
                           </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
+                          )}
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </Card>
@@ -1559,12 +1616,14 @@ const Dashboard = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Script Serial</TableHead>
                       <TableHead>Script</TableHead>
                       <TableHead>Assigned To</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead>Requirements</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
+                      {!isAdmin && <TableHead>Other Assignments</TableHead>}
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1576,53 +1635,86 @@ const Dashboard = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      assignments.map((assignment) => (
-                        <TableRow key={assignment.id}>
-                           <TableCell>
-                             <div className="space-y-2">
-                               <div>
-                                 <Badge variant="outline" className="font-mono text-xs mb-1">
-                                   {assignment.scripts?.serial_number}
-                                 </Badge>
-                                 <p className="text-sm">{assignment.scripts?.title}</p>
-                               </div>
-                               {assignment.scripts?.file_url && (
-                                 <Button
-                                   size="sm"
-                                   variant="outline"
-                                   onClick={() => downloadScriptFile(assignment.scripts.file_url, assignment.scripts.title)}
-                                   className="flex items-center gap-1 w-full"
-                                 >
-                                   <Download className="h-3 w-3" />
-                                   Download Script
-                                 </Button>
-                               )}
-                             </div>
-                           </TableCell>
-                          <TableCell>
-                            {assignment.profiles?.first_name} {assignment.profiles?.last_name}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="secondary">
-                              {assignment.role === 'video_creator' ? 'Video Creator' : 'Video Editor'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="max-w-xs truncate" title={assignment.requirements}>
-                              {assignment.requirements}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={
-                              assignment.status === 'completed' ? 'default' : 
-                              assignment.status === 'in_progress' ? 'secondary' : 
-                              'outline'
-                            }>
-                              {assignment.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{new Date(assignment.created_at).toLocaleDateString()}</TableCell>
-                          <TableCell>
+                      assignments.map((assignment) => {
+                        // Count other assignments with the same script
+                        const sameScriptAssignments = assignments.filter(
+                          a => a.script_id === assignment.script_id && a.id !== assignment.id
+                        );
+                        
+                        return (
+                          <TableRow key={assignment.id}>
+                            <TableCell>
+                              <Badge variant="outline" className="font-mono text-xs">
+                                {assignment.scripts?.serial_number}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-2">
+                                <div>
+                                  <p className="text-sm font-medium">{assignment.scripts?.title}</p>
+                                </div>
+                                {assignment.scripts?.file_url && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => downloadScriptFile(assignment.scripts.file_url, assignment.scripts.title)}
+                                    className="flex items-center gap-1"
+                                  >
+                                    <Download className="h-3 w-3" />
+                                    Download
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm">
+                                <div className="font-medium">{assignment.profiles?.first_name} {assignment.profiles?.last_name}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">
+                                {assignment.role === 'video_creator' ? 'Video Creator' : 'Video Editor'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="max-w-xs truncate" title={assignment.requirements}>
+                                {assignment.requirements}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={
+                                assignment.status === 'completed' ? 'default' : 
+                                assignment.status === 'in_progress' ? 'secondary' : 
+                                'outline'
+                              }>
+                                {assignment.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{new Date(assignment.created_at).toLocaleDateString()}</TableCell>
+                            {!isAdmin && (
+                              <TableCell>
+                                {sameScriptAssignments.length > 0 ? (
+                                  <div className="text-sm">
+                                    <Badge variant="outline">
+                                      {sameScriptAssignments.length} other{sameScriptAssignments.length > 1 ? 's' : ''}
+                                    </Badge>
+                                    <div className="mt-1 space-y-1 text-xs text-muted-foreground">
+                                      {sameScriptAssignments.slice(0, 2).map(a => (
+                                        <div key={a.id}>
+                                          {a.profiles?.first_name} {a.profiles?.last_name} ({a.role})
+                                        </div>
+                                      ))}
+                                      {sameScriptAssignments.length > 2 && (
+                                        <div>+{sameScriptAssignments.length - 2} more</div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground text-sm">None</span>
+                                )}
+                              </TableCell>
+                            )}
+                            <TableCell>
                             <div className="flex gap-2 flex-wrap">
                               {!isAdmin && assignment.status === 'assigned' && (
                                 <>
@@ -1664,9 +1756,10 @@ const Dashboard = () => {
                                 </Button>
                               )}
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
