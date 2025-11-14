@@ -1024,6 +1024,7 @@ const Dashboard = () => {
                       {isAdmin && <TableHead>Thumbnail URL</TableHead>}
                       <TableHead>YouTube</TableHead>
                       <TableHead>TikTok</TableHead>
+                      {!isAdmin && <TableHead>Posted Date</TableHead>}
                       <TableHead>Sales</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
@@ -1152,6 +1153,7 @@ const Dashboard = () => {
                               className="flex items-center gap-1 text-primary hover:underline"
                             >
                               <Youtube className="h-4 w-4" />
+                              {!isAdmin && <span className="text-xs">Watch</span>}
                             </a>
                           ) : (
                             <span className="text-muted-foreground">-</span>
@@ -1166,11 +1168,30 @@ const Dashboard = () => {
                               className="flex items-center gap-1 text-primary hover:underline"
                             >
                               <Music className="h-4 w-4" />
+                              {!isAdmin && <span className="text-xs">Watch</span>}
                             </a>
                           ) : (
                             <span className="text-muted-foreground">-</span>
                           )}
                         </TableCell>
+                        {!isAdmin && (
+                          <TableCell>
+                            {video.posted_at ? (
+                              <div className="flex flex-col gap-1">
+                                <Badge variant="default" className="w-fit">
+                                  Posted
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(video.posted_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                            ) : (
+                              <Badge variant="secondary" className="w-fit">
+                                Not Posted
+                              </Badge>
+                            )}
+                          </TableCell>
+                        )}
                         <TableCell>
                           <Badge variant="outline">
                             {video.sales_count || 0}
