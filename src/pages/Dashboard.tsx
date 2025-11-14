@@ -168,7 +168,7 @@ const Dashboard = () => {
     const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult, creatorAppsResult] = await Promise.all([
       supabase.from("creator_applications").select("*, profiles(serial_number)").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
-      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id)").order("created_at", { ascending: false }),
+      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id), profiles!videos_user_id_fkey(first_name, last_name)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
@@ -176,6 +176,12 @@ const Dashboard = () => {
       supabase.from("user_roles").select("user_id, role"),
       supabase.from("creator_applications").select("*").order("created_at", { ascending: false })
     ]);
+
+    // Fetch all posted videos for admin view
+    const { data: allPostedVideos } = await supabase
+      .from("videos")
+      .select("*, scripts!inner(serial_number, title, user_id), profiles!videos_user_id_fkey(first_name, last_name)")
+      .not("posted_at", "is", null);
 
     // Merge profiles with roles and creator applications
     const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
@@ -198,11 +204,29 @@ const Dashboard = () => {
 
     setApplications(appsResult.data || []);
     setCreatorApplications(creatorAppsResult.data || []);
-    setScripts(scriptsResult.data || []);
+    
+    // Attach posted videos to scripts for admin
+    const scriptsWithPostedVideos = (scriptsResult.data || []).map(script => ({
+      ...script,
+      postedVideos: (allPostedVideos || []).filter(
+        v => v.scripts?.serial_number === script.serial_number
+      )
+    }));
+    
+    setScripts(scriptsWithPostedVideos);
     setVideos(videosResult.data || []);
     setContactSubmissions(contactResult.data || []);
     setJobPositions(positionsResult.data || []);
-    setAssignments(assignmentsResult.data || []);
+    
+    // Attach posted videos to assignments for admin
+    const assignmentsWithPostedVideos = (assignmentsResult.data || []).map(assignment => ({
+      ...assignment,
+      postedVideos: (allPostedVideos || []).filter(
+        v => v.scripts?.serial_number === assignment.scripts?.serial_number
+      )
+    }));
+    
+    setAssignments(assignmentsWithPostedVideos);
     setProfiles(profilesWithRoles);
   };
 
@@ -233,9 +257,17 @@ const Dashboard = () => {
     // Fetch all videos from other users with the same scripts
     const { data: relatedVideos } = await supabase
       .from("videos")
-      .select("*, scripts(serial_number, title, user_id), video_assignments(id)")
+      .select("*, scripts(serial_number, title, user_id), video_assignments(id), profiles!videos_user_id_fkey(first_name, last_name)")
       .in("script_id", userAssignedScriptIds)
       .neq("user_id", userId);
+
+    // Fetch all posted videos with the same script serial numbers as user's scripts
+    const userScriptSerials = (scriptsResult.data || []).map(s => s.serial_number).filter(Boolean);
+    const { data: postedVideosForUserScripts } = await supabase
+      .from("videos")
+      .select("*, scripts!inner(serial_number, title, user_id), profiles!videos_user_id_fkey(first_name, last_name)")
+      .in("scripts.serial_number", userScriptSerials)
+      .not("posted_at", "is", null);
 
     // Merge profiles with roles for user data
     const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
@@ -252,7 +284,16 @@ const Dashboard = () => {
     setProfiles(profilesWithRoles);
 
     setApplications(appsResult.data || []);
-    setScripts(scriptsResult.data || []);
+    
+    // Attach posted videos to scripts
+    const scriptsWithPostedVideos = (scriptsResult.data || []).map(script => ({
+      ...script,
+      postedVideos: (postedVideosForUserScripts || []).filter(
+        v => v.scripts?.serial_number === script.serial_number
+      )
+    }));
+    
+    setScripts(scriptsWithPostedVideos);
     
     // Merge own videos, videos from assignments, and related videos from other users
     const allVideos = [
@@ -275,7 +316,16 @@ const Dashboard = () => {
     const uniqueAssignments = allAssignments.filter((assignment, index, self) =>
       index === self.findIndex((a) => a.id === assignment.id)
     );
-    setAssignments(uniqueAssignments);
+    
+    // Attach posted videos to assignments
+    const assignmentsWithPostedVideos = uniqueAssignments.map(assignment => ({
+      ...assignment,
+      postedVideos: (postedVideosForUserScripts || []).filter(
+        v => v.scripts?.serial_number === assignment.scripts?.serial_number
+      )
+    }));
+    
+    setAssignments(assignmentsWithPostedVideos);
 
     // Calculate commission data
     if (splitsResult.data) {
@@ -887,6 +937,7 @@ const Dashboard = () => {
                       <TableHead>File/Link</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
+                      {!isAdmin && <TableHead>Posted Videos</TableHead>}
                       {isAdmin && <TableHead>View</TableHead>}
                       {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
@@ -938,6 +989,55 @@ const Dashboard = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>{new Date(script.created_at).toLocaleDateString()}</TableCell>
+                        {!isAdmin && (
+                          <TableCell>
+                            {script.postedVideos && script.postedVideos.length > 0 ? (
+                              <div className="space-y-2">
+                                <Badge variant="default">
+                                  {script.postedVideos.length} Posted
+                                </Badge>
+                                {script.postedVideos.slice(0, 2).map((video: any) => (
+                                  <div key={video.id} className="text-xs space-y-1">
+                                    <div className="text-muted-foreground">
+                                      By: {video.profiles?.first_name} {video.profiles?.last_name}
+                                    </div>
+                                    <div className="flex gap-2">
+                                      {video.youtube_link && (
+                                        <a
+                                          href={video.youtube_link}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center gap-1 text-primary hover:underline"
+                                        >
+                                          <Youtube className="h-3 w-3" />
+                                          YouTube
+                                        </a>
+                                      )}
+                                      {video.tiktok_link && (
+                                        <a
+                                          href={video.tiktok_link}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center gap-1 text-primary hover:underline"
+                                        >
+                                          <Music className="h-3 w-3" />
+                                          TikTok
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                                {script.postedVideos.length > 2 && (
+                                  <div className="text-xs text-muted-foreground">
+                                    +{script.postedVideos.length - 2} more
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">No posted videos</span>
+                            )}
+                          </TableCell>
+                        )}
                         {isAdmin && (
                           <TableCell>
                             <Button
@@ -1645,6 +1745,7 @@ const Dashboard = () => {
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
                       {!isAdmin && <TableHead>Other Assignments</TableHead>}
+                      <TableHead>Posted Videos</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1735,6 +1836,53 @@ const Dashboard = () => {
                                 )}
                               </TableCell>
                             )}
+                            <TableCell>
+                              {assignment.postedVideos && assignment.postedVideos.length > 0 ? (
+                                <div className="space-y-2">
+                                  <Badge variant="default">
+                                    {assignment.postedVideos.length} Posted
+                                  </Badge>
+                                  {assignment.postedVideos.slice(0, 2).map((video: any) => (
+                                    <div key={video.id} className="text-xs space-y-1">
+                                      <div className="text-muted-foreground">
+                                        By: {video.profiles?.first_name} {video.profiles?.last_name}
+                                      </div>
+                                      <div className="flex gap-2">
+                                        {video.youtube_link && (
+                                          <a
+                                            href={video.youtube_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-primary hover:underline"
+                                          >
+                                            <Youtube className="h-3 w-3" />
+                                            YouTube
+                                          </a>
+                                        )}
+                                        {video.tiktok_link && (
+                                          <a
+                                            href={video.tiktok_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-primary hover:underline"
+                                          >
+                                            <Music className="h-3 w-3" />
+                                            TikTok
+                                          </a>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                  {assignment.postedVideos.length > 2 && (
+                                    <div className="text-xs text-muted-foreground">
+                                      +{assignment.postedVideos.length - 2} more
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">No posted videos</span>
+                              )}
+                            </TableCell>
                             <TableCell>
                             <div className="flex gap-2 flex-wrap">
                               {!isAdmin && assignment.status === 'assigned' && (
