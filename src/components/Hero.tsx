@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Video, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import heroImage from "@/assets/hero-collaboration.jpg";
 
 const Hero = () => {
+  const { t } = useTranslation();
+  
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Background Image with Overlay */}
@@ -24,30 +27,30 @@ const Hero = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
-            <span className="text-sm font-medium text-foreground">Now Accepting Creators</span>
+            <span className="text-sm font-medium text-foreground">{t('hero.badge')}</span>
           </div>
 
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Charity Oriented{" "}
+            {t('hero.title')}{" "}
             <span className="bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-              Content E-Commerce
+              {t('hero.titleHighlight')}
             </span>
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-            Making content creators wealthy first, then inspiring peer-to-peer charity that spreads positive impact.
+            {t('hero.subtitle')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <Link to="/join-creator">
               <Button variant="hero" size="lg" className="text-lg group">
-                Join as Creator
+                {t('hero.joinButton')}
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             <a href="#how-it-works">
               <Button variant="outline" size="lg" className="text-lg">
-                Learn More
+                {t('hero.learnButton')}
               </Button>
             </a>
           </div>
@@ -59,15 +62,15 @@ const Hero = () => {
                 <div className="w-8 h-8 rounded-full bg-accent border-2 border-background" />
                 <div className="w-8 h-8 rounded-full bg-secondary border-2 border-background" />
               </div>
-              <span className="text-muted-foreground">500+ Active Creators</span>
+              <span className="text-muted-foreground">{t('hero.activeCreators')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Video className="w-5 h-5 text-primary" />
-              <span className="text-muted-foreground">10K+ Videos Created</span>
+              <span className="text-muted-foreground">{t('hero.videosCreated')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Pencil className="w-5 h-5 text-accent" />
-              <span className="text-muted-foreground">Content That Matters</span>
+              <span className="text-muted-foreground">{t('hero.contentMatters')}</span>
             </div>
           </div>
         </div>

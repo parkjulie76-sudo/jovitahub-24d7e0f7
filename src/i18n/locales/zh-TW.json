@@ -29,6 +29,40 @@
       "totalEarnings": "總收入"
     }
   },
+  "hero": {
+    "badge": "現正招募創作者",
+    "title": "慈善導向",
+    "titleHighlight": "內容電商平台",
+    "subtitle": "先讓內容創作者致富，再啟發點對點慈善，傳播正向影響力。",
+    "joinButton": "加入成為創作者",
+    "learnButton": "了解更多",
+    "activeCreators": "500+ 活躍創作者",
+    "videosCreated": "10K+ 已創作影片",
+    "contentMatters": "創造有價值的內容"
+  },
+  "benefits": {
+    "title": "為什麼創作者選擇",
+    "titleHighlight": "Jovita Hub",
+    "subtitle": "專為希望獲得更多回報的文案寫手和影片創作者設計的平台",
+    "earnTitle": "賺取公平報酬",
+    "earnDesc": "獲得應有的報酬。透明定價和直接支付您的創意作品。",
+    "impactTitle": "創造真實影響",
+    "impactDesc": "您的內容為慈善事業做出貢獻。見證您所創造的實質改變。",
+    "portfolioTitle": "建立作品集",
+    "portfolioDesc": "展示您的最佳作品。獲得認可並提升您的創作聲譽。",
+    "protectedTitle": "受保護的合作",
+    "protectedDesc": "安全可靠的平台。明確的協議和智慧財產權保護。",
+    "communityTitle": "加入社群",
+    "communityDesc": "與志同道合的創作者連結。建立網絡、學習並共同成長。",
+    "quickTitle": "快速週轉",
+    "quickDesc": "高效的工作流程和快速付款。專注於創作，其餘交給我們。"
+  },
+  "stats": {
+    "paidToCreators": "支付給創作者",
+    "activeCreators": "活躍創作者",
+    "videosProduced": "已製作影片",
+    "donatedToCauses": "捐贈給慈善事業"
+  },
   "joinCreator": {
     "title": "加入成為",
     "titleHighlight": "創作者",

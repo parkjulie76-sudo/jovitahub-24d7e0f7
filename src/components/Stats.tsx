@@ -1,11 +1,15 @@
-const stats = [
-  { value: "$2M+", label: "Paid to Creators" },
-  { value: "500+", label: "Active Creators" },
-  { value: "10K+", label: "Videos Produced" },
-  { value: "$100K+", label: "Donated to Causes" },
-];
+import { useTranslation } from "react-i18next";
 
 const Stats = () => {
+  const { t } = useTranslation();
+  
+  const stats = [
+    { value: "$2M+", label: t('stats.paidToCreators') },
+    { value: "500+", label: t('stats.activeCreators') },
+    { value: "10K+", label: t('stats.videosProduced') },
+    { value: "$100K+", label: t('stats.donatedToCauses') },
+  ];
+
   return (
     <section className="py-20 bg-gradient-to-r from-primary via-primary-glow to-accent">
       <div className="container mx-auto px-4">
