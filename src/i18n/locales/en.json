@@ -13,7 +13,8 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "signOut": "Sign Out",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "joinAsCreator": "Join as Creator"
   },
   "home": {
     "heroTitle": "Create Viral Scripts & Videos",

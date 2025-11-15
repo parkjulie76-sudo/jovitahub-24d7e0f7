@@ -155,7 +155,7 @@ const Navbar = () => {
                 </Link>
                 <Link to="/join-creator">
                   <Button variant="default" size="sm">
-                    Join as Creator
+                    {t('nav.joinAsCreator')}
                   </Button>
                 </Link>
               </>
@@ -259,7 +259,7 @@ const Navbar = () => {
                     </Link>
                     <Link to="/join-creator" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="default" size="sm" className="w-full">
-                        Join as Creator
+                        {t('nav.joinAsCreator')}
                       </Button>
                     </Link>
                   </>
