@@ -1,53 +1,56 @@
 import { Card } from "@/components/ui/card";
 import { DollarSign, Heart, Sparkles, Shield, Users2, Zap } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import communityImage from "@/assets/community-impact.jpg";
 
-const benefits = [
-  {
-    icon: DollarSign,
-    title: "Earn Fair Compensation",
-    description: "Get paid what you deserve. Transparent pricing and direct payments for your creative work.",
-  },
-  {
-    icon: Heart,
-    title: "Make Real Impact",
-    description: "Your content contributes to charitable causes. See the tangible difference you're making.",
-  },
-  {
-    icon: Sparkles,
-    title: "Build Your Portfolio",
-    description: "Showcase your best work. Gain recognition and grow your creative reputation.",
-  },
-  {
-    icon: Shield,
-    title: "Protected Collaboration",
-    description: "Safe and secure platform. Clear agreements and intellectual property protection.",
-  },
-  {
-    icon: Users2,
-    title: "Join a Community",
-    description: "Connect with like-minded creators. Network, learn, and grow together.",
-  },
-  {
-    icon: Zap,
-    title: "Quick Turnaround",
-    description: "Efficient workflows and fast payments. Focus on creating, we handle the rest.",
-  },
-];
-
 const Benefits = () => {
+  const { t } = useTranslation();
+  
+  const benefits = [
+    {
+      icon: DollarSign,
+      title: t('benefits.earnTitle'),
+      description: t('benefits.earnDesc'),
+    },
+    {
+      icon: Heart,
+      title: t('benefits.impactTitle'),
+      description: t('benefits.impactDesc'),
+    },
+    {
+      icon: Sparkles,
+      title: t('benefits.portfolioTitle'),
+      description: t('benefits.portfolioDesc'),
+    },
+    {
+      icon: Shield,
+      title: t('benefits.protectedTitle'),
+      description: t('benefits.protectedDesc'),
+    },
+    {
+      icon: Users2,
+      title: t('benefits.communityTitle'),
+      description: t('benefits.communityDesc'),
+    },
+    {
+      icon: Zap,
+      title: t('benefits.quickTitle'),
+      description: t('benefits.quickDesc'),
+    },
+  ];
+
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Why Creators Choose{" "}
+            {t('benefits.title')}{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Jovita Hub
+              {t('benefits.titleHighlight')}
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A platform designed specifically for script writers and video creators who want more than just a paycheck
+            {t('benefits.subtitle')}
           </p>
         </div>
 

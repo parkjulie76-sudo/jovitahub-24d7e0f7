@@ -29,6 +29,40 @@
       "totalEarnings": "Total Earnings"
     }
   },
+  "hero": {
+    "badge": "Now Accepting Creators",
+    "title": "Charity Oriented",
+    "titleHighlight": "Content E-Commerce",
+    "subtitle": "Making content creators wealthy first, then inspiring peer-to-peer charity that spreads positive impact.",
+    "joinButton": "Join as Creator",
+    "learnButton": "Learn More",
+    "activeCreators": "500+ Active Creators",
+    "videosCreated": "10K+ Videos Created",
+    "contentMatters": "Content That Matters"
+  },
+  "benefits": {
+    "title": "Why Creators Choose",
+    "titleHighlight": "Jovita Hub",
+    "subtitle": "A platform designed specifically for script writers and video creators who want more than just a paycheck",
+    "earnTitle": "Earn Fair Compensation",
+    "earnDesc": "Get paid what you deserve. Transparent pricing and direct payments for your creative work.",
+    "impactTitle": "Make Real Impact",
+    "impactDesc": "Your content contributes to charitable causes. See the tangible difference you're making.",
+    "portfolioTitle": "Build Your Portfolio",
+    "portfolioDesc": "Showcase your best work. Gain recognition and grow your creative reputation.",
+    "protectedTitle": "Protected Collaboration",
+    "protectedDesc": "Safe and secure platform. Clear agreements and intellectual property protection.",
+    "communityTitle": "Join a Community",
+    "communityDesc": "Connect with like-minded creators. Network, learn, and grow together.",
+    "quickTitle": "Quick Turnaround",
+    "quickDesc": "Efficient workflows and fast payments. Focus on creating, we handle the rest."
+  },
+  "stats": {
+    "paidToCreators": "Paid to Creators",
+    "activeCreators": "Active Creators",
+    "videosProduced": "Videos Produced",
+    "donatedToCauses": "Donated to Causes"
+  },
   "joinCreator": {
     "title": "Join as a",
     "titleHighlight": "Creator",
