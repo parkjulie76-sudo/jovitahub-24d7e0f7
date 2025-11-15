@@ -31,6 +31,7 @@ import ScriptWriterGuide from "./pages/ScriptWriterGuide";
 import VideoCreatorGuide from "./pages/VideoCreatorGuide";
 import CommissionDashboard from "./pages/CommissionDashboard";
 import AdminCommissions from "./pages/AdminCommissions";
+import HowItWorksPage from "./pages/HowItWorksPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const App = () => (
           <Route path="/video-creator-guide" element={<VideoCreatorGuide />} />
           <Route path="/commissions" element={<CommissionDashboard />} />
           <Route path="/admin/commissions" element={<AdminCommissions />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           </Routes>
