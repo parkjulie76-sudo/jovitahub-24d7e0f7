@@ -82,6 +82,9 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden md:flex items-center gap-6">
+            <Link to="/how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              {t('nav.howItWorks')}
+            </Link>
             <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               {t('nav.aboutUs')}
             </Link>
@@ -173,6 +176,13 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-lg z-50">
             <div className="container mx-auto px-4 py-4 space-y-3">
+              <Link 
+                to="/how-it-works" 
+                className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t('nav.howItWorks')}
+              </Link>
               <Link 
                 to="/about" 
                 className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
