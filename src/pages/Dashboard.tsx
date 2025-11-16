@@ -168,7 +168,7 @@ const Dashboard = () => {
     const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult, creatorAppsResult] = await Promise.all([
       supabase.from("creator_applications").select("*, profiles(serial_number)").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
-      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id), profiles!videos_user_id_fkey(first_name, last_name)").order("created_at", { ascending: false }),
+      supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id)").order("created_at", { ascending: false }),
       supabase.from("contact_submissions").select("*").order("created_at", { ascending: false }),
       supabase.from("job_positions").select("*").order("created_at", { ascending: false }),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
@@ -180,7 +180,7 @@ const Dashboard = () => {
     // Fetch all posted videos for admin view
     const { data: allPostedVideos } = await supabase
       .from("videos")
-      .select("*, scripts!inner(serial_number, title, user_id), profiles!videos_user_id_fkey(first_name, last_name)")
+      .select("*, scripts!inner(serial_number, title, user_id)")
       .not("posted_at", "is", null);
 
     // Merge profiles with roles and creator applications
@@ -234,7 +234,7 @@ const Dashboard = () => {
     const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments, creatorVideosResult, profilesResult, rolesResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
       supabase.from("scripts").select("*").eq("user_id", userId),
-      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").eq("user_id", userId),
+      supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").eq("user_id", userId).order("created_at", { ascending: false }),
       supabase.from("commission_splits").select("*, payhip_sales(sale_amount)").eq("contributor_id", userId),
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").eq("assigned_to", userId).order("created_at", { ascending: false }),
       // Also fetch assignments where user is the script writer
@@ -245,7 +245,8 @@ const Dashboard = () => {
       // Fetch videos created from user's assignments (as video creator)
       supabase.from("videos")
         .select("*, scripts(serial_number, title, user_id), video_assignments!inner(assigned_to)")
-        .eq("video_assignments.assigned_to", userId),
+        .eq("video_assignments.assigned_to", userId)
+        .order("created_at", { ascending: false }),
       supabase.from("profiles").select("id, first_name, last_name, serial_number, email"),
       supabase.from("user_roles").select("user_id, role")
     ]);
@@ -257,17 +258,19 @@ const Dashboard = () => {
     // Fetch all videos from other users with the same scripts
     const { data: relatedVideos } = await supabase
       .from("videos")
-      .select("*, scripts(serial_number, title, user_id), video_assignments(id), profiles!videos_user_id_fkey(first_name, last_name)")
+      .select("*, scripts(serial_number, title, user_id), video_assignments(id)")
       .in("script_id", userAssignedScriptIds)
-      .neq("user_id", userId);
+      .neq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     // Fetch all posted videos with the same script serial numbers as user's scripts
     const userScriptSerials = (scriptsResult.data || []).map(s => s.serial_number).filter(Boolean);
     const { data: postedVideosForUserScripts } = await supabase
       .from("videos")
-      .select("*, scripts!inner(serial_number, title, user_id), profiles!videos_user_id_fkey(first_name, last_name)")
+      .select("*, scripts!inner(serial_number, title, user_id)")
       .in("scripts.serial_number", userScriptSerials)
-      .not("posted_at", "is", null);
+      .not("posted_at", "is", null)
+      .order("created_at", { ascending: false });
 
     // Merge profiles with roles for user data
     const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
