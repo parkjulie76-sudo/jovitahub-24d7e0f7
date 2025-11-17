@@ -941,6 +941,7 @@ const Dashboard = () => {
                       <TableHead>Status</TableHead>
                       <TableHead>Created</TableHead>
                       {!isAdmin && <TableHead>Posted Videos</TableHead>}
+                      {isAdmin && <TableHead>Assignments</TableHead>}
                       {isAdmin && <TableHead>View</TableHead>}
                       {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
@@ -1039,6 +1040,43 @@ const Dashboard = () => {
                             ) : (
                               <span className="text-muted-foreground text-sm">No posted videos</span>
                             )}
+                          </TableCell>
+                        )}
+                        {isAdmin && (
+                          <TableCell>
+                            {(() => {
+                              const scriptAssignments = assignments.filter((a: any) => a.script_id === script.id);
+                              return scriptAssignments.length > 0 ? (
+                                <div className="space-y-1">
+                                  <Badge variant="secondary" className="mb-1">
+                                    {scriptAssignments.length} Assignment{scriptAssignments.length > 1 ? 's' : ''}
+                                  </Badge>
+                                  {scriptAssignments.slice(0, 2).map((assignment: any) => {
+                                    const assignee = profiles.find((p: any) => p.id === assignment.assigned_to);
+                                    return (
+                                      <div key={assignment.id} className="text-xs">
+                                        <div className="text-muted-foreground">
+                                          {assignee ? `${assignee.first_name} ${assignee.last_name}` : 'Unknown User'}
+                                        </div>
+                                        <div className="text-muted-foreground">
+                                          Role: {assignment.role}
+                                        </div>
+                                        <Badge variant="outline" className="text-xs mt-0.5">
+                                          {assignment.status}
+                                        </Badge>
+                                      </div>
+                                    );
+                                  })}
+                                  {scriptAssignments.length > 2 && (
+                                    <div className="text-xs text-muted-foreground">
+                                      +{scriptAssignments.length - 2} more
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground text-sm">No assignments</span>
+                              );
+                            })()}
                           </TableCell>
                         )}
                         {isAdmin && (
