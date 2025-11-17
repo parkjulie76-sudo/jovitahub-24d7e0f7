@@ -2,38 +2,41 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Users, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const steps = [
-  {
-    icon: FileText,
-    title: "Submit Your Work",
-    description: "Script writers share compelling stories. Video creators showcase their editing skills. Get matched with complementary talents.",
-    color: "text-primary",
-  },
-  {
-    icon: Users,
-    title: "Collaborate & Create",
-    description: "Work together on impactful short-form videos. Our platform facilitates seamless collaboration between writers and editors.",
-    color: "text-accent",
-  },
-  {
-    icon: TrendingUp,
-    title: "Earn & Impact",
-    description: "Get paid for your work while contributing to social causes. Your content creates meaningful change and generates income.",
-    color: "text-secondary",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const HowItWorks = () => {
+  const { t } = useTranslation();
+
+  const steps = [
+    {
+      icon: FileText,
+      title: t('howItWorks.step1Title'),
+      description: t('howItWorks.step1Desc'),
+      color: "text-primary",
+    },
+    {
+      icon: Users,
+      title: t('howItWorks.step2Title'),
+      description: t('howItWorks.step2Desc'),
+      color: "text-accent",
+    },
+    {
+      icon: TrendingUp,
+      title: t('howItWorks.step3Title'),
+      description: t('howItWorks.step3Desc'),
+      color: "text-secondary",
+    },
+  ];
+
   return (
     <section className="py-24 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            How It Works
+            {t('howItWorks.title')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Three simple steps to start creating impactful content and earning
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 
@@ -63,17 +66,17 @@ const HowItWorks = () => {
         {/* Learn Details Buttons */}
         <div className="mt-16 text-center">
           <h3 className="text-2xl font-semibold mb-8">
-            Project Opportunities Now
+            {t('howItWorks.opportunities')}
           </h3>
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-3xl mx-auto">
             <Link to="/script-writers" className="flex-1">
               <Button variant="default" size="lg" className="w-full">
-                For Script Writers
+                {t('howItWorks.forScriptWriters')}
               </Button>
             </Link>
             <Link to="/video-creators" className="flex-1">
               <Button variant="default" size="lg" className="w-full">
-                For Video Creators
+                {t('howItWorks.forVideoCreators')}
               </Button>
             </Link>
           </div>
