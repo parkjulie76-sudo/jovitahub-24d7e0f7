@@ -3,8 +3,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Mission = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -16,10 +18,10 @@ const Mission = () => {
             <Compass className="w-12 h-12 text-primary" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Our Mission
+            {t("mission.title")}
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            To make content creators wealthy first, then inspire and facilitate peer-to-peer charity that spreads positive impact around the world.
+            {t("mission.subtitle")}
           </p>
         </div>
       </section>
