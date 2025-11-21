@@ -6,8 +6,10 @@ import { CheckCircle, DollarSign, FileText, TrendingUp, Users, Calculator } from
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
+import { useTranslation } from "react-i18next";
 
 const ScriptWriters = () => {
+  const { t } = useTranslation();
   const [scriptsPerWeek, setScriptsPerWeek] = useState(5);
   const [avgViews, setAvgViews] = useState(25000);
   const [conversionRate, setConversionRate] = useState(1.5);
@@ -45,10 +47,10 @@ const ScriptWriters = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                Work With Viral Storytelling Writers
+                {t("scriptWriters.title")}
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Join hundreds of writers worldwide creating impactful content and earning substantial income
+                {t("scriptWriters.subtitle")}
               </p>
             </div>
           </div>
@@ -59,10 +61,10 @@ const ScriptWriters = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <Card className="p-8 mb-8">
-                <h2 className="text-3xl font-bold mb-6">Project Overview</h2>
+                <h2 className="text-3xl font-bold mb-6">{t("scriptWriters.projectOverview")}</h2>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Project Name</h3>
+                    <h3 className="text-xl font-semibold mb-2">{t("scriptWriters.projectName")}</h3>
                     <p className="text-muted-foreground">
                       <a 
                         href="https://ebook.jovita.site/b/thzi7" 
@@ -85,8 +87,7 @@ const ScriptWriters = () => {
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Description</h3>
                     <p className="text-muted-foreground">
-                      A spiritual eBook helping entrepreneurs and elite people acquire spiritual growth and wisdom.
-                      Your role is to create viral storytelling scripts for short videos to spread awareness of universal laws through stories.
+                      {t("scriptWriters.projectDesc")}
                     </p>
                   </div>
                 </div>
@@ -94,27 +95,27 @@ const ScriptWriters = () => {
 
               {/* How We Work Together */}
               <Card className="p-8 mb-8">
-                <h2 className="text-3xl font-bold mb-6">How We Work Together</h2>
+                <h2 className="text-3xl font-bold mb-6">{t("scriptWriters.howWeWork")}</h2>
                 <div className="grid md:grid-cols-3 gap-6">
                   <div className="text-center">
                     <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
-                    <h3 className="font-semibold mb-2">Your Role</h3>
+                    <h3 className="font-semibold mb-2">{t("scriptWriters.yourRole")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Write at least 5 viral storytelling scripts per week
+                      {t("scriptWriters.yourRoleDesc")}
                     </p>
                   </div>
                   <div className="text-center">
                     <Users className="w-12 h-12 mx-auto mb-4 text-accent" />
-                    <h3 className="font-semibold mb-2">Video Adaptation</h3>
+                    <h3 className="font-semibold mb-2">{t("scriptWriters.videoAdaptation")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Jovita Hub turns your scripts into videos distributed across multiple channels
+                      {t("scriptWriters.videoAdaptationDesc")}
                     </p>
                   </div>
                   <div className="text-center">
                     <TrendingUp className="w-12 h-12 mx-auto mb-4 text-secondary" />
-                    <h3 className="font-semibold mb-2">Remote Work</h3>
+                    <h3 className="font-semibold mb-2">{t("scriptWriters.remoteWork")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Work from anywhere with proven viral tips and strategies
+                      {t("scriptWriters.remoteWorkDesc")}
                     </p>
                   </div>
                 </div>
@@ -124,7 +125,7 @@ const ScriptWriters = () => {
               <Card className="p-8 mb-8 bg-gradient-to-br from-primary/5 to-accent/5">
                 <div className="flex items-center gap-3 mb-6">
                   <DollarSign className="w-8 h-8 text-primary" />
-                  <h2 className="text-3xl font-bold">Compensation Structure</h2>
+                  <h2 className="text-3xl font-bold">{t("scriptWriters.compensation")}</h2>
                 </div>
                 
                 <div className="space-y-6">
@@ -305,7 +306,7 @@ const ScriptWriters = () => {
 
               {/* Key Points */}
               <Card className="p-8 mb-8">
-                <h2 className="text-3xl font-bold mb-6">Important Details</h2>
+                <h2 className="text-3xl font-bold mb-6">{t("scriptWriters.importantDetails")}</h2>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary mt-1" />
@@ -332,19 +333,19 @@ const ScriptWriters = () => {
 
               {/* Getting Started */}
               <Card className="p-8 bg-gradient-to-br from-primary via-primary-glow to-accent text-primary-foreground">
-                <h2 className="text-3xl font-bold mb-6">Ready to Start?</h2>
+                <h2 className="text-3xl font-bold mb-6">{t("scriptWriters.readyToStart")}</h2>
                 <div className="space-y-4 mb-6">
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-background/20 flex items-center justify-center font-bold flex-shrink-0">1</div>
-                    <p>Sign up and create your account</p>
+                    <p>{t("scriptWriters.step1")}</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-background/20 flex items-center justify-center font-bold flex-shrink-0">2</div>
-                    <p>Submit your first viral storytelling script based on the eBook preview</p>
+                    <p>{t("scriptWriters.step2")}</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-background/20 flex items-center justify-center font-bold flex-shrink-0">3</div>
-                    <p>Get approved and start creating</p>
+                    <p>{t("scriptWriters.step3")}</p>
                   </div>
                 </div>
                 
