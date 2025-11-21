@@ -8,8 +8,10 @@ import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CreatorRoleQuiz } from "@/components/CreatorRoleQuiz";
+import { useTranslation } from "react-i18next";
 
 const VideoCreators = () => {
+  const { t } = useTranslation();
   // Full-stack creator state
   const [videosPerWeek, setVideosPerWeek] = useState(5);
   const [avgViews, setAvgViews] = useState(25000);
@@ -73,10 +75,10 @@ const VideoCreators = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                Full-Stack Video Creators
+                {t("videoCreators.title")}
               </h1>
               <p className="text-xl text-muted-foreground mb-8">
-                Join creators who handle both script writing and video editing, maximizing your earning potential
+                {t("videoCreators.subtitle")}
               </p>
             </div>
           </div>
@@ -87,9 +89,9 @@ const VideoCreators = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto mb-12">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-3">Which Role is Right For You?</h2>
+                <h2 className="text-3xl font-bold mb-3">{t("videoCreators.quizTitle")}</h2>
                 <p className="text-muted-foreground text-lg">
-                  Take our quick quiz to discover your ideal creator path
+                  {t("videoCreators.quizSubtitle")}
                 </p>
               </div>
               
@@ -103,9 +105,9 @@ const VideoCreators = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto mb-12">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-3">Detailed Role Comparison</h2>
+                <h2 className="text-3xl font-bold mb-3">{t("videoCreators.comparisonTitle")}</h2>
                 <p className="text-muted-foreground text-lg">
-                  Compare the two creator roles side by side
+                  {t("videoCreators.comparisonSubtitle")}
                 </p>
               </div>
               
@@ -242,10 +244,10 @@ const VideoCreators = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <Card className="p-8 mb-8">
-                <h2 className="text-3xl font-bold mb-6">Project Overview</h2>
+                <h2 className="text-3xl font-bold mb-6">{t("videoCreators.projectOverview")}</h2>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Project Name</h3>
+                    <h3 className="text-xl font-semibold mb-2">{t("videoCreators.projectName")}</h3>
                     <p className="text-muted-foreground">
                       <a 
                         href="https://ebook.jovita.site/b/thzi7" 
@@ -268,8 +270,7 @@ const VideoCreators = () => {
                   <div>
                     <h3 className="text-xl font-semibold mb-2">Description</h3>
                     <p className="text-muted-foreground">
-                      A spiritual eBook helping entrepreneurs and elite people acquire spiritual growth and wisdom.
-                      As a full-stack video creator, you'll handle both script creation and video editing to produce complete viral storytelling videos.
+                      {t("videoCreators.projectDesc")}
                     </p>
                   </div>
                 </div>
@@ -277,27 +278,27 @@ const VideoCreators = () => {
 
               {/* How We Work Together */}
               <Card className="p-8 mb-8">
-                <h2 className="text-3xl font-bold mb-6">How We Work Together</h2>
+                <h2 className="text-3xl font-bold mb-6">{t("videoCreators.howWeWork")}</h2>
                 <div className="grid md:grid-cols-3 gap-6">
                   <div className="text-center">
                     <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
-                    <h3 className="font-semibold mb-2">Script Creation</h3>
+                    <h3 className="font-semibold mb-2">{t("videoCreators.scriptCreation")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Write compelling viral storytelling scripts based on the eBook themes
+                      {t("videoCreators.scriptCreationDesc")}
                     </p>
                   </div>
                   <div className="text-center">
                     <Video className="w-12 h-12 mx-auto mb-4 text-accent" />
-                    <h3 className="font-semibold mb-2">Video Production</h3>
+                    <h3 className="font-semibold mb-2">{t("videoCreators.videoProduction")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Edit and produce professional short-form videos from your scripts
+                      {t("videoCreators.videoProductionDesc")}
                     </p>
                   </div>
                   <div className="text-center">
                     <TrendingUp className="w-12 h-12 mx-auto mb-4 text-secondary" />
-                    <h3 className="font-semibold mb-2">Distribution</h3>
+                    <h3 className="font-semibold mb-2">{t("videoCreators.distribution")}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Jovita Hub distributes your complete videos across multiple channels
+                      {t("videoCreators.distributionDesc")}
                     </p>
                   </div>
                 </div>
@@ -307,7 +308,7 @@ const VideoCreators = () => {
               <Card className="p-8 mb-8 bg-gradient-to-br from-primary/5 to-accent/5" id="fullstack-section">
                 <div className="flex items-center gap-3 mb-6">
                   <DollarSign className="w-8 h-8 text-primary" />
-                  <h2 className="text-3xl font-bold">Compensation Structure</h2>
+                  <h2 className="text-3xl font-bold">{t("videoCreators.compensation")}</h2>
                 </div>
                 
                 <div className="space-y-6">

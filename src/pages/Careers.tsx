@@ -7,6 +7,7 @@ import { Briefcase, Users, Video, FileText, Megaphone, TrendingUp, MessageSquare
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 const iconMap: Record<string, any> = {
   briefcase: Briefcase,
@@ -19,6 +20,7 @@ const iconMap: Record<string, any> = {
 };
 
 const Careers = () => {
+  const { t } = useTranslation();
   const { data: positions, isLoading } = useQuery({
     queryKey: ['job-positions'],
     queryFn: async () => {
@@ -55,11 +57,10 @@ const Careers = () => {
               <Briefcase className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Join Our Team
+              {t("careers.title")}
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We are constantly looking for talented individuals to join our growing team. 
-              Help us create amazing content and build the future of digital storytelling.
+              {t("careers.subtitle")}
             </p>
           </div>
         </section>
@@ -68,9 +69,9 @@ const Careers = () => {
         <section className="py-16 px-4">
           <div className="container mx-auto max-w-6xl">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Open Positions</h2>
+              <h2 className="text-3xl font-bold mb-4">{t("careers.openPositions")}</h2>
               <p className="text-muted-foreground">
-                Explore our current openings and find your perfect role
+                {t("careers.openPositionsDesc")}
               </p>
             </div>
 
@@ -102,9 +103,9 @@ const Careers = () => {
                           {position.description}
                         </CardDescription>
                       </CardHeader>
-                      <CardContent>
+                       <CardContent>
                         <div className="space-y-3">
-                          <h4 className="font-semibold text-sm">Requirements:</h4>
+                          <h4 className="font-semibold text-sm">{t("careers.requirements")}</h4>
                           <ul className="space-y-2">
                             {position.requirements.map((req, reqIndex) => (
                               <li key={reqIndex} className="flex items-start text-sm text-muted-foreground">
@@ -115,7 +116,7 @@ const Careers = () => {
                           </ul>
                           <Link to="/contact" className="block pt-4">
                             <Button className="w-full">
-                              Apply Now
+                              {t("careers.applyNow")}
                             </Button>
                           </Link>
                         </div>
@@ -126,7 +127,7 @@ const Careers = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No open positions at the moment. Check back soon!</p>
+                <p className="text-muted-foreground">{t("careers.noPositions")}</p>
               </div>
             )}
           </div>
@@ -136,9 +137,9 @@ const Careers = () => {
         <section className="py-16 px-4 bg-gradient-to-br from-accent/5 to-background">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Why Join Jovita Hub?</h2>
+              <h2 className="text-3xl font-bold mb-4">{t("careers.whyJoin")}</h2>
               <p className="text-muted-foreground">
-                Be part of something special
+                {t("careers.whyJoinDesc")}
               </p>
             </div>
 
@@ -146,11 +147,11 @@ const Careers = () => {
               <Card className="text-center">
                 <CardHeader>
                   <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <CardTitle>Collaborative Culture</CardTitle>
+                  <CardTitle>{t("careers.collaborativeCulture")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Work with talented individuals who share your passion for creating amazing content.
+                    {t("careers.collaborativeCultureDesc")}
                   </p>
                 </CardContent>
               </Card>
@@ -158,11 +159,11 @@ const Careers = () => {
               <Card className="text-center">
                 <CardHeader>
                   <TrendingUp className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <CardTitle>Growth Opportunities</CardTitle>
+                  <CardTitle>{t("careers.growthOpportunities")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Develop your skills and advance your career in a rapidly growing organization.
+                    {t("careers.growthOpportunitiesDesc")}
                   </p>
                 </CardContent>
               </Card>
@@ -170,11 +171,11 @@ const Careers = () => {
               <Card className="text-center">
                 <CardHeader>
                   <Megaphone className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <CardTitle>Creative Freedom</CardTitle>
+                  <CardTitle>{t("careers.creativeFreedom")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Express your creativity and bring your unique ideas to life.
+                    {t("careers.creativeFreedomDesc")}
                   </p>
                 </CardContent>
               </Card>
@@ -187,15 +188,15 @@ const Careers = () => {
           <div className="container mx-auto max-w-3xl text-center">
             <Card className="border-primary/20">
               <CardHeader>
-                <CardTitle className="text-2xl">Don&apos;t See Your Role?</CardTitle>
+                <CardTitle className="text-2xl">{t("careers.ctaTitle")}</CardTitle>
                 <CardDescription className="text-base">
-                  We&apos;re always looking for talented people. Send us your resume and tell us how you can contribute to our team.
+                  {t("careers.ctaDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Link to="/contact">
                   <Button size="lg">
-                    Get in Touch
+                    {t("careers.ctaButton")}
                   </Button>
                 </Link>
               </CardContent>
