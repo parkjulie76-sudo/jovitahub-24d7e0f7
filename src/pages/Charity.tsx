@@ -148,19 +148,19 @@ const Charity = () => {
       {/* CTA Section */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold mb-6">Join Us in Making a Difference</h2>
+          <h2 className="text-3xl font-bold mb-6">{t("charity.ctaTitle")}</h2>
           <p className="text-lg text-muted-foreground mb-8">
-            When you work with Jovita Hub, you're not just creating great content—you're contributing to positive change in the world.
+            {t("charity.ctaText")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/join-creator">
               <Button size="lg" className="w-full sm:w-auto">
-                Become a Creator
+                {t("charity.ctaButton1")}
               </Button>
             </Link>
             <Link to="/contact">
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Partner With Us
+                {t("charity.ctaButton2")}
               </Button>
             </Link>
           </div>
