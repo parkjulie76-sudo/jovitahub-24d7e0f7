@@ -30,12 +30,9 @@ const Mission = () => {
       <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-8">Our Vision</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">{t("mission.visionTitle")}</h2>
             <p className="text-lg text-muted-foreground text-center leading-relaxed">
-              We envision a world where content creators achieve financial abundance and use their wealth to create ripples 
-              of positive change. When creators become wealthy, they're empowered to give back—not through corporate mandates, 
-              but through genuine peer-to-peer charity. We're building a community where financial success and charitable 
-              impact grow together, one creator at a time.
+              {t("mission.visionText")}
             </p>
           </div>
         </div>
@@ -161,22 +158,19 @@ const Mission = () => {
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl">
           <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-12 rounded-2xl border border-border text-center">
-            <h2 className="text-3xl font-bold mb-6">Our Commitment to You</h2>
+            <h2 className="text-3xl font-bold mb-6">{t("mission.ctaTitle")}</h2>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-              We're committed to making you wealthy first. Our platform is designed to maximize your earnings and 
-              build lasting financial success. Once you achieve wealth, we'll support you in creating your own 
-              charitable impact through peer-to-peer giving. Together, we'll prove that creator wealth and positive 
-              world impact are not just compatible—they're complementary.
+              {t("mission.ctaText")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/join-creator">
                 <Button size="lg" className="w-full sm:w-auto">
-                  Join Our Community
+                  {t("mission.ctaButton")}
                 </Button>
               </Link>
               <Link to="/charity">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Learn About Our Impact
+                  {t("charity.ctaButton2")}
                 </Button>
               </Link>
             </div>
