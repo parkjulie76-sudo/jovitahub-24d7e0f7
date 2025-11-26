@@ -1775,6 +1775,108 @@ const Dashboard = () => {
                     </Dialog>
                   </div>
                 )}
+
+                {isAdmin && (
+                  <Card className="p-6 mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">Admin Assigned Projects</h3>
+                      <Badge variant="secondary">{assignments.filter(a => {
+                        const assignedProfile = profiles.find(p => p.id === a.assigned_to);
+                        return assignedProfile?.roles?.includes('admin');
+                      }).length} Projects</Badge>
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Script Serial</TableHead>
+                          <TableHead>Script Title</TableHead>
+                          <TableHead>Admin User</TableHead>
+                          <TableHead>User Email</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Created Date</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {assignments.filter(assignment => {
+                          const assignedProfile = profiles.find(p => p.id === assignment.assigned_to);
+                          return assignedProfile?.roles?.includes('admin');
+                        }).length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
+                              No projects assigned to admin users yet
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          assignments.filter(assignment => {
+                            const assignedProfile = profiles.find(p => p.id === assignment.assigned_to);
+                            return assignedProfile?.roles?.includes('admin');
+                          }).map((assignment) => {
+                            const assignedProfile = profiles.find(p => p.id === assignment.assigned_to);
+                            return (
+                              <TableRow key={assignment.id}>
+                                <TableCell>
+                                  <Badge variant="outline" className="font-mono text-xs">
+                                    {assignment.scripts?.serial_number}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="font-medium">{assignment.scripts?.title}</div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">
+                                      {assignedProfile?.first_name} {assignedProfile?.last_name}
+                                    </span>
+                                    <Badge variant="outline" className="font-mono text-xs mt-1 w-fit">
+                                      {assignedProfile?.serial_number}
+                                    </Badge>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <span className="text-sm text-muted-foreground">{assignedProfile?.email}</span>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="secondary">
+                                    {assignment.role === 'video_creator' ? 'Video Creator' : 'Video Editor'}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={
+                                    assignment.status === 'completed' ? 'default' : 
+                                    assignment.status === 'in_progress' ? 'secondary' : 
+                                    'outline'
+                                  }>
+                                    {assignment.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <span className="text-sm">{new Date(assignment.created_at).toLocaleDateString()}</span>
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setViewDialogContent(assignment);
+                                      setViewDialogType('script');
+                                      setViewDialogOpen(true);
+                                    }}
+                                  >
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    View
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
+                        )}
+                      </TableBody>
+                    </Table>
+                  </Card>
+                )}
+
                 <Table>
                   <TableHeader>
                     <TableRow>
