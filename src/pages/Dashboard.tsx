@@ -74,6 +74,7 @@ const Dashboard = () => {
   const [userDetailDialogOpen, setUserDetailDialogOpen] = useState(false);
   const [selectedUserDetail, setSelectedUserDetail] = useState<any>(null);
   const [creatorApplications, setCreatorApplications] = useState<any[]>([]);
+  const [newsletterSubscriptions, setNewsletterSubscriptions] = useState<any[]>([]);
 
   useEffect(() => {
     checkAuth();
@@ -165,7 +166,7 @@ const Dashboard = () => {
   };
 
   const loadAllData = async () => {
-    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult, creatorAppsResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, contactResult, positionsResult, assignmentsResult, profilesResult, rolesResult, creatorAppsResult, newsletterResult] = await Promise.all([
       supabase.from("creator_applications").select("*, profiles(serial_number)").order("created_at", { ascending: false }),
       supabase.from("scripts").select("*").order("created_at", { ascending: false }),
       supabase.from("videos").select("*, scripts(serial_number, title, user_id), video_assignments(id)").order("created_at", { ascending: false }),
@@ -174,7 +175,8 @@ const Dashboard = () => {
       supabase.from("video_assignments").select("*, scripts(serial_number, title, file_url, user_id), profiles!video_assignments_assigned_to_fkey(id, first_name, last_name)").order("created_at", { ascending: false }),
       supabase.from("profiles").select("id, first_name, last_name, serial_number, email, created_at"),
       supabase.from("user_roles").select("user_id, role"),
-      supabase.from("creator_applications").select("*").order("created_at", { ascending: false })
+      supabase.from("creator_applications").select("*").order("created_at", { ascending: false }),
+      supabase.from("newsletter_subscriptions").select("*").order("created_at", { ascending: false })
     ]);
 
     // Fetch all posted videos for admin view
@@ -228,6 +230,7 @@ const Dashboard = () => {
     
     setAssignments(assignmentsWithPostedVideos);
     setProfiles(profilesWithRoles);
+    setNewsletterSubscriptions(newsletterResult.data || []);
   };
 
   const loadUserData = async (userId: string) => {
@@ -818,6 +821,7 @@ const Dashboard = () => {
               <TabsTrigger value="videos">Videos</TabsTrigger>
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
               {isAdmin && <TabsTrigger value="contact">Contact Submissions</TabsTrigger>}
+              {isAdmin && <TabsTrigger value="newsletter">Newsletter Subscribers</TabsTrigger>}
               {isAdmin && <TabsTrigger value="positions">Job Positions</TabsTrigger>}
               {isAdmin && <TabsTrigger value="admin">Admin Management</TabsTrigger>}
             </TabsList>
@@ -1458,6 +1462,49 @@ const Dashboard = () => {
                           </TableCell>
                         </TableRow>
                       ))}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </TabsContent>
+            )}
+
+            {isAdmin && (
+              <TabsContent value="newsletter">
+                <Card className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold">Newsletter Subscribers</h2>
+                    <Badge variant="secondary">{newsletterSubscriptions.length} Subscribers</Badge>
+                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Subscribed Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {newsletterSubscriptions.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                            No newsletter subscribers yet
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        newsletterSubscriptions.map((subscription) => (
+                          <TableRow key={subscription.id}>
+                            <TableCell className="font-medium">{subscription.email}</TableCell>
+                            <TableCell>
+                              <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
+                                {subscription.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {new Date(subscription.subscribed_at).toLocaleDateString()}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </Card>
