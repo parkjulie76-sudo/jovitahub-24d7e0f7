@@ -193,19 +193,40 @@ const JoinCreator = () => {
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Hero Section */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              {t('joinCreator.title')}{" "}
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {t('joinCreator.titleHighlight')}
-              </span>
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-              {t('joinCreator.subtitle')}
-            </p>
+          <div className="mb-16">
+            <div className="grid md:grid-cols-2 gap-8 items-start mb-12">
+              {/* Video Section - Top Left */}
+              <div className="w-full">
+                <div className="aspect-video rounded-lg overflow-hidden border border-border shadow-lg">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/W1PIXTBv-bs"
+                    title="Join as a Creator"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  ></iframe>
+                </div>
+              </div>
+
+              {/* Title and Subtitle Section */}
+              <div className="text-center md:text-left">
+                <h1 className="text-4xl md:text-6xl font-bold mb-6">
+                  {t('joinCreator.title')}{" "}
+                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    {t('joinCreator.titleHighlight')}
+                  </span>
+                </h1>
+                <p className="text-xl text-muted-foreground mb-8">
+                  {t('joinCreator.subtitle')}
+                </p>
+              </div>
+            </div>
 
             {/* Key Benefits */}
-            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <Card className="p-6 bg-card/50 backdrop-blur-sm border-border">
                 <DollarSign className="w-12 h-12 mx-auto mb-4 text-primary" />
                 <h3 className="font-semibold mb-2">{t('joinCreator.highEarning')}</h3>
