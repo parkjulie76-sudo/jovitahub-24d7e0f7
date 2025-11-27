@@ -97,6 +97,9 @@ const Navbar = () => {
             <Link to="/careers" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               {t('nav.careers')}
             </Link>
+            <Link to="/resources" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              {t('nav.resources')}
+            </Link>
 
             <Button
               variant="ghost"
@@ -210,6 +213,13 @@ const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t('nav.careers')}
+              </Link>
+              <Link 
+                to="/resources" 
+                className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t('nav.resources')}
               </Link>
 
               <Button
