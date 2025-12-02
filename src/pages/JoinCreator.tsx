@@ -142,14 +142,21 @@ const JoinCreator = () => {
       }
       
       toast({
-        title: "Welcome to Jovita Hub!",
-        description: "Your account has been created and application submitted. Redirecting to dashboard...",
+        title: "Check Your Email!",
+        description: "We've sent a verification link to your email address. Please verify your email to complete your registration.",
       });
       
-      // Navigate to dashboard
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1500);
+      // Clear form
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        creatorType: "",
+        experience: "",
+        portfolio: "",
+        message: "",
+        agreedToTerms: false,
+      });
       
     } catch (error) {
       console.error("Application submission error:", error);
@@ -233,6 +240,12 @@ const JoinCreator = () => {
           {/* Application Form */}
           <Card className="max-w-2xl mx-auto p-8 bg-card/50 backdrop-blur-sm border-border">
             <h2 className="text-2xl font-bold mb-6">{t('joinCreator.applicationForm')}</h2>
+            
+            <div className="mb-6 p-4 rounded-lg bg-primary/10 border border-primary/20">
+              <p className="text-sm text-foreground">
+                📧 <strong>Email Verification Required:</strong> After submitting, you'll receive a verification email. Please check your inbox and click the verification link to activate your account.
+              </p>
+            </div>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name */}
