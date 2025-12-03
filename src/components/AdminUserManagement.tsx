@@ -37,6 +37,7 @@ interface UserProfile {
   serial_number: string;
   created_at: string;
   roles: string[];
+  creator_type: string | null;
 }
 
 const AdminUserManagement = () => {
@@ -55,14 +56,16 @@ const AdminUserManagement = () => {
     setLoading(true);
     
     try {
-      // Fetch both profiles and user roles
-      const [profilesResult, rolesResult] = await Promise.all([
+      // Fetch profiles, user roles, and creator applications
+      const [profilesResult, rolesResult, creatorAppsResult] = await Promise.all([
         supabase.from("profiles").select("id, first_name, last_name, serial_number, email, created_at").order("created_at", { ascending: false }),
-        supabase.from("user_roles").select("*").order("created_at", { ascending: false })
+        supabase.from("user_roles").select("*").order("created_at", { ascending: false }),
+        supabase.from("creator_applications").select("user_id, creator_type")
       ]);
 
       console.log("Profiles result:", profilesResult);
       console.log("Roles result:", rolesResult);
+      console.log("Creator apps result:", creatorAppsResult);
 
       if (profilesResult.error) {
         console.error("Error loading profiles:", profilesResult.error);
@@ -73,15 +76,18 @@ const AdminUserManagement = () => {
         });
         setProfiles([]);
       } else {
-        // Merge profiles with roles
+        // Merge profiles with roles and creator type
         const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
           const userRoles = (rolesResult.data || [])
             .filter((r: any) => r.user_id === profile.id)
             .map((r: any) => r.role);
           
+          const creatorApp = (creatorAppsResult.data || []).find((app: any) => app.user_id === profile.id);
+          
           return {
             ...profile,
-            roles: userRoles
+            roles: userRoles,
+            creator_type: creatorApp?.creator_type || null
           };
         });
         
@@ -192,6 +198,7 @@ const AdminUserManagement = () => {
               <TableHead>Serial Number</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Creator Type</TableHead>
               <TableHead>Roles</TableHead>
               <TableHead>Registered</TableHead>
             </TableRow>
@@ -199,7 +206,7 @@ const AdminUserManagement = () => {
           <TableBody>
             {profiles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   No users found in the system
                 </TableCell>
               </TableRow>
@@ -218,6 +225,15 @@ const AdminUserManagement = () => {
                     }
                   </TableCell>
                   <TableCell>{profile.email || <span className="text-muted-foreground">No email</span>}</TableCell>
+                  <TableCell>
+                    {profile.creator_type ? (
+                      <Badge variant="outline" className="capitalize">
+                        {profile.creator_type}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     {profile.roles.length > 0 ? (
                       <div className="flex gap-1 flex-wrap">
