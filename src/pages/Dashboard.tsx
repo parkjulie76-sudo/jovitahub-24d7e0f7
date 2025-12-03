@@ -75,6 +75,13 @@ const Dashboard = () => {
   const [selectedUserDetail, setSelectedUserDetail] = useState<any>(null);
   const [creatorApplications, setCreatorApplications] = useState<any[]>([]);
   const [newsletterSubscriptions, setNewsletterSubscriptions] = useState<any[]>([]);
+  const [isCreatorTypeDialogOpen, setIsCreatorTypeDialogOpen] = useState(false);
+  const [editingCreatorType, setEditingCreatorType] = useState<{
+    userId: string;
+    currentType: string | null;
+    userName: string;
+  } | null>(null);
+  const [selectedCreatorType, setSelectedCreatorType] = useState<string>("");
 
   useEffect(() => {
     checkAuth();
@@ -356,6 +363,72 @@ const Dashboard = () => {
         total_commission: totalCommission,
         pending_payout: totalCommission - completedPayouts,
         projects_count: projectIds.size,
+      });
+    }
+  };
+
+  const saveCreatorType = async () => {
+    if (!editingCreatorType || !selectedCreatorType) {
+      toast({
+        title: "Error",
+        description: "Please select a creator type",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Check if creator_application exists for this user
+      const { data: existingApp } = await supabase
+        .from("creator_applications")
+        .select("id")
+        .eq("user_id", editingCreatorType.userId)
+        .maybeSingle();
+
+      if (existingApp) {
+        // Update existing application
+        const { error } = await supabase
+          .from("creator_applications")
+          .update({ creator_type: selectedCreatorType })
+          .eq("user_id", editingCreatorType.userId);
+
+        if (error) throw error;
+      } else {
+        // Get user's profile info for the new application
+        const userProfile = profiles.find(p => p.id === editingCreatorType.userId);
+        
+        // Create new application
+        const { error } = await supabase
+          .from("creator_applications")
+          .insert({
+            user_id: editingCreatorType.userId,
+            full_name: userProfile?.first_name && userProfile?.last_name 
+              ? `${userProfile.first_name} ${userProfile.last_name}` 
+              : userProfile?.first_name || userProfile?.last_name || 'Unknown',
+            email: userProfile?.email || '',
+            creator_type: selectedCreatorType,
+            experience: 'not_specified',
+            agreed_to_terms: true,
+            status: 'approved',
+          });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Creator type updated successfully",
+      });
+      
+      setIsCreatorTypeDialogOpen(false);
+      setEditingCreatorType(null);
+      setSelectedCreatorType("");
+      loadAllData();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update creator type",
+        variant: "destructive",
       });
     }
   };
@@ -838,12 +911,13 @@ const Dashboard = () => {
                       <TableHead>Portfolio</TableHead>
                       <TableHead>Signup Date</TableHead>
                       <TableHead>Roles</TableHead>
+                      {isAdmin && <TableHead>Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {profiles.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center text-muted-foreground">
+                        <TableCell colSpan={isAdmin ? 8 : 7} className="text-center text-muted-foreground">
                           No users yet
                         </TableCell>
                       </TableRow>
@@ -912,6 +986,28 @@ const Dashboard = () => {
                               )}
                             </div>
                           </TableCell>
+                          {isAdmin && (
+                            <TableCell>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingCreatorType({
+                                    userId: profile.id,
+                                    currentType: profile.creator_type !== '-' ? profile.creator_type : null,
+                                    userName: profile.first_name && profile.last_name 
+                                      ? `${profile.first_name} ${profile.last_name}`
+                                      : profile.first_name || profile.last_name || profile.email
+                                  });
+                                  setSelectedCreatorType(profile.creator_type !== '-' ? profile.creator_type : '');
+                                  setIsCreatorTypeDialogOpen(true);
+                                }}
+                              >
+                                <Pencil className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))
                     )}
@@ -2530,6 +2626,51 @@ const Dashboard = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Creator Type Dialog */}
+      <Dialog open={isCreatorTypeDialogOpen} onOpenChange={setIsCreatorTypeDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Creator Type</DialogTitle>
+            <DialogDescription>
+              {editingCreatorType?.userName ? `Assign or update creator type for ${editingCreatorType.userName}` : 'Select a creator type'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="creator-type">Creator Type</Label>
+              <Select
+                value={selectedCreatorType}
+                onValueChange={setSelectedCreatorType}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select creator type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="script_writer">Script Writer</SelectItem>
+                  <SelectItem value="format_storytelling_writer">Writer (Format + Storytelling Script)</SelectItem>
+                  <SelectItem value="blogger">Blogger</SelectItem>
+                  <SelectItem value="video_format_creator">Video Format Creator</SelectItem>
+                  <SelectItem value="video_editor">Video Editor</SelectItem>
+                  <SelectItem value="full_video_creator">Video Creator (Format + Script + Video Edit)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => {
+              setIsCreatorTypeDialogOpen(false);
+              setEditingCreatorType(null);
+              setSelectedCreatorType("");
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={saveCreatorType}>
+              Save
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
