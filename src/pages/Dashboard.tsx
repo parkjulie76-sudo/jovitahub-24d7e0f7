@@ -242,7 +242,7 @@ const Dashboard = () => {
   };
 
   const loadUserData = async (userId: string) => {
-    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments, creatorVideosResult, profilesResult, rolesResult] = await Promise.all([
+    const [appsResult, scriptsResult, videosResult, splitsResult, assignmentsResult, scriptWriterAssignments, creatorVideosResult, profilesResult, rolesResult, allCreatorAppsResult] = await Promise.all([
       supabase.from("creator_applications").select("*").eq("user_id", userId),
       supabase.from("scripts").select("*").eq("user_id", userId),
       supabase.from("videos").select("*, scripts(serial_number, title), video_assignments(id)").eq("user_id", userId).order("created_at", { ascending: false }),
@@ -259,7 +259,9 @@ const Dashboard = () => {
         .eq("video_assignments.assigned_to", userId)
         .order("created_at", { ascending: false }),
       supabase.from("profiles").select("id, first_name, last_name, serial_number, email"),
-      supabase.from("user_roles").select("user_id, role")
+      supabase.from("user_roles").select("user_id, role"),
+      // Fetch all creator applications to get full names
+      supabase.from("creator_applications").select("user_id, full_name")
     ]);
 
     // Get all script IDs that the user is assigned to
@@ -283,16 +285,19 @@ const Dashboard = () => {
       .not("posted_at", "is", null)
       .order("created_at", { ascending: false });
 
-    // Merge profiles with roles for user data
+    // Merge profiles with roles and creator full names for user data
     const profilesWithRoles = (profilesResult.data || []).map((profile: any) => {
       const userRoles = (rolesResult.data || [])
         .filter((r: any) => r.user_id === profile.id)
         .map((r: any) => r.role);
       
+      const creatorApp = (allCreatorAppsResult.data || []).find((app: any) => app.user_id === profile.id);
+      
       return {
         ...profile,
         email: profile.email || 'No email',
-        roles: userRoles
+        roles: userRoles,
+        creator_full_name: creatorApp?.full_name || null
       };
     });
     setProfiles(profilesWithRoles);
@@ -1062,9 +1067,13 @@ const Dashboard = () => {
                         <TableCell>
                           {(() => {
                             const uploader = profiles.find((p: any) => p.id === script.user_id);
+                            const displayName = uploader?.creator_full_name 
+                              || (uploader?.first_name && uploader?.last_name 
+                                ? `${uploader.first_name} ${uploader.last_name}` 
+                                : uploader?.first_name || uploader?.last_name);
                             return uploader ? (
                               <div className="text-sm">
-                                <div className="font-medium">{uploader.first_name} {uploader.last_name}</div>
+                                <div className="font-medium">{displayName || '-'}</div>
                                 <div className="text-muted-foreground">{uploader.email}</div>
                               </div>
                             ) : (
@@ -1156,10 +1165,14 @@ const Dashboard = () => {
                                   </Badge>
                                   {scriptAssignments.slice(0, 2).map((assignment: any) => {
                                     const assignee = profiles.find((p: any) => p.id === assignment.assigned_to);
+                                    const assigneeDisplayName = assignee?.creator_full_name 
+                                      || (assignee?.first_name && assignee?.last_name 
+                                        ? `${assignee.first_name} ${assignee.last_name}` 
+                                        : assignee?.first_name || assignee?.last_name);
                                     return (
                                       <div key={assignment.id} className="text-xs">
                                         <div className="text-muted-foreground">
-                                          {assignee ? `${assignee.first_name} ${assignee.last_name}` : 'Unknown User'}
+                                          {assigneeDisplayName || 'Unknown User'}
                                         </div>
                                         <div className="text-muted-foreground">
                                           Role: {assignment.role}
@@ -1309,9 +1322,13 @@ const Dashboard = () => {
                           <TableCell>
                             {(() => {
                               const uploader = profiles.find((p: any) => p.id === video.user_id);
+                              const displayName = uploader?.creator_full_name 
+                                || (uploader?.first_name && uploader?.last_name 
+                                  ? `${uploader.first_name} ${uploader.last_name}` 
+                                  : uploader?.first_name || uploader?.last_name);
                               return uploader ? (
                                 <div className="text-sm">
-                                  <div className="font-medium">{uploader.first_name} {uploader.last_name}</div>
+                                  <div className="font-medium">{displayName || '-'}</div>
                                   <div className="text-muted-foreground">{uploader.email}</div>
                                 </div>
                               ) : (
@@ -1329,10 +1346,14 @@ const Dashboard = () => {
                                   <div className="space-y-1">
                                     {relatedVideos.slice(0, 2).map(rv => {
                                       const rvUploader = profiles.find((p: any) => p.id === rv.user_id);
+                                      const rvDisplayName = rvUploader?.creator_full_name 
+                                        || (rvUploader?.first_name && rvUploader?.last_name 
+                                          ? `${rvUploader.first_name} ${rvUploader.last_name}` 
+                                          : rvUploader?.first_name || rvUploader?.last_name);
                                       return (
                                         <div key={rv.id} className="text-xs">
                                           <div className="font-medium truncate">{rv.title}</div>
-                                          <div className="text-muted-foreground">by {rvUploader?.first_name} {rvUploader?.last_name}</div>
+                                          <div className="text-muted-foreground">by {rvDisplayName || '-'}</div>
                                           {rv.youtube_link && (
                                             <a href={rv.youtube_link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
                                               <Youtube className="h-3 w-3" /> YouTube
