@@ -207,7 +207,8 @@ const Dashboard = () => {
         creator_type: creatorApp?.creator_type || '-',
         portfolio_url: creatorApp?.portfolio_url || null,
         experience: creatorApp?.experience || '-',
-        signup_date: profile.created_at
+        signup_date: profile.created_at,
+        creator_full_name: creatorApp?.full_name || null
       };
     });
 
@@ -938,9 +939,10 @@ const Dashboard = () => {
                                 setUserDetailDialogOpen(true);
                               }}
                             >
-                              {profile.first_name && profile.last_name 
-                                ? `${profile.first_name} ${profile.last_name}`
-                                : profile.first_name || profile.last_name || '-'}
+                              {profile.creator_full_name 
+                                || (profile.first_name && profile.last_name 
+                                  ? `${profile.first_name} ${profile.last_name}`
+                                  : profile.first_name || profile.last_name || '-')}
                             </Button>
                           </TableCell>
                           <TableCell>{profile.email}</TableCell>
@@ -995,9 +997,10 @@ const Dashboard = () => {
                                   setEditingCreatorType({
                                     userId: profile.id,
                                     currentType: profile.creator_type !== '-' ? profile.creator_type : null,
-                                    userName: profile.first_name && profile.last_name 
-                                      ? `${profile.first_name} ${profile.last_name}`
-                                      : profile.first_name || profile.last_name || profile.email
+                                    userName: profile.creator_full_name 
+                                      || (profile.first_name && profile.last_name 
+                                        ? `${profile.first_name} ${profile.last_name}`
+                                        : profile.first_name || profile.last_name || profile.email)
                                   });
                                   setSelectedCreatorType(profile.creator_type !== '-' ? profile.creator_type : '');
                                   setIsCreatorTypeDialogOpen(true);
