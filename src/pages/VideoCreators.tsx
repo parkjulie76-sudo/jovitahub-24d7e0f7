@@ -6,7 +6,7 @@ import { CheckCircle, DollarSign, FileText, Video, TrendingUp, Users, Calculator
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import { CreatorRoleQuiz } from "@/components/CreatorRoleQuiz";
 import { useTranslation } from "react-i18next";
 
@@ -76,140 +76,75 @@ const VideoCreators = () => {
           </div>
         </section>
 
-        {/* Role Comparison Table */}
-        <section className="py-16" id="comparison-table">
+        {/* Role Overview */}
+        <section className="py-16" id="role-overview">
           <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto mb-12">
+            <div className="max-w-4xl mx-auto mb-12">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-3">{t("videoCreators.comparisonTitle")}</h2>
+                <h2 className="text-3xl font-bold mb-3">Full-Stack Video Creator</h2>
                 <p className="text-muted-foreground text-lg">
-                  {t("videoCreators.comparisonSubtitle")}
+                  Complete end-to-end video production with maximum earnings
                 </p>
               </div>
               
-              <Card className="overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-1/3 bg-muted/50">Criteria</TableHead>
-                      <TableHead className="bg-primary/10 text-center">Full-Stack Video Creator</TableHead>
-                      <TableHead className="bg-secondary/10 text-center">Video Editor Only</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="font-semibold bg-muted/30">Responsibilities</TableCell>
-                      <TableCell className="bg-primary/5">
-                        <ul className="space-y-2 text-sm">
-                          <li className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                            <span>Write viral storytelling scripts</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                            <span>Edit and produce videos</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                            <span>Complete end-to-end production</span>
-                          </li>
-                        </ul>
-                      </TableCell>
-                      <TableCell className="bg-secondary/5">
-                        <ul className="space-y-2 text-sm">
-                          <li className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-secondary mt-0.5 flex-shrink-0" />
-                            <span>Edit videos from provided scripts</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-secondary mt-0.5 flex-shrink-0" />
-                            <span>Focus solely on video production</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-secondary mt-0.5 flex-shrink-0" />
-                            <span>Professional editing quality</span>
-                          </li>
-                        </ul>
-                      </TableCell>
-                    </TableRow>
-                    
-                    <TableRow>
-                      <TableCell className="font-semibold bg-muted/30">Monthly Fee</TableCell>
-                      <TableCell className="text-center bg-primary/5">
-                        <p className="text-2xl font-bold text-primary">$1,200</p>
-                        <p className="text-xs text-muted-foreground mt-1">Score 50+ required</p>
-                      </TableCell>
-                      <TableCell className="text-center bg-secondary/5">
-                        <p className="text-2xl font-bold text-secondary">$600</p>
-                        <p className="text-xs text-muted-foreground mt-1">Score 50+ required</p>
-                      </TableCell>
-                    </TableRow>
-                    
-                    <TableRow>
-                      <TableCell className="font-semibold bg-muted/30">Commission Rate</TableCell>
-                      <TableCell className="text-center bg-primary/5">
-                        <p className="text-2xl font-bold text-primary">20%</p>
-                        <p className="text-xs text-muted-foreground mt-1">Per sale</p>
-                      </TableCell>
-                      <TableCell className="text-center bg-secondary/5">
-                        <p className="text-2xl font-bold text-secondary">10%</p>
-                        <p className="text-xs text-muted-foreground mt-1">Per sale</p>
-                      </TableCell>
-                    </TableRow>
-                    
-                    <TableRow>
-                      <TableCell className="font-semibold bg-muted/30">Income Potential</TableCell>
-                      <TableCell className="text-center bg-primary/5">
-                        <p className="text-lg font-bold text-primary">$2,000 - $100,000</p>
-                        <p className="text-xs text-muted-foreground mt-1">Monthly USD</p>
-                      </TableCell>
-                      <TableCell className="text-center bg-secondary/5">
-                        <p className="text-lg font-bold text-secondary">$1,000 - $50,000</p>
-                        <p className="text-xs text-muted-foreground mt-1">Monthly USD</p>
-                      </TableCell>
-                    </TableRow>
-                    
-                    <TableRow>
-                      <TableCell className="font-semibold bg-muted/30">Required Skills</TableCell>
-                      <TableCell className="bg-primary/5">
-                        <ul className="space-y-1 text-sm">
-                          <li>• Storytelling & writing</li>
-                          <li>• Video editing expertise</li>
-                          <li>• Content creation strategy</li>
-                        </ul>
-                      </TableCell>
-                      <TableCell className="bg-secondary/5">
-                        <ul className="space-y-1 text-sm">
-                          <li>• Professional video editing</li>
-                          <li>• Visual storytelling</li>
-                          <li>• Post-production skills</li>
-                        </ul>
-                      </TableCell>
-                    </TableRow>
-                    
-                    <TableRow>
-                      <TableCell className="font-semibold bg-muted/30">Time Commitment</TableCell>
-                      <TableCell className="text-center bg-primary/5">
-                        <p className="font-semibold">High</p>
-                        <p className="text-xs text-muted-foreground mt-1">Script + editing time</p>
-                      </TableCell>
-                      <TableCell className="text-center bg-secondary/5">
-                        <p className="font-semibold">Medium</p>
-                        <p className="text-xs text-muted-foreground mt-1">Editing time only</p>
-                      </TableCell>
-                    </TableRow>
-                    
-                    <TableRow>
-                      <TableCell className="font-semibold bg-muted/30">Best For</TableCell>
-                      <TableCell className="bg-primary/5">
-                        <p className="text-sm">Writers who want to produce complete videos and maximize earnings</p>
-                      </TableCell>
-                      <TableCell className="bg-secondary/5">
-                        <p className="text-sm">Professional video editors who prefer to focus on production quality</p>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+              <Card className="p-8">
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                  <div className="text-center p-4 rounded-lg bg-primary/10">
+                    <p className="text-3xl font-bold text-primary">$1,200</p>
+                    <p className="text-sm text-muted-foreground mt-1">Monthly Fee (Score 50+)</p>
+                  </div>
+                  <div className="text-center p-4 rounded-lg bg-primary/10">
+                    <p className="text-3xl font-bold text-primary">20%</p>
+                    <p className="text-sm text-muted-foreground mt-1">Commission Per Sale</p>
+                  </div>
+                  <div className="text-center p-4 rounded-lg bg-primary/10">
+                    <p className="text-3xl font-bold text-primary">$2K - $100K</p>
+                    <p className="text-sm text-muted-foreground mt-1">Monthly Income Potential</p>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <h3 className="font-semibold mb-4">Responsibilities</h3>
+                    <ul className="space-y-3">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Write viral storytelling scripts</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Edit and produce videos</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Complete end-to-end production</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-4">Required Skills</h3>
+                    <ul className="space-y-3">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Storytelling & writing</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Video editing expertise</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                        <span>Content creation strategy</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="mt-8 p-4 bg-muted/30 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Best For:</strong> Writers who want to produce complete videos and maximize earnings through both script writing and video production.
+                  </p>
+                </div>
               </Card>
             </div>
           </div>
