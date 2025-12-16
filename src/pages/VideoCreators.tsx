@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 
-import { CreatorRoleQuiz } from "@/components/CreatorRoleQuiz";
+
 import { useTranslation } from "react-i18next";
 
 const VideoCreators = () => {
@@ -60,21 +60,6 @@ const VideoCreators = () => {
           </div>
         </section>
 
-        {/* Interactive Quiz Section */}
-        <section className="py-16 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto mb-12">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-3">{t("videoCreators.quizTitle")}</h2>
-                <p className="text-muted-foreground text-lg">
-                  {t("videoCreators.quizSubtitle")}
-                </p>
-              </div>
-              
-              <CreatorRoleQuiz />
-            </div>
-          </div>
-        </section>
 
         {/* Role Overview */}
         <section className="py-16" id="role-overview">
