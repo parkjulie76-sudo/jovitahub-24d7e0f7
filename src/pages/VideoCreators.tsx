@@ -17,11 +17,6 @@ const VideoCreators = () => {
   const [avgViews, setAvgViews] = useState(25000);
   const [conversionRate, setConversionRate] = useState(1.5);
   
-  // Video editor only state
-  const [editVideosPerWeek, setEditVideosPerWeek] = useState(5);
-  const [editAvgViews, setEditAvgViews] = useState(25000);
-  const [editConversionRate, setEditConversionRate] = useState(1.5);
-  
   // Fixed eBook price
   const pricePerSale = 9;
 
@@ -45,25 +40,6 @@ const VideoCreators = () => {
   const monthlyFee = creatorScore >= 50 ? 1200 : 0; // $1200 for combined creators
   const totalMonthlyIncome = monthlyFee + commissionEarnings;
 
-  // Calculate metrics for video editors only
-  const editVideosPerMonth = editVideosPerWeek * 4;
-  const editTotalViews = editAvgViews * editVideosPerMonth;
-  const editTotalSales = Math.floor((editTotalViews * editConversionRate) / 100);
-  const editCommissionEarnings = editTotalSales * pricePerSale * 0.1; // 10% for video editors
-  
-  // Calculate editor score
-  let editCreatorScore = 0;
-  if (editVideosPerWeek >= 5 && editAvgViews >= 10000 && editConversionRate >= 1) {
-    editCreatorScore += editVideosPerWeek * 15 * 4;
-  } else if (editVideosPerWeek >= 1 && editAvgViews >= 10000 && editConversionRate >= 1) {
-    editCreatorScore += editVideosPerWeek * 10 * 4;
-  }
-  if (editAvgViews >= 100000 && editConversionRate >= 1) {
-    editCreatorScore += 50;
-  }
-  
-  const editMonthlyFee = editCreatorScore >= 50 ? 600 : 0; // $600 for video editors
-  const editTotalMonthlyIncome = editMonthlyFee + editCommissionEarnings;
 
   return (
     <div className="min-h-screen bg-background">
@@ -533,124 +509,6 @@ const VideoCreators = () => {
                   </div>
                 </Card>
 
-                {/* Video Editor Income Calculator */}
-                <Card className="p-8 mb-8 bg-gradient-to-br from-accent/5 to-secondary/5">
-                  <div className="flex items-center gap-3 mb-6">
-                    <Calculator className="w-8 h-8 text-accent" />
-                    <h3 className="text-2xl font-bold">Video Editor Income Calculator</h3>
-                  </div>
-                  
-                  <p className="text-muted-foreground mb-6">
-                    Adjust the sliders below to estimate your potential monthly earnings as a video editor
-                  </p>
-
-                  <div className="space-y-6 mb-8">
-                    {/* Videos Per Week Slider */}
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <label className="font-semibold">Edited Videos Per Week</label>
-                        <span className="text-2xl font-bold text-secondary">{editVideosPerWeek}</span>
-                      </div>
-                      <Slider
-                        value={[editVideosPerWeek]}
-                        onValueChange={(value) => setEditVideosPerWeek(value[0])}
-                        min={1}
-                        max={10}
-                        step={1}
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Average Views Slider */}
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <label className="font-semibold">Average Views Per Video</label>
-                        <span className="text-2xl font-bold text-secondary">{editAvgViews.toLocaleString()}</span>
-                      </div>
-                      <Slider
-                        value={[editAvgViews]}
-                        onValueChange={(value) => setEditAvgViews(value[0])}
-                        min={5000}
-                        max={200000}
-                        step={5000}
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Conversion Rate Slider */}
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <label className="font-semibold">Conversion Rate (%)</label>
-                        <span className="text-2xl font-bold text-secondary">{editConversionRate}%</span>
-                      </div>
-                      <Slider
-                        value={[editConversionRate]}
-                        onValueChange={(value) => setEditConversionRate(value[0])}
-                        min={0.5}
-                        max={5}
-                        step={0.1}
-                        className="w-full"
-                      />
-                    </div>
-
-                    {/* Fixed eBook Price Display */}
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <label className="font-semibold">eBook Price (Fixed)</label>
-                        <span className="text-2xl font-bold text-secondary">${pricePerSale} USD</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">The eBook price is fixed at $9 USD</p>
-                    </div>
-                  </div>
-
-                  {/* Results Display */}
-                  <div className="bg-background/80 backdrop-blur rounded-lg p-6 space-y-4">
-                    <h4 className="text-xl font-semibold mb-4">Your Estimated Monthly Income</h4>
-                    
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="border border-border rounded-lg p-4">
-                        <p className="text-sm text-muted-foreground mb-1">Creator Score</p>
-                        <p className="text-3xl font-bold text-secondary">{editCreatorScore}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {editCreatorScore >= 50 ? "Qualifies for monthly fee ✓" : "Below threshold (need 50+)"}
-                        </p>
-                      </div>
-                      
-                      <div className="border border-border rounded-lg p-4">
-                        <p className="text-sm text-muted-foreground mb-1">Monthly Fee</p>
-                        <p className="text-3xl font-bold text-secondary">${editMonthlyFee}</p>
-                      </div>
-
-                      <div className="border border-border rounded-lg p-4">
-                        <p className="text-sm text-muted-foreground mb-1">Total Monthly Sales</p>
-                        <p className="text-3xl font-bold text-accent">{editTotalSales}</p>
-                      </div>
-
-                      <div className="border border-border rounded-lg p-4">
-                        <p className="text-sm text-muted-foreground mb-1">Commission Earnings (10%)</p>
-                        <p className="text-3xl font-bold text-accent">${editCommissionEarnings.toFixed(0)}</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 pt-6 border-t border-border">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xl font-semibold">Total Monthly Income</span>
-                        <span className="text-4xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
-                          ${editTotalMonthlyIncome.toFixed(0)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Based on {editVideosPerMonth} edited videos/month with {editTotalViews.toLocaleString()} total views
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 p-4 bg-secondary/10 rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      <strong>Note:</strong> These are estimates based on your inputs. Actual earnings may vary depending on video performance, editing quality, and audience engagement.
-                    </p>
-                  </div>
-                </Card>
               </div>
 
               {/* Key Points */}
