@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      chatbot_book_chunks: {
+        Row: {
+          book_id: string
+          chunk_index: number
+          content: string
+          created_at: string
+          embedding: string | null
+          id: string
+        }
+        Insert: {
+          book_id: string
+          chunk_index: number
+          content: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+        }
+        Update: {
+          book_id?: string
+          chunk_index?: number
+          content?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_book_chunks_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "chatbot_books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chatbot_books: {
+        Row: {
+          chunk_count: number
+          created_at: string
+          error_message: string | null
+          file_path: string
+          id: string
+          status: string
+          title: string
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          chunk_count?: number
+          created_at?: string
+          error_message?: string | null
+          file_path: string
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          chunk_count?: number
+          created_at?: string
+          error_message?: string | null
+          file_path?: string
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
       commission_splits: {
         Row: {
           calculated_at: string
@@ -601,6 +672,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      match_book_chunks: {
+        Args: { match_count?: number; query_embedding: string }
+        Returns: {
+          content: string
+          id: string
+          similarity: number
+        }[]
       }
     }
     Enums: {
