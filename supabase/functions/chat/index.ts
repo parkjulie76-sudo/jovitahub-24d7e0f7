@@ -1,9 +1,47 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+async function retrieveBookContext(query: string, apiKey: string): Promise<string> {
+  try {
+    // Embed the query
+    const embResp = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "google/text-embedding-004", input: query }),
+    });
+    if (!embResp.ok) {
+      console.error("Embed query failed", await embResp.text());
+      return "";
+    }
+    const embData = await embResp.json();
+    const queryEmbedding = embData.data[0].embedding;
+
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const { data, error } = await admin.rpc("match_book_chunks", {
+      query_embedding: queryEmbedding,
+      match_count: 5,
+    });
+    if (error) {
+      console.error("match_book_chunks error:", error);
+      return "";
+    }
+    if (!data || data.length === 0) return "";
+    return data
+      .map((c: any, i: number) => `[Excerpt ${i + 1}]\n${c.content}`)
+      .join("\n\n");
+  } catch (e) {
+    console.error("retrieveBookContext error:", e);
+    return "";
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -13,12 +51,16 @@ serve(async (req) => {
   try {
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
+
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a helpful AI assistant for Jovita Hub, a platform that connects script writers and video editors to create impactful short-form videos for social causes.
+    // Get the most recent user query for retrieval
+    const lastUser = [...messages].reverse().find((m: any) => m.role === "user");
+    const bookContext = lastUser ? await retrieveBookContext(lastUser.content, LOVABLE_API_KEY) : "";
+
+    const baseSystemPrompt = `You are a helpful AI assistant for Jovita Hub, a platform that connects script writers and video editors to create impactful short-form videos for social causes.
 
 Key information about Jovita Hub:
 - Script writers can earn $300-500 per month base fee plus sales commissions
@@ -31,6 +73,10 @@ Key information about Jovita Hub:
 - Content focuses on storytelling and social impact
 
 Answer questions clearly and concisely. If you don't know something specific about policies or technical details, be honest and suggest contacting support.`;
+
+    const systemPrompt = bookContext
+      ? `${baseSystemPrompt}\n\nYou also have access to the following excerpts from a reference book uploaded by the team. When the user's question relates to this content, prioritize answering from these excerpts and cite them as "the book". If the excerpts don't cover the question, fall back to your general knowledge of Jovita Hub.\n\n=== BOOK EXCERPTS ===\n${bookContext}\n=== END BOOK EXCERPTS ===`
+      : baseSystemPrompt;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -51,31 +97,22 @@ Answer questions clearly and concisely. If you don't know something specific abo
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Rate limits exceeded, please try again later." }), 
-          {
-            status: 429,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+          JSON.stringify({ error: "Rate limits exceeded, please try again later." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Payment required, please add funds to your Lovable AI workspace." }), 
-          {
-            status: 402,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
+          JSON.stringify({ error: "Payment required, please add funds to your Lovable AI workspace." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
-      return new Response(
-        JSON.stringify({ error: "AI gateway error" }), 
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "AI gateway error" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     return new Response(response.body, {
@@ -84,11 +121,8 @@ Answer questions clearly and concisely. If you don't know something specific abo
   } catch (error) {
     console.error("chat error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), 
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

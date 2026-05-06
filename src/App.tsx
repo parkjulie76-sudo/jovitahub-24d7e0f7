@@ -33,6 +33,7 @@ import CommissionDashboard from "./pages/CommissionDashboard";
 import AdminCommissions from "./pages/AdminCommissions";
 import HowItWorksPage from "./pages/HowItWorksPage";
 import Resources from "./pages/Resources";
+import AdminBooks from "./pages/AdminBooks";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const App = () => (
           <Route path="/admin/commissions" element={<AdminCommissions />} />
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/resources" element={<Resources />} />
+          <Route path="/admin/books" element={<AdminBooks />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           </Routes>
