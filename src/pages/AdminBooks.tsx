@@ -10,6 +10,24 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, Upload, BookOpen, Trash2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import * as pdfjsLib from "pdfjs-dist";
+// @ts-ignore - vite worker import
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+
+async function extractPdfTextInBrowser(file: File, onProgress?: (p: number) => void): Promise<string> {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let full = "";
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map((it: any) => ("str" in it ? it.str : "")).join(" ");
+    full += pageText + "\n\n";
+    onProgress?.(i / pdf.numPages);
+  }
+  return full;
+}
 
 interface BookRow {
   id: string;
@@ -81,6 +99,12 @@ export default function AdminBooks() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not signed in");
 
+      toast({ title: "Extracting text…", description: "Reading the PDF in your browser." });
+      const text = await extractPdfTextInBrowser(file);
+      if (!text.trim() || text.trim().length < 100) {
+        throw new Error("Could not extract text. Is this a scanned/image PDF?");
+      }
+
       const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("chatbot-books").upload(path, file);
       if (upErr) throw upErr;
@@ -97,15 +121,15 @@ export default function AdminBooks() {
         .single();
       if (insErr) throw insErr;
 
-      toast({ title: "Uploaded", description: "Processing book… this can take 1–3 minutes." });
+      toast({ title: "Uploaded", description: "Embedding text… this can take 1–2 minutes." });
       setTitle("");
       setFile(null);
       (document.getElementById("book-file") as HTMLInputElement).value = "";
       loadBooks();
 
-      // Trigger ingest
+      // Trigger ingest with pre-extracted text
       const { error: fnErr } = await supabase.functions.invoke("ingest-book", {
-        body: { bookId: bookRow.id },
+        body: { bookId: bookRow.id, text },
       });
       if (fnErr) {
         toast({ title: "Processing failed", description: fnErr.message, variant: "destructive" });
