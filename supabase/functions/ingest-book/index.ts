@@ -167,7 +167,7 @@ serve(async (req) => {
         await admin
           .from("chatbot_books")
           .update({ status: "failed", error_message: msg })
-          .eq("id", bookId);
+          .eq("id", bookIdForError);
       } catch {}
     }
     return new Response(JSON.stringify({ error: msg }), {
