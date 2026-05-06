@@ -91,11 +91,8 @@ const ApplyJob = () => {
       return null;
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(fileName);
-
-    return publicUrl;
+    // Store the storage path (not a public URL) — admins can generate signed URLs on demand.
+    return fileName;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
