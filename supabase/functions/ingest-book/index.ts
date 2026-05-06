@@ -1,10 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { getDocument, GlobalWorkerOptions } from "https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.mjs";
-
-// pdf.js requires worker stub in Deno
-// @ts-ignore
-GlobalWorkerOptions.workerSrc = "https://esm.sh/pdfjs-dist@3.11.174/legacy/build/pdf.worker.mjs";
+import { extractText, getDocumentProxy } from "https://esm.sh/unpdf@0.12.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -37,15 +33,9 @@ function chunkText(text: string, chunkSize = 1000, overlap = 150): string[] {
 }
 
 async function extractPdfText(bytes: Uint8Array): Promise<string> {
-  const pdf = await getDocument({ data: bytes, useSystemFonts: true, disableFontFace: true }).promise;
-  let fullText = "";
-  for (let p = 1; p <= pdf.numPages; p++) {
-    const page = await pdf.getPage(p);
-    const content = await page.getTextContent();
-    const pageText = content.items.map((it: any) => it.str ?? "").join(" ");
-    fullText += pageText + "\n\n";
-  }
-  return fullText;
+  const pdf = await getDocumentProxy(bytes);
+  const { text } = await extractText(pdf, { mergePages: true });
+  return Array.isArray(text) ? text.join("\n\n") : text;
 }
 
 async function embedBatch(texts: string[]): Promise<number[][]> {
