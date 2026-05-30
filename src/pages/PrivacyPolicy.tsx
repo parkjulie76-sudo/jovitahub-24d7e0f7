@@ -20,7 +20,7 @@ const PrivacyPolicy = () => {
                   <strong>Effective Date:</strong> January 2025
                 </p>
                 <p className="text-muted-foreground">
-                  Jovita Hub ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website ebook.jovita.site and use our services.
+                  Creators Hub ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website ebook.jovita.site and use our services.
                 </p>
               </div>
 
