@@ -87,9 +87,9 @@ serve(async (req) => {
     const lastUser = [...messages].reverse().find((m: any) => m.role === "user");
     const bookContext = lastUser ? await retrieveBookContext(lastUser.content, LOVABLE_API_KEY) : "";
 
-    const baseSystemPrompt = `You are a helpful AI assistant for Jovita Hub, a platform that connects script writers and video editors to create impactful short-form videos for social causes.
+    const baseSystemPrompt = `You are a helpful AI assistant for Creators Hub, a platform that connects script writers and video editors to create impactful short-form videos for social causes.
 
-Key information about Jovita Hub:
+Key information about Creators Hub:
 - Script writers can earn $300-500 per month base fee plus sales commissions
 - Video editors can earn $700-900 per month base fee plus sales commissions
 - Combined script/video creators can earn $1000-1400 per month
@@ -102,7 +102,7 @@ Key information about Jovita Hub:
 Answer questions clearly and concisely. If you don't know something specific about policies or technical details, be honest and suggest contacting support.`;
 
     const systemPrompt = bookContext
-      ? `${baseSystemPrompt}\n\nYou also have access to the following excerpts from a reference book uploaded by the team. When the user's question relates to this content, prioritize answering from these excerpts and cite them as "the book". If the excerpts don't cover the question, fall back to your general knowledge of Jovita Hub.\n\n=== BOOK EXCERPTS ===\n${bookContext}\n=== END BOOK EXCERPTS ===`
+      ? `${baseSystemPrompt}\n\nYou also have access to the following excerpts from a reference book uploaded by the team. When the user's question relates to this content, prioritize answering from these excerpts and cite them as "the book". If the excerpts don't cover the question, fall back to your general knowledge of Creators Hub.\n\n=== BOOK EXCERPTS ===\n${bookContext}\n=== END BOOK EXCERPTS ===`
       : baseSystemPrompt;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

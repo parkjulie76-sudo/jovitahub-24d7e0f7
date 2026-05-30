@@ -460,7 +460,7 @@ const VideoCreators = () => {
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary mt-1" />
-                    <p>Content remains your intellectual property with exclusive commercial license to Jovita Hub</p>
+                    <p>Content remains your intellectual property with exclusive commercial license to Creators Hub</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary mt-1" />
@@ -468,7 +468,7 @@ const VideoCreators = () => {
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-primary mt-1" />
-                    <p>Peer-to-peer charity encouraged with 110% reimbursement from Jovita Hub</p>
+                    <p>Peer-to-peer charity encouraged with 110% reimbursement from Creators Hub</p>
                   </div>
                 </div>
               </Card>

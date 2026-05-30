@@ -10,7 +10,7 @@ type Message = { role: "user" | "assistant"; content: string };
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi! I'm here to help you learn about Jovita Hub. Ask me anything about becoming a creator, compensation, or how our platform works!" }
+    { role: "assistant", content: "Hi! I'm here to help you learn about Creators Hub. Ask me anything about becoming a creator, compensation, or how our platform works!" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -159,7 +159,7 @@ const Chatbot = () => {
           <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-lg">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              <span className="font-semibold">Jovita Hub Assistant</span>
+              <span className="font-semibold">Creators Hub Assistant</span>
             </div>
             <Button
               variant="ghost"

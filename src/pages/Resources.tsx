@@ -59,7 +59,7 @@ const Resources = () => {
               <div className="prose prose-slate dark:prose-invert max-w-none">
                 <h2 className="text-3xl font-bold mb-4">Transform Your Content into Income</h2>
                 <p className="text-lg text-muted-foreground mb-6">
-                  Welcome to JovitaHub Creator! We're thrilled to have you join our community and are committed to helping you transform your creative work into substantial income. Your success is our mission, and we're here to provide you with the tools, strategies, and support you need to thrive.
+                  Welcome to CreatorsHub Creator! We're thrilled to have you join our community and are committed to helping you transform your creative work into substantial income. Your success is our mission, and we're here to provide you with the tools, strategies, and support you need to thrive.
                 </p>
                 <p className="text-muted-foreground mb-8">
                   Your earnings are directly tied to the actual sales of your projects, making it crucial to create videos that are not only viral but also have a high sales conversion rate. This guide will walk you through the essential steps to achieve both virality and conversion.

@@ -14,7 +14,7 @@ const HelpCenter = () => {
     {
       icon: Users,
       title: "Getting Started",
-      description: "Learn the basics of joining and working with Jovita Hub",
+      description: "Learn the basics of joining and working with Creators Hub",
     },
     {
       icon: FileText,
@@ -82,7 +82,7 @@ const HelpCenter = () => {
     {
       category: "Support",
       question: "Who owns the content I create?",
-      answer: "You retain intellectual property rights to your scripts and creative work. However, you grant Jovita Hub an exclusive, worldwide, perpetual license for commercial use of the content. This allows us to use and distribute your work while you maintain ownership.",
+      answer: "You retain intellectual property rights to your scripts and creative work. However, you grant Creators Hub an exclusive, worldwide, perpetual license for commercial use of the content. This allows us to use and distribute your work while you maintain ownership.",
     },
     {
       category: "Support",
@@ -115,7 +115,7 @@ const HelpCenter = () => {
               Help Center
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Find answers to common questions and learn how to make the most of Jovita Hub
+              Find answers to common questions and learn how to make the most of Creators Hub
             </p>
 
             <div className="max-w-2xl mx-auto relative">

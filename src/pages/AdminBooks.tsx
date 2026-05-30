@@ -174,7 +174,7 @@ export default function AdminBooks() {
           <h1 className="text-3xl font-bold">Chatbot Knowledge — Books</h1>
         </div>
         <p className="text-muted-foreground mb-8">
-          Upload a PDF book. The chatbot will use its content (combined with Jovita Hub knowledge) to answer
+          Upload a PDF book. The chatbot will use its content (combined with Creators Hub knowledge) to answer
           user questions. Uploading a new book replaces the previous one.
         </p>
 

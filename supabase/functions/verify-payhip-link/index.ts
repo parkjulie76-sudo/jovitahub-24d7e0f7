@@ -66,7 +66,7 @@ serve(async (req) => {
         method: 'HEAD',
         redirect: 'follow',
         headers: {
-          'User-Agent': 'JovitaHub-Verification/1.0'
+          'User-Agent': 'CreatorsHub-Verification/1.0'
         }
       });
 
