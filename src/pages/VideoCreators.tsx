@@ -146,7 +146,7 @@ const VideoCreators = () => {
                     <h3 className="text-xl font-semibold mb-2">{t("videoCreators.projectName")}</h3>
                     <p className="text-muted-foreground">
                       <a 
-                        href="https://ebook.jovita.site/b/thzi7" 
+                        href="https://app.creatoors.net/b/thzi7" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
@@ -155,12 +155,12 @@ const VideoCreators = () => {
                       </a>
                     </p>
                     <a 
-                      href="https://ebook.jovita.site" 
+                      href="https://app.creatoors.net" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-sm text-primary hover:underline"
                     >
-                      ebook.jovita.site
+                      app.creatoors.net
                     </a>
                   </div>
                   <div>

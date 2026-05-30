@@ -18,7 +18,7 @@ const TermsOfService = () => {
               <div>
                 <h2 className="text-2xl font-bold mb-4">Company Information</h2>
                 <div className="space-y-2 text-muted-foreground">
-                  <p><strong>Company:</strong> ebook.jovita.site (Creators Hub)</p>
+                  <p><strong>Company:</strong> app.creatoors.net (Creators Hub)</p>
                   <p><strong>Legal Company Name:</strong> Shanghai WeiHao Film Co., Ltd 上海韦豪影视科技有限公司</p>
                   <p><strong>Registration ID:</strong> 91310114MA1GXNTP57</p>
                   <p><strong>Registered Address:</strong> Room JT8394, E 1st Fr, BL.4, 358-368 KeFu Road, JiaDing District, Shanghai, China. 201813</p>
@@ -142,7 +142,7 @@ const TermsOfService = () => {
                 <h2 className="text-2xl font-bold mb-4">9. Signatures</h2>
                 <div className="grid md:grid-cols-2 gap-6 text-muted-foreground">
                   <div>
-                    <p className="font-semibold mb-2">For Company (Creators Hub – ebook.jovita.site)</p>
+                    <p className="font-semibold mb-2">For Company (Creators Hub – app.creatoors.net)</p>
                     <p><strong>Name:</strong> FUJI PIAO (Julie Park)</p>
                     <p><strong>Title:</strong> Founder</p>
                   </div>

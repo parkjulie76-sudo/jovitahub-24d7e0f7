@@ -46,12 +46,12 @@ serve(async (req) => {
       );
     }
 
-    // Verify it's from ebook.jovita.site/b
-    if (url.hostname !== 'ebook.jovita.site' || !url.pathname.startsWith('/b')) {
+    // Verify it's from app.creatoors.net/b
+    if (url.hostname !== 'app.creatoors.net' || !url.pathname.startsWith('/b')) {
       return new Response(
         JSON.stringify({ 
           valid: false, 
-          error: 'Link must be from ebook.jovita.site/b domain' 
+          error: 'Link must be from app.creatoors.net/b domain' 
         }),
         { 
           status: 400, 
